@@ -15,17 +15,17 @@ router.post('/api/extension/geoenviron/', function (req, response) {
 
     'use strict';
 
-    let crss = {
+    var crss = {
         "proj": "+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs",
         "unproj": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
     };
 
-    let seqNoType = req.body.q.split(",")[4];
-    let bbox = req.body.q.split(",");
-    let p1 = utils.transform("EPSG:4326", "EPSG:25832", [bbox[0], bbox[1]]);
-    let p2 = utils.transform("EPSG:4326", "EPSG:25832", [bbox[2], bbox[3]]);
+    var seqNoType = req.body.q.split(",")[4];
+    var bbox = req.body.q.split(",");
+    var p1 = utils.transform("EPSG:4326", "EPSG:25832", [bbox[0], bbox[1]]);
+    var p2 = utils.transform("EPSG:4326", "EPSG:25832", [bbox[2], bbox[3]]);
 
-    let wkt = "POLYGON((" + [
+    var wkt = "POLYGON((" + [
             p1[0] + " " + p1[1],
             p1[0] + " " + p2[1],
             p2[0] + " " + p2[1],
@@ -33,13 +33,13 @@ router.post('/api/extension/geoenviron/', function (req, response) {
             p1[0] + " " + p1[1],
         ].join(",") + "))";
 
-    let url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/GetGeometries?$format=json&operators='within,overlaps'&geometryWKT='" + wkt + "'&$filter=";
+    var url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/GetGeometries?$format=json&operators='within,overlaps'&geometryWKT='" + wkt + "'&$filter=";
 
-    let filter = "SeqNoType eq '" + seqNoType + "'";
+    var filter = "SeqNoType eq '" + seqNoType + "'";
 
     //console.log(url)
 
-    let options = {
+    var options = {
         method: 'GET',
         uri: url + filter,
         auth: config.extensionConfig.geokon.auth
@@ -54,7 +54,7 @@ router.post('/api/extension/geoenviron/', function (req, response) {
 
         //console.log(body);
 
-        let gJSON = {
+        var gJSON = {
             "type": "FeatureCollection",
             "features": [],
             "success": true
@@ -68,7 +68,7 @@ router.post('/api/extension/geoenviron/', function (req, response) {
             return;
         }
 
-        let json;
+        var json;
         try {
             json = JSON.parse(body);
 
@@ -81,12 +81,12 @@ router.post('/api/extension/geoenviron/', function (req, response) {
         }
 
 
-        for (let i = 1; i < json.value.length; i++) {
+        for (var i = 1; i < json.value.length; i++) {
             // console.log(json.value[i]);
 
-            let unprojPrimitive = reproject.reproject(JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT))), "proj", "unproj", crss);
+            var unprojPrimitive = reproject.reproject(JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT))), "proj", "unproj", crss);
 
-            let v = JSON.parse(JSON.stringify(unprojPrimitive));
+            var v = JSON.parse(JSON.stringify(unprojPrimitive));
 
             delete v.bbox;
 
