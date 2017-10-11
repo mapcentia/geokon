@@ -6,12 +6,11 @@ var fs = require('fs');
 
 var reproject = require('reproject');
 var WKT = require('terraformer-wkt-parser');
-var utils = require('../../../../browser/modules/utils');
+var utils = require('../../../browser/modules/utils');
 
-var models = require('../../../../browser/modules/extensions/geokon/models');
+var models = require('../models');
 
-var config = require('../../../../config/config.js');
-
+var config = require('../../../config/config.js');
 
 router.post('/api/extension/geoenviron/:type', function (req, response) {
 
