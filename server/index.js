@@ -23,8 +23,8 @@ router.post('/api/extension/geoenviron/:type', function (req, response) {
 
     let type = req.params.type;
     let bbox = req.body.q.split(",");
-    let p1 = utils.transform("EPSG:4326", "EPSG:25832", [bbox[0], bbox[1]]);
-    let p2 = utils.transform("EPSG:4326", "EPSG:25832", [bbox[2], bbox[3]]);
+    let p1 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(bbox[0]), parseFloat(bbox[1])]);
+    let p2 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(bbox[2]), parseFloat(bbox[3])]);
 
     let wkt = "POLYGON((" + [
             p1[0] + " " + p1[1],
