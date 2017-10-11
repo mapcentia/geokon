@@ -8,24 +8,26 @@ var reproject = require('reproject');
 var WKT = require('terraformer-wkt-parser');
 var utils = require('../../../../browser/modules/utils');
 
+var models = require('../../../../browser/modules/extensions/geokon/models');
+
 var config = require('../../../../config/config.js');
 
 
-router.post('/api/extension/geoenviron/', function (req, response) {
+router.post('/api/extension/geoenviron/:type', function (req, response) {
 
     'use strict';
 
-    var crss = {
+    let crss = {
         "proj": "+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs",
         "unproj": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
     };
 
-    var seqNoType = req.body.q.split(",")[4];
-    var bbox = req.body.q.split(",");
-    var p1 = utils.transform("EPSG:4326", "EPSG:25832", [bbox[0], bbox[1]]);
-    var p2 = utils.transform("EPSG:4326", "EPSG:25832", [bbox[2], bbox[3]]);
+    let type = req.params.type;
+    let bbox = req.body.q.split(",");
+    let p1 = utils.transform("EPSG:4326", "EPSG:25832", [bbox[0], bbox[1]]);
+    let p2 = utils.transform("EPSG:4326", "EPSG:25832", [bbox[2], bbox[3]]);
 
-    var wkt = "POLYGON((" + [
+    let wkt = "POLYGON((" + [
             p1[0] + " " + p1[1],
             p1[0] + " " + p2[1],
             p2[0] + " " + p2[1],
@@ -33,16 +35,20 @@ router.post('/api/extension/geoenviron/', function (req, response) {
             p1[0] + " " + p1[1],
         ].join(",") + "))";
 
-    var url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/GetGeometries?$format=json&operators='within,overlaps'&geometryWKT='" + wkt + "'&$filter=";
+    let url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
 
-    var filter = "SeqNoType eq '" + seqNoType + "'";
+    //let filter = "SeqNoType eq '" + seqNoType + "'";
 
-    //console.log(url)
+    console.log(url)
 
-    var options = {
+    let options = {
         method: 'GET',
-        uri: url + filter,
-        auth: config.extensionConfig.geokon.auth
+        uri: url,
+        auth: config.extensionConfig.geokon.auth,
+        headers: {
+            'auth-token': 'admin',
+            'ip-address': '192.168.0.0'
+        },
     };
 
     request(options, function (err, res, body) {
@@ -52,9 +58,9 @@ router.post('/api/extension/geoenviron/', function (req, response) {
         response.header('Expires', '0');
 
 
-        //console.log(body);
+        console.log(body);
 
-        var gJSON = {
+        let gJSON = {
             "type": "FeatureCollection",
             "features": [],
             "success": true
@@ -68,7 +74,7 @@ router.post('/api/extension/geoenviron/', function (req, response) {
             return;
         }
 
-        var json;
+        let json;
         try {
             json = JSON.parse(body);
 
@@ -80,13 +86,20 @@ router.post('/api/extension/geoenviron/', function (req, response) {
             return;
         }
 
+        //console.log(models.Companies)
 
-        for (var i = 1; i < json.value.length; i++) {
-            // console.log(json.value[i]);
+        for (let i = 1; i < json.value.length; i++) {
+            //console.log(json.value[i]);
 
-            var unprojPrimitive = reproject.reproject(JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT))), "proj", "unproj", crss);
+            let unprojPrimitive = reproject.reproject(JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT))), "proj", "unproj", crss);
 
-            var v = JSON.parse(JSON.stringify(unprojPrimitive));
+            let v = JSON.parse(JSON.stringify(unprojPrimitive));
+
+            var properties = {};
+
+            models.Companies.map(function (e) {
+                properties[e.key] = json.value[i][e.key];
+            });
 
             delete v.bbox;
 
@@ -94,15 +107,11 @@ router.post('/api/extension/geoenviron/', function (req, response) {
                 {
                     "type": "Feature",
                     "geometry": v,
-                    "properties": {
-                       "SeqNo": json.value[i].SeqNo,
-                       // "Name": json.value[i].Name
-                    }
+                    "properties": properties
                 }
             )
 
         }
-
 
 
         response.send(gJSON);
