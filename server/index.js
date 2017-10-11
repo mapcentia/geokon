@@ -45,8 +45,8 @@ router.post('/api/extension/geoenviron/:type', function (req, response) {
         uri: url,
         auth: config.extensionConfig.geokon.auth,
         headers: {
-            'auth-token': 'admin',
-            'ip-address': '192.168.0.0'
+            'auth-token': config.extensionConfig.geokon.headers.token,
+            'ip-address': config.extensionConfig.geokon.headers.ip
         },
     };
 
