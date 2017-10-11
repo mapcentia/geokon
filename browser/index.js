@@ -29,28 +29,16 @@ var layers;
  */
 var backboneEvents;
 
-
-/**
- *
- * @type {boolean}
- */
-var active = false;
-
 var mapObj;
-var clicktimer;
 
 var store = [];
 var table = [];
-
 
 /**
  *
  * @type {string}
  */
 var exId = "geoenviron";
-
-
-var xhr;
 
 /**
  *
@@ -92,6 +80,7 @@ module.exports = module.exports = {
         mapObj = cloud.get().map;
 
 
+
         var dict = {
 
             "Info": {
@@ -122,22 +111,22 @@ module.exports = module.exports = {
 
 
         const entities = [
-            {"seqNoType": "virk", "title": "Company"},
-            {"seqNoType": "agr", "title": "Agriculture"},
-            {"seqNoType": "agrsto", "title": "AgricultureStorage"},
-            {"seqNoType": "open", "title": "OpenCountry"},
-            {"seqNoType": "octank", "title": "OpenCountryTank"},
-            {"seqNoType": "ocpur", "title": "OpenCountryPurification"},
-            {"seqNoType": "water", "title": "WaterCatchmentPlant"},
-            {"seqNoType": "tank", "title": "Tank"},
-            {"seqNoType": "sep", "title": "Separator"},
-            {"seqNoType": "sdtrap", "title": "SandTrap"},
-            {"seqNoType": "heat", "title": "GeothermalHeatSystem"},
-            {"seqNoType": "boring", "title": "Boring"},
-            {"seqNoType": "act", "title": "ContaminatedLandActivity"},
-            {"seqNoType": "sta", "title": "Station"},
-            {"seqNoType": "wmill", "title": "Windmill"},
-            {"seqNoType": "bld", "title": "BldCasefile"}
+            {"type": "Companies", "title": "Companies"},
+            {"type": "Agricultures", "title": "Agricultures"},
+            {"type": "AgricultureStorages", "title": "AgricultureStorages"},
+            {"type": "OpenCountries", "title": "OpenCountries"},
+            {"type": "OpenCountryTanks", "title": "OpenCountryTanks"},
+            {"type": "OpenCountryPurifications", "title": "OpenCountryPurifications"},
+            {"type": "WaterCatchmentPlants", "title": "WaterCatchmentPlants"},
+            {"type": "Tanks", "title": "Tanks"},
+            {"type": "Separators", "title": "Separators"},
+            {"type": "SandTraps", "title": "SandTraps"},
+            {"type": "GeothermalHeatSystems", "title": "GeothermalHeatSystems"},
+            {"type": "Borings", "title": "Borings"},
+            {"type": "ContaminatedLandActivities", "title": "ContaminatedLandActivities"},
+            {"type": "Stations", "title": "Stations"},
+            {"type": "Windmills", "title": "Windmills"},
+            {"type": "BldCasefiles", "title": "BldCasefiles"}
         ];
 
         /**
@@ -158,9 +147,9 @@ module.exports = module.exports = {
 
                 this.listEntities = entities.map((entity) =>
 
-                    <li key={entity.seqNoType} className="layer-item list-group-item">
+                    <li key={entity.type} className="layer-item list-group-item">
                         <div className="checkbox"><label className="overlay-label" style={this.vWidth}><input
-                            type="checkbox" data-key={entity.seqNoType} onChange={this.switch}/>{entity.title}
+                            type="checkbox" data-key={entity.type} onChange={this.switch}/>{entity.title}
                         </label><span className="geoenviron-table-label label label-primary">Table</span>
                         </div>
                     </li>
@@ -229,6 +218,17 @@ module.exports = module.exports = {
 
         let me = this;
 
+        var models = require('../models'), cm = [];
+
+
+        $.each(models[index], function (i, v) {
+            cm.push({
+                header: v.alias,
+                dataIndex: v.key,
+                sortable: true
+            });
+        });
+
         $("div").remove("#" + index);
         $("#info-modal-body-wrapper .modal-body").append('<div class="geoenviron-attr-table" id="' + index + '"><table id="geoenviron-table_' + index + '"></table></div>');
 
@@ -237,7 +237,7 @@ module.exports = module.exports = {
             method: "POST",
             host: "",
             db: "",
-            uri: "/api/extension/geoenviron",
+            uri: "/api/extension/geoenviron/" + index,
             clickable: true,
             id: index,
             styleMap: {
@@ -272,11 +272,7 @@ module.exports = module.exports = {
             el: "#geoenviron-table_" + index,
             geocloud2: cloud.get(),
             store: store[index],
-            cm: [{
-                header: "SeqNo",
-                dataIndex: "SeqNo",
-                sortable: true
-            }],
+            cm: cm,
             autoUpdate: true,
             autoPan: true,
             openPopUp: true,
@@ -298,6 +294,9 @@ module.exports = module.exports = {
         store[index].abort();
         store[index].reset();
         cloud.get().removeGeoJsonStore(store[index]);
+
+        table[index].moveEndOff();
+
         $("#geoenviron-table").empty();
 
     }
