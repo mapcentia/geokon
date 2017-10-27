@@ -85,7 +85,7 @@ router.post('/api/extension/geoenviron/:type', function (req, response) {
             return;
         }
 
-        //console.log(models.Companies)
+        //console.log(models[type])
 
         for (let i = 1; i < json.value.length; i++) {
             //console.log(json.value[i]);
@@ -96,7 +96,7 @@ router.post('/api/extension/geoenviron/:type', function (req, response) {
 
             var properties = {};
 
-            models.Companies.map(function (e) {
+            models[type].map(function (e) {
                 properties[e.key] = json.value[i][e.key];
             });
 
