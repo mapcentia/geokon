@@ -156,6 +156,10 @@ module.exports = module.exports = {
                     width: "calc(100% - 50px)"
                 };
 
+                this.hand = {
+                    cursor: "pointer"
+                };
+
                 this.switch = this.switch.bind(this);
 
                 this.listEntities = entities.map((entity) =>
@@ -163,7 +167,7 @@ module.exports = module.exports = {
                     <li key={entity.type} className="layer-item list-group-item">
                         <div className="checkbox"><label className="overlay-label" style={this.vWidth}><input
                             type="checkbox" data-key={entity.type} onChange={this.switch}/>{entity.title}
-                        </label><span className="geoenviron-table-label label label-primary">Table</span>
+                        </label><span className="geoenviron-table-label label label-primary" style={this.hand}>Table</span>
                         </div>
                     </li>
                 )
@@ -232,9 +236,7 @@ module.exports = module.exports = {
         let me = this;
         let seq = seqNo !== undefined ? seqNo : -999;
 
-
         var models = require('../models'), cm = [];
-
 
         $.each(models[type], function (i, v) {
             cm.push({
@@ -257,12 +259,12 @@ module.exports = module.exports = {
             id: type,
             styleMap: {
                 weight: 5,
-                color: '#ff0000',
+                color: seq === -999 ? '#ff0000' : '#0000ff',
                 dashArray: '',
                 fillOpacity: 0.2
             },
             error: function (e) {
-                console.log(e)
+                console.error(e);
                 if (e.status !== 0) {
                     alert("Got an error from GeoEnviron")
                 }
@@ -271,16 +273,18 @@ module.exports = module.exports = {
             sql: "{minX},{minY},{maxX},{maxY}," + seq,
 
             loading: function () {
-                //layers.incrementCountLoading(index);
-                //backboneEvents.get().trigger("startLoading:layers", index);
+                layers.incrementCountLoading(type);
+                backboneEvents.get().trigger("startLoading:layers", type);
                 console.log("loading");
             },
 
             onLoad: function () {
+                layers.decrementCountLoading(type);
+                backboneEvents.get().trigger("doneLoading:layers");
                if (seq !== -999) {
-                   backboneEvents.get().on("end:state", function () {
+                   //backboneEvents.get().on("end:state", function () {
                        cloud.get().zoomToExtentOfgeoJsonStore(store[type], 16);
-                   });
+                   //});
                }
             }
         });
