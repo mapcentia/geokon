@@ -29,6 +29,13 @@ var layers;
  */
 var backboneEvents;
 
+/**
+ *
+ * @type {*|exports|module.exports}
+ */
+var urlVars = require('./../../../browser/modules/urlparser').urlVars;
+
+
 var mapObj;
 
 var store = [];
@@ -78,6 +85,12 @@ module.exports = module.exports = {
         var ReactDOM = require('react-dom');
 
         mapObj = cloud.get().map;
+
+        if (urlVars.seqno !== undefined && urlVars.type !== undefined) {
+            //alert(urlVars.seqno);
+
+            this.request(urlVars.type.split("#")[0], urlVars.seqno.split("#")[0])
+        }
 
 
 
@@ -203,25 +216,27 @@ module.exports = module.exports = {
         }
 
         $(".geoenviron-table-label").on("click", function (e) {
-            let index = ($(this).prev().children("input").data('key'));
+            let type = ($(this).prev().children("input").data('key'));
             $(".geoenviron-attr-table").hide();
-            $("#" + index).show();
+            $("#" + type).show();
             $("#info-modal").animate({right: "0"}, 200);
-            $("#info-modal .modal-title").html(index);
+            $("#info-modal .modal-title").html(type);
             e.stopPropagation();
         });
 
 
     },
 
-    request: function (index) {
+    request: function (type, seqNo, zoom) {
 
         let me = this;
+        let seq = seqNo !== undefined ? seqNo : -999;
+
 
         var models = require('../models'), cm = [];
 
 
-        $.each(models[index], function (i, v) {
+        $.each(models[type], function (i, v) {
             cm.push({
                 header: v.alias,
                 dataIndex: v.key,
@@ -229,17 +244,17 @@ module.exports = module.exports = {
             });
         });
 
-        $("div").remove("#" + index);
-        $("#info-modal-body-wrapper .modal-body").append('<div class="geoenviron-attr-table" id="' + index + '"><table id="geoenviron-table_' + index + '"></table></div>');
+        $("div").remove("#" + type);
+        $("#info-modal-body-wrapper .modal-body").append('<div class="geoenviron-attr-table" id="' + type + '"><table id="geoenviron-table_' + type + '" data-detail-view="true" data-detail-formatter="detailFormatter" data-show-toggle="true" data-show-export="true" data-show-columns="true"></table></div>');
 
-        store[index] = new geocloud.sqlStore({
+        store[type] = new geocloud.sqlStore({
             jsonp: false,
             method: "POST",
             host: "",
             db: "",
-            uri: "/api/extension/geoenviron/" + index,
+            uri: "/api/extension/geoenviron/" + type,
             clickable: true,
-            id: index,
+            id: type,
             styleMap: {
                 weight: 5,
                 color: '#ff0000',
@@ -253,7 +268,7 @@ module.exports = module.exports = {
                 }
             },
 
-            sql: "{minX},{minY},{maxX},{maxY}," + index,
+            sql: "{minX},{minY},{maxX},{maxY}," + seq,
 
             loading: function () {
                 //layers.incrementCountLoading(index);
@@ -261,41 +276,43 @@ module.exports = module.exports = {
                 console.log("loading");
             },
 
-            // Set _vidi_type on all vector layers,
-            // so they can be recreated as query layers
-            // after serialization
-            // ========================================
-
+            onLoad: function () {
+               if (seq !== -999) {
+                   backboneEvents.get().on("end:state", function () {
+                       cloud.get().zoomToExtentOfgeoJsonStore(store[type], 16);
+                   });
+               }
+            }
         });
 
-        table[index] = gc2table.init({
-            el: "#geoenviron-table_" + index,
+        table[type] = gc2table.init({
+            el: "#geoenviron-table_" + type,
             geocloud2: cloud.get(),
-            store: store[index],
+            store: store[type],
             cm: cm,
-            autoUpdate: true,
+            autoUpdate: seq === -999,
             autoPan: true,
             openPopUp: true,
             setViewOnSelect: false,
             responsive: false,
-            callCustomOnload: false,
+            callCustomOnload: true,
             height: 400,
             locale: window._vidiLocale.replace("_", "-"),
-            ns: "#" + index
+            ns: "#" + type
             //template: templateb"
         });
 
-        cloud.get().addGeoJsonStore(store[index]);
-        store[index].load();
+        cloud.get().addGeoJsonStore(store[type]);
+        store[type].load();
 
     },
 
-    clear: function (index) {
-        store[index].abort();
-        store[index].reset();
-        cloud.get().removeGeoJsonStore(store[index]);
+    clear: function (type) {
+        store[type].abort();
+        store[type].reset();
+        cloud.get().removeGeoJsonStore(store[type]);
 
-        table[index].moveEndOff();
+        table[type].moveEndOff();
 
         $("#geoenviron-table").empty();
 

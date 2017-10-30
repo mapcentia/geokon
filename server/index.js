@@ -21,10 +21,11 @@ router.post('/api/extension/geoenviron/:type', function (req, response) {
         "unproj": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
     };
 
+    let url;
     let type = req.params.type;
-    let bbox = req.body.q.split(",");
-    let p1 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(bbox[0]), parseFloat(bbox[1])]);
-    let p2 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(bbox[2]), parseFloat(bbox[3])]);
+    let params = req.body.q.split(",");
+    let p1 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(params[0]), parseFloat(params[1])]);
+    let p2 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(params[2]), parseFloat(params[3])]);
 
     let wkt = "POLYGON((" + [
             p1[0] + " " + p1[1],
@@ -34,9 +35,11 @@ router.post('/api/extension/geoenviron/:type', function (req, response) {
             p1[0] + " " + p1[1],
         ].join(",") + "))";
 
-    let url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
-
-    //let filter = "SeqNoType eq '" + seqNoType + "'";
+    if (parseInt(params[4]) > 0) {
+        url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"?$format=json&$filter=SeqNo eq " + params[4] + "";
+    } else {
+        url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
+    }
 
     console.log(url)
 
@@ -87,7 +90,7 @@ router.post('/api/extension/geoenviron/:type', function (req, response) {
 
         //console.log(models[type])
 
-        for (let i = 1; i < json.value.length; i++) {
+        for (let i = 0; i < json.value.length; i++) {
             //console.log(json.value[i]);
 
             let unprojPrimitive = reproject.reproject(JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT))), "proj", "unproj", crss);
