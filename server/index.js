@@ -36,7 +36,7 @@ router.post('/api/extension/geoenviron/:type', function (req, response) {
         ].join(",") + "))";
 
     if (parseInt(params[4]) > 0) {
-        url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"?$format=json&$filter=SeqNo eq " + params[4] + "";
+        url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"?$format=json&$filter=SeqNo eq " + params[4];
     } else {
         url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
     }
@@ -99,7 +99,7 @@ router.post('/api/extension/geoenviron/:type', function (req, response) {
 
             var properties = {};
 
-            models[type].map(function (e) {
+            models[type].fields.map(function (e) {
                 properties[e.key] = json.value[i][e.key];
             });
 

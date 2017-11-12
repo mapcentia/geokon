@@ -2,203 +2,303 @@
  * Created by mh on 10/4/17.
  */
 module.exports = {
-    Companies: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+    Companies: {
+        alias: "Virksomheder",
+        seqNoType: "virk",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        },{
-            key: "Id",
-            alias: "Id"
+            }, {
+                key: "Id",
+                alias: "Lok nr."
 
-        }, {
-            key: "Name",
-            alias: "Navn"
+            }, {
+                key: "Name",
+                alias: "Virksomhedsnavn"
 
-        }, {
-            key: "Address",
-            alias: "Adresse"
+            }, {
+                key: "Status",
+                alias: "Status"
 
-        }
-    ],
+            }, {
+                key: "MainActivity",
+                alias: "Hovedaktivitet"
 
-    Agricultures: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }, {
+                key: "SecondaryActivity",
+                alias: "bi-ktivitet"
 
-        },{
-            key: "Id",
-            alias: "Id"
+            }, {
+                key: "EstablishDate",
+                alias: "Etableret"
 
-        }
-    ],
+            }, {
+                key: "LastInspectionDate",
+                alias: "Tilsyn"
 
-    AgricultureStorages: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }, {
+                key: "EnvApprovalDate",
+                alias: "Miljøgodk"
 
-        },{
-            key: "Id",
-            alias: "Id"
+            }, {
+                key: "OfficerId",
+                alias: "Sagsbehandler"
 
-        }
-    ],
+            }, {
+                key: "GELink",
+                alias: "GELink",
+                link: true
 
-    OpenCountries: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }
+        ]
+    },
 
-        },{
-            key: "Id",
-            alias: "Id"
+    Agricultures: {
+        alias: "Landbrug",
+        seqNoType: "agr",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        }
-    ],
+            }, {
+                key: "Id",
+                alias: "Id"
 
-    OpenCountryTanks: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }
+        ]
+    },
 
-        },{
-            key: "Id",
-            alias: "Id"
+    AgricultureStorages: {
+        alias: "Gyllebeholdere",
+        seqNoType: "agrsto",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        }
-    ],
+            }, {
+                key: "Id",
+                alias: "Id"
 
-    OpenCountryPurifications: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }
+        ]
+    },
 
-        },{
-            key: "Id",
-            alias: "Id"
+    OpenCountries: {
+        alias: "Åbent Land lokalitet",
+        seqNoType: "open",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        }
-    ],
+            }, {
+                key: "Id",
+                alias: "Id"
 
-    WaterCatchmentPlants: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }
+        ]
+    },
 
-        },{
-            key: "Id",
-            alias: "Id"
+    OpenCountryTanks: {
+        alias: "Spildevandstank i det åbne land",
+        seqNoType: "octank",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        }
-    ],
+            }, {
+                key: "Id",
+                alias: "Id"
 
-    Tanks: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }
+        ]
+    },
 
-        },{
-            key: "Id",
-            alias: "Id"
+    OpenCountryPurifications: {
+        alias: "Rensningsanlæg i det åbne land",
+        seqNoType: "ocpur",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        }
-    ],
+            }, {
+                key: "Id",
+                alias: "Id"
 
-    Separators: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }
+        ]
+    },
 
-        },{
-            key: "Id",
-            alias: "Id"
+    WaterCatchmentPlants: {
+        alias: "Vandindvindingsanlæg",
+        seqNoType: "water",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        }
-    ],
+            }, {
+                key: "Id",
+                alias: "Id"
 
-    SandTraps: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }
+        ]
+    },
 
-        },{
-            key: "Id",
-            alias: "Id"
+    Tanks: {
+        alias: "Olie- og kemikalietanke",
+        seqNoType: "tank",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        }
-    ],
+            }, {
+                key: "Id",
+                alias: "Id"
 
-    GeothermalHeatSystems: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }
+        ]
+    },
 
-        },{
-            key: "Id",
-            alias: "Id"
+    Separators: {
+        alias: "Udskillere",
+        seqNoType: "sep",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        }
-    ],
+            }, {
+                key: "Id",
+                alias: "Id"
 
-    Borings: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }
+        ]
+    },
 
-        },{
-            key: "Id",
-            alias: "Id"
+    SandTraps: {
+        alias: "Sandfang",
+        seqNoType: "sdtrap",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        }
-    ],
+            }, {
+                key: "Id",
+                alias: "Id"
 
-    ContaminatedLandActivities: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }
+        ]
+    },
 
-        },{
-            key: "Id",
-            alias: "Id"
+    GeothermalHeatSystems: {
+        alias: "Jordvarmeanlæg",
+        seqNoType: "heat",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        }
-    ],
+            }, {
+                key: "Id",
+                alias: "Id"
 
-    Stations: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }
+        ]
+    },
 
-        },{
-            key: "Id",
-            alias: "Id"
+    Borings: {
+        alias: "Boringer",
+        seqNoType: "boring",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-        }
-    ],
+            },
+            {
+                key: "Id",
+                alias: "Id"
 
-    Windmills: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
 
-        },{
-            key: "Id",
-            alias: "Id"
+            }
+        ]
+    },
 
-        }
-    ],
+    ContaminatedLandActivities: {
+        alias: "Jordforureningsaktiviteter",
+        seqNoType: "act",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
 
-    BldCasefiles: [
-        {
-            key: "SeqNo",
-            alias: "SeqNo"
+            }, {
+                key: "Id",
+                alias: "Id"
 
-        },{
-            key: "Id",
-            alias: "Id"
+            }
+        ]
+    },
 
-        }
-    ]
+    Stations: {
+        alias: "Stationer/udløb - vandløb",
+        seqNoType: "sta",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
+
+            }, {
+                key: "Id",
+                alias: "Id"
+
+            }
+        ]
+    },
+
+    Windmills: {
+        alias: "Vindmøller",
+        seqNoType: "wmill",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
+
+            }, {
+                key: "Id",
+                alias: "Id"
+
+            }
+        ]
+    },
+
+    BldCasefiles: {
+        alias: "Byggesager",
+        seqNoType: "bld",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
+
+            }, {
+                key: "Id",
+                alias: "Id"
+
+            }
+        ]
+    }
 };

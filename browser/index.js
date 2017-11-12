@@ -41,6 +41,8 @@ var mapObj;
 var store = [];
 var table = [];
 
+var models = require('../models');
+
 /**
  *
  * @type {string}
@@ -87,11 +89,18 @@ module.exports = module.exports = {
         mapObj = cloud.get().map;
 
         if (urlVars.seqno !== undefined && urlVars.type !== undefined) {
-            //alert(urlVars.seqno);
 
-            this.request(urlVars.type.split("#")[0], urlVars.seqno.split("#")[0])
+            var type, seqNoType, me = this;
+
+            $.each(models, function (i, v) {
+                if (v.seqNoType === urlVars.type.split("#")[0]) {
+                    seqNoType = v.seqNoType;
+                    type = i;
+                    me.request(type, seqNoType, urlVars.seqno.split("#")[0])
+                }
+            });
+
         }
-
 
 
         var dict = {
@@ -123,24 +132,11 @@ module.exports = module.exports = {
         utils.createMainTab(exId, utils.__("GeoEnviron", dict), utils.__("Info", dict), require('./../../../browser/modules/height')().max);
 
 
-        const entities = [
-            {"type": "Companies", "title": "Companies"},
-            {"type": "Agricultures", "title": "Agricultures"},
-            {"type": "AgricultureStorages", "title": "AgricultureStorages"},
-            {"type": "OpenCountries", "title": "OpenCountries"},
-            {"type": "OpenCountryTanks", "title": "OpenCountryTanks"},
-            {"type": "OpenCountryPurifications", "title": "OpenCountryPurifications"},
-            {"type": "WaterCatchmentPlants", "title": "WaterCatchmentPlants"},
-            {"type": "Tanks", "title": "Tanks"},
-            {"type": "Separators", "title": "Separators"},
-            {"type": "SandTraps", "title": "SandTraps"},
-            {"type": "GeothermalHeatSystems", "title": "GeothermalHeatSystems"},
-            {"type": "Borings", "title": "Borings"},
-            {"type": "ContaminatedLandActivities", "title": "ContaminatedLandActivities"},
-            {"type": "Stations", "title": "Stations"},
-            {"type": "Windmills", "title": "Windmills"},
-            {"type": "BldCasefiles", "title": "BldCasefiles"}
-        ];
+        var entities = [];
+
+        $.each(models, function (i, v) {
+            entities.push({"type": i, "title": v.alias})
+        });
 
         /**
          *
@@ -166,7 +162,7 @@ module.exports = module.exports = {
 
                     <li key={entity.type} className="layer-item list-group-item">
                         <div className="checkbox"><label className="overlay-label" style={this.vWidth}><input
-                            type="checkbox" data-key={entity.type} onChange={this.switch}/>{entity.title}
+                            type="checkbox" data-key={entity.type} data-title={entity.title} onChange={this.switch}/>{entity.title}
                         </label><span className="geoenviron-table-label label label-primary" style={this.hand}>Table</span>
                         </div>
                     </li>
@@ -221,28 +217,30 @@ module.exports = module.exports = {
 
         $(".geoenviron-table-label").on("click", function (e) {
             let type = ($(this).prev().children("input").data('key'));
+            let title = ($(this).prev().children("input").data('title'));
             $(".geoenviron-attr-table").hide();
             $("#" + type).show();
             $("#info-modal").animate({right: "0"}, 200);
-            $("#info-modal .modal-title").html(type);
+            $("#info-modal .modal-title").html(title);
             e.stopPropagation();
         });
 
 
     },
 
-    request: function (type, seqNo, zoom) {
+    request: function (type, seqNoType, seqNo, zoom) {
 
         let me = this;
         let seq = seqNo !== undefined ? seqNo : -999;
 
-        var models = require('../models'), cm = [];
+        var cm = [];
 
-        $.each(models[type], function (i, v) {
+        $.each(models[type].fields, function (i, v) {
             cm.push({
                 header: v.alias,
                 dataIndex: v.key,
-                sortable: true
+                sortable: true,
+                link: v.link
             });
         });
 
