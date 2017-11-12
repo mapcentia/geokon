@@ -67,6 +67,12 @@ module.exports = {
                 key: "Id",
                 alias: "Id"
 
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
+
             }
         ]
     },
@@ -82,6 +88,12 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
 
             }
         ]
@@ -99,6 +111,12 @@ module.exports = {
                 key: "Id",
                 alias: "Id"
 
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
+
             }
         ]
     },
@@ -114,6 +132,12 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
 
             }
         ]
@@ -131,6 +155,12 @@ module.exports = {
                 key: "Id",
                 alias: "Id"
 
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
+
             }
         ]
     },
@@ -146,6 +176,12 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
 
             }
         ]
@@ -163,6 +199,12 @@ module.exports = {
                 key: "Id",
                 alias: "Id"
 
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
+
             }
         ]
     },
@@ -178,6 +220,12 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
 
             }
         ]
@@ -195,6 +243,12 @@ module.exports = {
                 key: "Id",
                 alias: "Id"
 
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
+
             }
         ]
     },
@@ -210,6 +264,12 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
 
             }
         ]
@@ -250,6 +310,12 @@ module.exports = {
                 key: "Id",
                 alias: "Id"
 
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
+
             }
         ]
     },
@@ -265,6 +331,12 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
 
             }
         ]
@@ -282,6 +354,12 @@ module.exports = {
                 key: "Id",
                 alias: "Id"
 
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
+
             }
         ]
     },
@@ -297,6 +375,12 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            },
+            {
+                key: "GELink",
+                alias: "GELink",
+                link: true
 
             }
         ]
