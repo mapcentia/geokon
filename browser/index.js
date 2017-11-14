@@ -33,6 +33,12 @@ var backboneEvents;
  *
  * @type {*|exports|module.exports}
  */
+var anchor;
+
+/**
+ *
+ * @type {*|exports|module.exports}
+ */
 var urlVars = require('./../../../browser/modules/urlparser').urlVars;
 
 
@@ -65,6 +71,7 @@ module.exports = module.exports = {
         cloud = o.cloud;
         utils = o.utils;
         layers = o.layers;
+        anchor = o.anchor;
         backboneEvents = o.backboneEvents;
         return this;
     },
@@ -86,6 +93,14 @@ module.exports = module.exports = {
          */
         var ReactDOM = require('react-dom');
 
+        $(document).arrive('.custom-popup a', function () {
+            $(this).on("click", function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                history.pushState(null, null, anchor.init() + "¤" + $(this)[0].href.split("?")[1]);
+            });
+        });
+
         mapObj = cloud.get().map;
 
         if (urlVars.seqno !== undefined && urlVars.type !== undefined) {
@@ -101,7 +116,6 @@ module.exports = module.exports = {
             });
 
         }
-
 
         var dict = {
 
