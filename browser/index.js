@@ -93,6 +93,8 @@ module.exports = module.exports = {
          */
         var ReactDOM = require('react-dom');
 
+        var me = this;
+
         $(document).arrive('.custom-popup a', function () {
             $(this).on("click", function (e) {
                 e.preventDefault();
@@ -105,7 +107,7 @@ module.exports = module.exports = {
 
         if (urlVars.seqno !== undefined && urlVars.type !== undefined) {
 
-            var type, seqNoType, me = this;
+            var type, seqNoType;
 
             $.each(models, function (i, v) {
                 if (v.seqNoType === urlVars.type.split("#")[0]) {
@@ -116,6 +118,27 @@ module.exports = module.exports = {
             });
 
         }
+
+        // Listen to change in hash
+        window.onhashchange = function () {
+            var type, seqNoType, urlVars;
+
+            urlVars = (function getUrlVars() {
+                var mapvars = {};
+                var parts = window.location.hash.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+                    mapvars[key] = value;
+                });
+                return mapvars;
+            })();
+
+            $.each(models, function (i, v) {
+                if (v.seqNoType === urlVars.type.split("#")[0]) {
+                    seqNoType = v.seqNoType;
+                    type = i;
+                    me.request(type, seqNoType, urlVars.seqno.split("#")[0])
+                }
+            });
+        };
 
         var dict = {
 
@@ -145,17 +168,25 @@ module.exports = module.exports = {
 
         utils.createMainTab(exId, utils.__("GeoEnviron", dict), utils.__("Info", dict), require('./../../../browser/modules/height')().max);
 
+        var getypes = urlVars.getypes.split(",");
+
+        getypes = getypes.map(function (e) {
+            return e.split("#")[0];
+        });
 
         var entities = [];
 
         $.each(models, function (i, v) {
-            entities.push({"type": i, "title": v.alias})
+            if (getypes.indexOf(v.seqNoType) !== -1) {
+                entities.push({"type": i, "title": v.alias})
+            }
         });
 
         /**
          *
          */
         class GeoEnviron extends React.Component {
+
             constructor(props) {
 
                 super(props);
@@ -246,8 +277,11 @@ module.exports = module.exports = {
 
         let me = this;
         let seq = seqNo !== undefined ? seqNo : -999;
+        let cm = [];
 
-        var cm = [];
+        try {
+            store[type].reset();
+        } catch (e) {}
 
         $.each(models[type].fields, function (i, v) {
             cm.push({
