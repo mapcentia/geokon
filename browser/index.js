@@ -46,6 +46,8 @@ var mapObj;
 
 var store = [];
 var table = [];
+var getypes;
+
 
 var models = require('../models');
 
@@ -168,18 +170,26 @@ module.exports = module.exports = {
 
         utils.createMainTab(exId, utils.__("GeoEnviron", dict), utils.__("Info", dict), require('./../../../browser/modules/height')().max);
 
-        var getypes = urlVars.getypes.split(",");
+        // Get GE types from URL param
+        if (urlVars.getypes) {
+            getypes = urlVars.getypes.split(",");
 
-        getypes = getypes.map(function (e) {
-            return e.split("#")[0];
-        });
+        } else {
+            getypes = [];
+        }
+
+        if (getypes.length > 0) {
+            getypes = getypes.map(function (e) {
+                return e.split("#")[0];
+            });
+        }
 
         var entities = [];
 
         $.each(models, function (i, v) {
-            if (getypes.indexOf(v.seqNoType) !== -1) {
-                entities.push({"type": i, "title": v.alias})
-            }
+            //if (getypes.indexOf(v.seqNoType) !== -1) {
+            entities.push({"type": i, "title": v.alias, "show": (getypes.indexOf(v.seqNoType) !== -1)})
+            //}
         });
 
         /**
@@ -207,8 +217,10 @@ module.exports = module.exports = {
 
                     <li key={entity.type} className="layer-item list-group-item">
                         <div className="checkbox"><label className="overlay-label" style={this.vWidth}><input
-                            type="checkbox" data-key={entity.type} data-title={entity.title} onChange={this.switch}/>{entity.title}
-                        </label><span className="geoenviron-table-label label label-primary" style={this.hand}>Table</span>
+                            type="checkbox" data-key={entity.type} data-title={entity.title}
+                            onChange={this.switch} defaultChecked={entity.show}/>{entity.title}
+                        </label><span className="geoenviron-table-label label label-primary"
+                                      style={this.hand}>Table</span>
                         </div>
                     </li>
                 )
@@ -217,10 +229,24 @@ module.exports = module.exports = {
             componentDidMount() {
 
                 var me = this;
+                $.each(models, function (i, v) {
+                    if (getypes.indexOf(v.seqNoType) !== -1) {
+                        me.switch({
+                            target: {
+                                dataset: {
+                                    key: i
+                                },
+                                checked: true
+                            }
+                        });
+                    }
+                });
+
             }
 
 
             switch(e) {
+
                 if (e.target.checked) {
                     parentThis.request(e.target.dataset.key)
                 } else {
@@ -281,7 +307,8 @@ module.exports = module.exports = {
 
         try {
             store[type].reset();
-        } catch (e) {}
+        } catch (e) {
+        }
 
         $.each(models[type].fields, function (i, v) {
             cm.push({
@@ -327,11 +354,17 @@ module.exports = module.exports = {
             onLoad: function () {
                 layers.decrementCountLoading(type);
                 backboneEvents.get().trigger("doneLoading:layers");
-               if (seq !== -999) {
-                   //backboneEvents.get().on("end:state", function () {
-                       cloud.get().zoomToExtentOfgeoJsonStore(store[type], 16);
-                   //});
-               }
+                if (seq !== -999) {
+                    //backboneEvents.get().on("end:state", function () {
+                    cloud.get().zoomToExtentOfgeoJsonStore(store[type], 16);
+                    //});
+                }
+            },
+
+            onEachFeature: function (feature, layer) {
+                layer.on("click", function () {
+                    history.pushState(null, null, anchor.init() + "¤" + feature.properties.GELink.split("?")[1]);
+                });
             }
         });
 
@@ -342,7 +375,7 @@ module.exports = module.exports = {
             cm: cm,
             autoUpdate: seq === -999,
             autoPan: true,
-            openPopUp: true,
+            openPopUp: false,
             setViewOnSelect: false,
             responsive: false,
             callCustomOnload: true,

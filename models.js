@@ -48,8 +48,7 @@ module.exports = {
 
             }, {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -70,8 +69,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -92,8 +90,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -114,8 +111,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -136,8 +132,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -158,8 +153,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -180,8 +174,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -202,8 +195,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -224,8 +216,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -246,8 +237,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -268,8 +258,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -291,8 +280,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -313,8 +301,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -335,8 +322,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -357,8 +343,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
@@ -379,8 +364,7 @@ module.exports = {
             },
             {
                 key: "GELink",
-                alias: "GELink",
-                link: true
+                alias: "GELink"
 
             }
         ]
