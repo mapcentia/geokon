@@ -12,7 +12,7 @@ var models = require('../models');
 
 var config = require('../../../config/config.js');
 
-router.post('/api/extension/geoenviron/:type', function (req, response) {
+router.post('/api/extension/geoenviron/:type/:token', function (req, response) {
 
     'use strict';
 
@@ -21,8 +21,11 @@ router.post('/api/extension/geoenviron/:type', function (req, response) {
         "unproj": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
     };
 
+    let port = 8998;
     let url;
     let type = req.params.type;
+    let token = req.params.token;
+    let ip = req.params.ip;
     let params = req.body.q.split(",");
     let p1 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(params[0]), parseFloat(params[1])]);
     let p2 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(params[2]), parseFloat(params[3])]);
@@ -35,21 +38,27 @@ router.post('/api/extension/geoenviron/:type', function (req, response) {
             p1[0] + " " + p1[1],
         ].join(",") + "))";
 
+    // if (parseInt(params[4]) > 0) {
+    //     url = "https://https://api.geoenviron.dk:" + port + "/GeoEnvironODataService.svc/" + type +"?$format=json&$filter=SeqNo eq " + params[4];
+    // } else {
+    //     url = "https://https://api.geoenviron.dk:" + port + "/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
+    // }
+
     if (parseInt(params[4]) > 0) {
         url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"?$format=json&$filter=SeqNo eq " + params[4];
     } else {
         url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
     }
 
-    console.log(url)
+    console.log(url);
 
     let options = {
         method: 'GET',
         uri: url,
         auth: config.extensionConfig.geokon.auth,
         headers: {
-            'auth-token': config.extensionConfig.geokon.headers.token,
-            'ip-address': config.extensionConfig.geokon.headers.ip
+            'auth-token': token,
+            'ip-address': "192.168.0.0"
         },
     };
 

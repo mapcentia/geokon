@@ -5,6 +5,7 @@ module.exports = {
     Companies: {
         alias: "Virksomheder",
         seqNoType: "virk",
+        color: "#ffffb3",
         fields: [
             {
                 key: "SeqNo",
@@ -57,6 +58,7 @@ module.exports = {
     Agricultures: {
         alias: "Landbrug",
         seqNoType: "agr",
+        color: "#66b45c",
         fields: [
             {
                 key: "SeqNo",
@@ -65,6 +67,38 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            }, {
+                key: "Name",
+                alias: "Landbrugsnavn"
+
+            }, {
+                key: "Status",
+                alias: "Status"
+
+            }, {
+                key: "MainActivity",
+                alias: "Hovedaktivitet"
+
+            }, {
+                key: "EstablishDate",
+                alias: "Etableret"
+
+            }, {
+                key: "LastInspectionDate",
+                alias: "Tilsyn"
+
+            }, {
+                key: "LivestockUnitsPermitted",
+                alias: "Dyreenheder"
+
+            }, {
+                key: "LivestockPermissionDate",
+                alias: "Godk"
+
+            }, {
+                key: "OfficerId",
+                alias: "Sagsbehandler"
 
             },
             {
@@ -78,6 +112,7 @@ module.exports = {
     AgricultureStorages: {
         alias: "Gyllebeholdere",
         seqNoType: "agrsto",
+        color: "#fb9a99",
         fields: [
             {
                 key: "SeqNo",
@@ -86,6 +121,34 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            }, {
+                key: "Name",
+                alias: "Landbrugsnavn"
+
+            }, {
+                key: "StorageSysType",
+                alias: "Beholdertype"
+
+            }, {
+                key: "Volume",
+                alias: "Volumen m3"
+
+            }, {
+                key: "CoverType",
+                alias: "Overdækning"
+
+            }, {
+                key: "BuildingDate",
+                alias: "Byggedato"
+
+            }, {
+                key: "OutOfUseDate",
+                alias: "Taget ud af drift"
+
+            }, {
+                key: "LastControlDate",
+                alias: "Seneste kontrol"
 
             },
             {
@@ -99,6 +162,7 @@ module.exports = {
     OpenCountries: {
         alias: "Åbent Land lokalitet",
         seqNoType: "open",
+        color: "#fdbf6f",
         fields: [
             {
                 key: "SeqNo",
@@ -107,6 +171,22 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            }, {
+                key: "Name",
+                alias: "Lok navn"
+
+            }, {
+                key: "WasteWaterPurification",
+                alias: "Rensning af spildevand"
+
+            }, {
+                key: "PlannedAction",
+                alias: "Planlagt Indsats"
+
+            }, {
+                key: "UseType",
+                alias: "Brugstype"
 
             },
             {
@@ -120,6 +200,7 @@ module.exports = {
     OpenCountryTanks: {
         alias: "Spildevandstank i det åbne land",
         seqNoType: "octank",
+        color: "#ffff99",
         fields: [
             {
                 key: "SeqNo",
@@ -128,6 +209,30 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            }, {
+                key: "Name",
+                alias: "Lok navn"
+
+            }, {
+                key: "Status",
+                alias: "Status"
+
+            }, {
+                key: "TankType",
+                alias: "Tanktype"
+
+            }, {
+                key: "EstablishedYear",
+                alias: "Etableringsår"
+
+            }, {
+                key: "Volume",
+                alias: "Volumen Liter"
+
+            }, {
+                key: "ChamberCount",
+                alias: "Antal rum"
 
             },
             {
@@ -140,6 +245,7 @@ module.exports = {
 
     OpenCountryPurifications: {
         alias: "Rensningsanlæg i det åbne land",
+        color: "#a6cee3",
         seqNoType: "ocpur",
         fields: [
             {
@@ -149,6 +255,22 @@ module.exports = {
             }, {
                 key: "Id",
                 alias: "Id"
+
+            }, {
+                key: "CurrentPurification",
+                alias: "Rensning"
+
+            }, {
+                key: "Recipient",
+                alias: "Recipient"
+
+            }, {
+                key: "Dimension",
+                alias: "Dimensionering  PE"
+
+            }, {
+                key: "PercolationArea",
+                alias: "Nedsivningsareal m2"
 
             },
             {
@@ -162,6 +284,7 @@ module.exports = {
     WaterCatchmentPlants: {
         alias: "Vandindvindingsanlæg",
         seqNoType: "water",
+        color: "#80b1d3",
         fields: [
             {
                 key: "SeqNo",
@@ -169,7 +292,39 @@ module.exports = {
 
             }, {
                 key: "Id",
-                alias: "Id"
+                alias: "LokNr"
+
+            }, {
+                key: "Name",
+                alias: "Navn"
+
+            }, {
+                key: "Active",
+                alias: "Aktivt"
+
+            }, {
+                key: "PlantType",
+                alias: "Anlægstype"
+
+            }, {
+                key: "SecondaryPlantType",
+                alias: "Bi-anlægstype"
+
+            }, {
+                key: "LastSampleDate",
+                alias: "Seneste prøve"
+
+            }, {
+                key: "CatchPermissionPermDate",
+                alias: "Indvindingstilladelse - start"
+
+            }, {
+                key: "CatchPermissionExpireDate",
+                alias: "Indvindingstilladelse - slut"
+
+            }, {
+                key: "CatchPermissionAmountYear",
+                alias: "IndvindIngstilladelse M3"
 
             },
             {
@@ -183,6 +338,7 @@ module.exports = {
     Tanks: {
         alias: "Olie- og kemikalietanke",
         seqNoType: "tank",
+        color: "#b15928",
         fields: [
             {
                 key: "SeqNo",
@@ -190,7 +346,53 @@ module.exports = {
 
             }, {
                 key: "Id",
-                alias: "Id"
+                alias: "Lok nr."
+
+            }, {
+                key: "Name",
+                alias: "Lok navn"
+
+            }, {
+                key: "Content",
+                alias: "Indhold"
+
+            }, {
+                key: "Volume",
+                alias: "Volumen Liter"
+
+            }, {
+                key: "VolumeApprox",
+                alias: "Anslået volumen Liter"
+
+            },
+            {
+                key: "Location",
+                alias: "Placering"
+
+            },
+            {
+                key: "EstablishedApprox",
+                alias: "Etableret"
+
+            },
+            {
+                key: "RemovedApprox",
+                alias: "Fjernet"
+
+            },
+            {
+                key: "CoveredUpApprox",
+                alias: "Afblændet"
+
+            },
+            {
+                key: "LastInspectionDate",
+                alias: "(Sidste inspektion"
+
+            },
+            {
+                key: "DensityTestDate",
+                alias: "Seneste tæthedsprøve"
 
             },
             {
@@ -204,6 +406,7 @@ module.exports = {
     Separators: {
         alias: "Udskillere",
         seqNoType: "sep",
+        color: "#6a3d9a",
         fields: [
             {
                 key: "SeqNo",
@@ -211,7 +414,47 @@ module.exports = {
 
             }, {
                 key: "Id",
-                alias: "Id"
+                alias: "Lok nr."
+
+            },
+            {
+                key: "Name",
+                alias: "Lok navn"
+
+            },
+            {
+                key: "SepType",
+                alias: "Udskillertype"
+
+            },
+            {
+                key: "Volume",
+                alias: "Volumen m3"
+
+            },
+            {
+                key: "ApproveDate",
+                alias: "Godkendt"
+
+            },
+            {
+                key: "DeregistrationDate",
+                alias: "Afmelding"
+
+            },
+            {
+                key: "DismantleDate",
+                alias: "Sløjfning"
+
+            },
+            {
+                key: "DensityTestDate",
+                alias: "Tæthedsprøvning"
+
+            },
+            {
+                key: "LastDrainageDate",
+                alias: "Tømning"
 
             },
             {
@@ -225,6 +468,7 @@ module.exports = {
     SandTraps: {
         alias: "Sandfang",
         seqNoType: "sdtrap",
+        color: "#cab2d6",
         fields: [
             {
                 key: "SeqNo",
@@ -232,7 +476,21 @@ module.exports = {
 
             }, {
                 key: "Id",
-                alias: "Id"
+                alias: "Lok nr."
+
+            }, {
+                key: "Name",
+                alias: "Lok navn"
+
+            },
+            {
+                key: "Volume",
+                alias: "Volumen m3"
+
+            },
+            {
+                key: "ApprovalDate",
+                alias: "Godkendt"
 
             },
             {
@@ -246,6 +504,7 @@ module.exports = {
     GeothermalHeatSystems: {
         alias: "Jordvarmeanlæg",
         seqNoType: "heat",
+        color: "#1f78b4",
         fields: [
             {
                 key: "SeqNo",
@@ -253,7 +512,37 @@ module.exports = {
 
             }, {
                 key: "Id",
-                alias: "Id"
+                alias: "Lok nr."
+
+            },
+            {
+                key: "Name",
+                alias: "Lok navn"
+
+            },
+            {
+                key: "GeothermType",
+                alias: "Anlægstype"
+
+            },
+            {
+                key: "TotalLiquidAmount",
+                alias: "Total mængde væske i anlæg, Liter"
+
+            },
+            {
+                key: "ApprovalDate",
+                alias: "Godkendt"
+
+            },
+            {
+                key: "EstablishedDate",
+                alias: "Etableret"
+
+            },
+            {
+                key: "RemovedDate",
+                alias: "Fjernet"
 
             },
             {
@@ -267,6 +556,7 @@ module.exports = {
     Borings: {
         alias: "Boringer",
         seqNoType: "boring",
+        color: "#e31a1c",
         fields: [
             {
                 key: "SeqNo",
@@ -275,7 +565,42 @@ module.exports = {
             },
             {
                 key: "Id",
-                alias: "Id"
+                alias: "Anlægs Id"
+
+            },
+            {
+                key: "Name",
+                alias: "Anlægsnavn"
+
+            },
+            {
+                key: "BoreHoleId",
+                alias: "Boringsnr."
+
+            },
+            {
+                key: "Use",
+                alias: "Anvendelse"
+
+            },
+            {
+                key: "LastGroundWaterLevel",
+                alias: "Sidste pejling GVS kote"
+
+            },
+            {
+                key: "Depth",
+                alias: "Dybde m u.t."
+
+            },
+            {
+                key: "GroundLevel",
+                alias: "terrænkote"
+
+            },
+            {
+                key: "DismantleDate",
+                alias: "Sløjfning"
 
             },
             {
@@ -289,6 +614,7 @@ module.exports = {
     ContaminatedLandActivities: {
         alias: "Jordforureningsaktiviteter",
         seqNoType: "act",
+        color: "#a60000",
         fields: [
             {
                 key: "SeqNo",
@@ -296,7 +622,32 @@ module.exports = {
 
             }, {
                 key: "Id",
-                alias: "Id"
+                alias: "Lok nr."
+
+            },
+            {
+                key: "Name",
+                alias: "Lok navn"
+
+            },
+            {
+                key: "Status",
+                alias: "Kortlægning"
+
+            },
+            {
+                key: "StatusDate",
+                alias: "Kortlægningsdato"
+
+            },
+            {
+                key: "ActivityName",
+                alias: "Aktivitetsnavn"
+
+            },
+            {
+                key: "ActivityType",
+                alias: "Aktivitetstype"
 
             },
             {
@@ -310,6 +661,7 @@ module.exports = {
     Stations: {
         alias: "Stationer/udløb - vandløb",
         seqNoType: "sta",
+        color: "#ff7f00",
         fields: [
             {
                 key: "SeqNo",
@@ -317,7 +669,27 @@ module.exports = {
 
             }, {
                 key: "Id",
-                alias: "Id"
+                alias: "Vandløbets Id"
+
+            },
+            {
+                key: "Name",
+                alias: "Vandløbets Navn"
+
+            },
+            {
+                key: "StationName",
+                alias: "Stationens navn"
+
+            },
+            {
+                key: "StationType",
+                alias: "Stationens type"
+
+            },
+            {
+                key: "Active",
+                alias: "Aktiv"
 
             },
             {
@@ -331,6 +703,7 @@ module.exports = {
     Windmills: {
         alias: "Vindmøller",
         seqNoType: "wmill",
+        color: "#33a02c",
         fields: [
             {
                 key: "SeqNo",
@@ -338,7 +711,27 @@ module.exports = {
 
             }, {
                 key: "Id",
-                alias: "Id"
+                alias: "Lok nr."
+
+            },
+            {
+                key: "Name",
+                alias: "Lok navn"
+
+            },
+            {
+                key: "InitialisationDate",
+                alias: "Idriftssættelse"
+
+            },
+            {
+                key: "Effect",
+                alias: "Effekt kW"
+
+            },
+            {
+                key: "HubHeight",
+                alias: "Navhøjde m"
 
             },
             {
@@ -352,6 +745,7 @@ module.exports = {
     BldCasefiles: {
         alias: "Byggesager",
         seqNoType: "bld",
+        color: "#2f4769",
         fields: [
             {
                 key: "SeqNo",
@@ -359,7 +753,52 @@ module.exports = {
 
             }, {
                 key: "Id",
-                alias: "Id"
+                alias: "Lok nr."
+
+            },
+            {
+                key: "Name",
+                alias: "Lok navn"
+
+            },
+            {
+                key: "CasefileName",
+                alias: "CasefileName"
+
+            },
+            {
+                key: "CasefileStatus",
+                alias: "CasefileStatus"
+
+            },
+            {
+                key: "ApplicandReceivedDate",
+                alias: "Modtagelse"
+
+            },
+            {
+                key: "AdequateDate",
+                alias: "Fyldestgørende materiale modtaget"
+
+            },
+            {
+                key: "Deadline",
+                alias: "Afgørelse"
+
+            },
+            {
+                key: "ShelvingDate",
+                alias: "Henlæggelse"
+
+            },
+            {
+                key: "EndDate",
+                alias: "Afsluttet"
+
+            },
+            {
+                key: "CaseClosed",
+                alias: "Sag lukket"
 
             },
             {

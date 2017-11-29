@@ -51,6 +51,19 @@ var getypes;
 
 var models = require('../models');
 
+var template =
+    '<div class="mouseover-content">' +
+    '   {{#content.fields}}' +
+    '       {{#title}}<h4>{{title}}</h4>{{/title}}' +
+    '       {{#value}}' +
+    '           <p {{#type}}class="{{ type }}"{{/type}}>{{{ value }}}</p>' +
+    '       {{/value}}' +
+    '       {{^value}}' +
+    '           <p class="empty">null</p>' +
+    '       {{/value}}' +
+    '   {{/content.fields}}' +
+    '</div>';
+
 /**
  *
  * @type {string}
@@ -123,7 +136,7 @@ module.exports = module.exports = {
 
         // Listen to change in hash
         window.onhashchange = function () {
-            var type, seqNoType, urlVars;
+            var type, seqNoType, urlVars, getypes, me = this;
 
             urlVars = (function getUrlVars() {
                 var mapvars = {};
@@ -134,12 +147,42 @@ module.exports = module.exports = {
             })();
 
             $.each(models, function (i, v) {
-                if (v.seqNoType === urlVars.type.split("#")[0]) {
-                    seqNoType = v.seqNoType;
-                    type = i;
-                    me.request(type, seqNoType, urlVars.seqno.split("#")[0])
+
+                try {
+                    if (v.seqNoType === urlVars.type.split("#")[0]) {
+                        seqNoType = v.seqNoType;
+                        type = i;
+                        me.request(type, seqNoType, urlVars.seqno.split("#")[0])
+                    }
+                } catch (e) {}
+
+                try {
+                    // Get GE types from hash
+                    if (urlVars.getypes) {
+                        getypes = urlVars.getypes.split(",");
+
+                    } else {
+                        getypes = [];
+                    }
+
+                    if (getypes.length > 0) {
+                        getypes = getypes.map(function (e) {
+                            return e.split("#")[0];
+                        });
+                    }
+
+
+                    if (getypes.indexOf(v.seqNoType) !== -1) {
+
+                        parentThis.request(i);
+                        $('*[data-seqnotype="' + v.seqNoType + '"]').prop('checked', true);
+                    }
+                } catch (e) {
+                    console.log(e.message)
                 }
             });
+
+
         };
 
         var dict = {
@@ -187,9 +230,7 @@ module.exports = module.exports = {
         var entities = [];
 
         $.each(models, function (i, v) {
-            //if (getypes.indexOf(v.seqNoType) !== -1) {
-            entities.push({"type": i, "title": v.alias, "show": (getypes.indexOf(v.seqNoType) !== -1)})
-            //}
+            entities.push({"type": i, "title": v.alias, "seqNoType": v.seqNoType, "show": (getypes.indexOf(v.seqNoType) !== -1)})
         });
 
         /**
@@ -217,7 +258,7 @@ module.exports = module.exports = {
 
                     <li key={entity.type} className="layer-item list-group-item">
                         <div className="checkbox"><label className="overlay-label" style={this.vWidth}><input
-                            type="checkbox" data-key={entity.type} data-title={entity.title}
+                            type="checkbox" data-key={entity.type} data-seqnotype={entity.seqNoType} data-title={entity.title}
                             onChange={this.switch} defaultChecked={entity.show}/>{entity.title}
                         </label><span className="geoenviron-table-label label label-primary"
                                       style={this.hand}>Table</span>
@@ -303,10 +344,19 @@ module.exports = module.exports = {
 
         let me = this;
         let seq = seqNo !== undefined ? seqNo : -999;
+        let id = seqNo !== undefined ? "s_" + type : type;
         let cm = [];
 
+        // Set auth
+        let token = urlVars.token;
+        let ip = urlVars.ip;
+
+        if (token === undefined) {
+            alert("Auth token not set");
+        }
+
         try {
-            store[type].reset();
+            store[id].reset();
         } catch (e) {
         }
 
@@ -322,17 +372,18 @@ module.exports = module.exports = {
         $("div").remove("#" + type);
         $("#info-modal-body-wrapper .modal-body").append('<div class="geoenviron-attr-table" id="' + type + '"><table id="geoenviron-table_' + type + '" data-detail-view="true" data-detail-formatter="detailFormatter" data-show-toggle="true" data-show-export="true" data-show-columns="true"></table></div>');
 
-        store[type] = new geocloud.sqlStore({
+        var  flag = false;
+        store[id] = new geocloud.sqlStore({
             jsonp: false,
             method: "POST",
             host: "",
             db: "",
-            uri: "/api/extension/geoenviron/" + type,
+            uri: "/api/extension/geoenviron/" + type + "/" + token,
             clickable: true,
-            id: type,
+            id: id,
             styleMap: {
                 weight: 5,
-                color: seq === -999 ? '#ff0000' : '#0000ff',
+                color: seq === -999 ? models[type].color: '#ff00ff',
                 dashArray: '',
                 fillOpacity: 0.2
             },
@@ -356,7 +407,7 @@ module.exports = module.exports = {
                 backboneEvents.get().trigger("doneLoading:layers");
                 if (seq !== -999) {
                     //backboneEvents.get().on("end:state", function () {
-                    cloud.get().zoomToExtentOfgeoJsonStore(store[type], 16);
+                    cloud.get().zoomToExtentOfgeoJsonStore(store[id], 16);
                     //});
                 }
             },
@@ -365,13 +416,60 @@ module.exports = module.exports = {
                 layer.on("click", function () {
                     history.pushState(null, null, anchor.init() + "¤" + feature.properties.GELink.split("?")[1]);
                 });
+
+                layer.on({
+
+                    mouseover: function () {
+
+                        var fi = [];
+
+                        $.each(feature.properties, function (name, property) {
+                            if (name !== "GELink" && name !== "_id") {
+
+                                $.each(models[type].fields, function (i, v) {
+                                    if (v.key === name) {
+                                        fi.push({
+                                            title: v.alias,
+                                            value: feature.properties[name]
+                                        });
+                                        return;
+                                    }
+                                });
+
+
+                            }
+                        });
+
+                        flag = true;
+
+                        var tooltipHtml = Mustache.render(template, {
+                            content: {
+                                fields: fi
+                            }
+                        });
+
+                        $("#tail").fadeIn(100);
+                        $("#tail").html(tooltipHtml);
+                    },
+                    mouseout: function () {
+                        flag = false;
+                        // Wait 200 ms before closing tooltip, so its not blinking between close features
+                        setTimeout(function () {
+                            if (!flag) {
+                                $("#tail").fadeOut(100);
+                            }
+                        }, 200)
+
+
+                    }
+                });
             }
         });
 
         table[type] = gc2table.init({
             el: "#geoenviron-table_" + type,
             geocloud2: cloud.get(),
-            store: store[type],
+            store: store[id],
             cm: cm,
             autoUpdate: seq === -999,
             autoPan: true,
@@ -385,8 +483,8 @@ module.exports = module.exports = {
             //template: templateb"
         });
 
-        cloud.get().addGeoJsonStore(store[type]);
-        store[type].load();
+        cloud.get().addGeoJsonStore(store[id]);
+        store[id].load();
 
     },
 
