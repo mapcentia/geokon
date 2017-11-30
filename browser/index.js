@@ -136,7 +136,7 @@ module.exports = module.exports = {
 
         // Listen to change in hash
         window.onhashchange = function () {
-            var type, seqNoType, urlVars, getypes, me = this;
+            var type, seqNoType, urlVars, getypes;
 
             urlVars = (function getUrlVars() {
                 var mapvars = {};
@@ -154,11 +154,13 @@ module.exports = module.exports = {
                         type = i;
                         me.request(type, seqNoType, urlVars.seqno.split("#")[0])
                     }
-                } catch (e) {}
+                } catch (e) {
+                    console.error(e.message)
+                }
 
                 try {
                     // Get GE types from hash
-                    if (urlVars.getypes) {
+                    if (urlVars.getypes !== undefined) {
                         getypes = urlVars.getypes.split(",");
 
                     } else {
@@ -171,14 +173,13 @@ module.exports = module.exports = {
                         });
                     }
 
-
                     if (getypes.indexOf(v.seqNoType) !== -1) {
 
                         parentThis.request(i);
                         $('*[data-seqnotype="' + v.seqNoType + '"]').prop('checked', true);
                     }
                 } catch (e) {
-                    console.log(e.message)
+                    console.error(e.message)
                 }
             });
 
@@ -230,7 +231,13 @@ module.exports = module.exports = {
         var entities = [];
 
         $.each(models, function (i, v) {
-            entities.push({"type": i, "title": v.alias, "seqNoType": v.seqNoType, "show": (getypes.indexOf(v.seqNoType) !== -1)})
+            entities.push({
+                "type": i,
+                "title": v.alias,
+                "color": v.color,
+                "seqNoType": v.seqNoType,
+                "show": (getypes.indexOf(v.seqNoType) !== -1)
+            })
         });
 
         /**
@@ -257,11 +264,25 @@ module.exports = module.exports = {
                 this.listEntities = entities.map((entity) =>
 
                     <li key={entity.type} className="layer-item list-group-item">
-                        <div className="checkbox"><label className="overlay-label" style={this.vWidth}><input
-                            type="checkbox" data-key={entity.type} data-seqnotype={entity.seqNoType} data-title={entity.title}
-                            onChange={this.switch} defaultChecked={entity.show}/>{entity.title}
-                        </label><span className="geoenviron-table-label label label-primary"
-                                      style={this.hand}>Table</span>
+                        <div className="checkbox">
+                            <label className="overlay-label" style={this.vWidth}>
+                                <input
+                                    type="checkbox" data-key={entity.type} data-seqnotype={entity.seqNoType}
+                                    data-title={entity.title}
+                                    onChange={this.switch} defaultChecked={entity.show}/>
+                                <span style={{
+                                    backgroundColor: entity.color,
+                                    display: "inline-block",
+                                    width: "15px",
+                                    height: "15px",
+                                    marginRight: "5px",
+                                    verticalAlign: "middle",
+                                    top: "-2px",
+                                    position: "relative"
+                                }}/>
+                                {entity.title}
+                            </label>
+                            <span className="geoenviron-table-label label label-primary" style={this.hand}>Table</span>
                         </div>
                     </li>
                 )
@@ -349,10 +370,11 @@ module.exports = module.exports = {
 
         // Set auth
         let token = urlVars.token;
-        let ip = urlVars.ip;
+        let client = urlVars.client;
 
-        if (token === undefined) {
-            alert("Auth token not set");
+        if (token === undefined || client === undefined) {
+            alert("Auth token or client not set");
+            return;
         }
 
         try {
@@ -372,18 +394,18 @@ module.exports = module.exports = {
         $("div").remove("#" + type);
         $("#info-modal-body-wrapper .modal-body").append('<div class="geoenviron-attr-table" id="' + type + '"><table id="geoenviron-table_' + type + '" data-detail-view="true" data-detail-formatter="detailFormatter" data-show-toggle="true" data-show-export="true" data-show-columns="true"></table></div>');
 
-        var  flag = false;
+        var flag = false;
         store[id] = new geocloud.sqlStore({
             jsonp: false,
             method: "POST",
             host: "",
             db: "",
-            uri: "/api/extension/geoenviron/" + type + "/" + token,
+            uri: "/api/extension/geoenviron/" + type + "/" + token+ "/" + client,
             clickable: true,
             id: id,
             styleMap: {
                 weight: 5,
-                color: seq === -999 ? models[type].color: '#ff00ff',
+                color: seq === -999 ? models[type].color : '#ff00ff',
                 dashArray: '',
                 fillOpacity: 0.2
             },
@@ -403,16 +425,49 @@ module.exports = module.exports = {
             },
 
             onLoad: function () {
+
                 layers.decrementCountLoading(type);
+
+                $.each(store[id].layer._layers, function (x, layer) {
+
+                    if (layer.feature.geometry.type !== "Point") {
+
+                        var minSize = 5,
+                            map = cloud.get().map,
+                            bounds = layer.getBounds(),
+                            ne_px = map.project(bounds.getNorthEast(), map.getZoom()),
+                            sw_px = map.project(bounds.getSouthWest(), map.getZoom()),
+                            width = ne_px.x - sw_px.x,
+                            height = sw_px.y - ne_px.y;
+
+                        if (height < minSize || width < minSize) {
+
+                            store[id].layer.removeLayer(layer);
+
+                            store[id].layer.addData({
+                                "type": "Feature",
+                                "properties": layer.feature.properties,
+                                "geometry": {
+                                    "type": "Point",
+                                    "coordinates": [layer.getBounds().getCenter().lng, layer.getBounds().getCenter().lat]
+                                }
+                            });
+                        }
+                    }
+
+                });
+
+                table[type].loadDataInTable(true);
+
                 backboneEvents.get().trigger("doneLoading:layers");
+
                 if (seq !== -999) {
-                    //backboneEvents.get().on("end:state", function () {
                     cloud.get().zoomToExtentOfgeoJsonStore(store[id], 16);
-                    //});
                 }
             },
 
             onEachFeature: function (feature, layer) {
+
                 layer.on("click", function () {
                     history.pushState(null, null, anchor.init() + "¤" + feature.properties.GELink.split("?")[1]);
                 });
@@ -450,7 +505,9 @@ module.exports = module.exports = {
 
                         $("#tail").fadeIn(100);
                         $("#tail").html(tooltipHtml);
+
                     },
+
                     mouseout: function () {
                         flag = false;
                         // Wait 200 ms before closing tooltip, so its not blinking between close features
@@ -482,6 +539,7 @@ module.exports = module.exports = {
             ns: "#" + type
             //template: templateb"
         });
+
 
         cloud.get().addGeoJsonStore(store[id]);
         store[id].load();

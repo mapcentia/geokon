@@ -3,6 +3,7 @@ var request = require("request");
 var router = express.Router();
 var http = require('http');
 var fs = require('fs');
+var ipaddr = require('ipaddr.js');
 
 var reproject = require('reproject');
 var WKT = require('terraformer-wkt-parser');
@@ -12,7 +13,7 @@ var models = require('../models');
 
 var config = require('../../../config/config.js');
 
-router.post('/api/extension/geoenviron/:type/:token', function (req, response) {
+router.post('/api/extension/geoenviron/:type/:token/:client', function (req, response) {
 
     'use strict';
 
@@ -21,11 +22,11 @@ router.post('/api/extension/geoenviron/:type/:token', function (req, response) {
         "unproj": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
     };
 
-    let port = 8998;
     let url;
     let type = req.params.type;
     let token = req.params.token;
-    let ip = req.params.ip;
+    let client = req.params.client;
+    let ip = ipaddr.process(req.ip).toString();
     let params = req.body.q.split(",");
     let p1 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(params[0]), parseFloat(params[1])]);
     let p2 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(params[2]), parseFloat(params[3])]);
@@ -38,19 +39,18 @@ router.post('/api/extension/geoenviron/:type/:token', function (req, response) {
             p1[0] + " " + p1[1],
         ].join(",") + "))";
 
-    // if (parseInt(params[4]) > 0) {
-    //     url = "https://https://api.geoenviron.dk:" + port + "/GeoEnvironODataService.svc/" + type +"?$format=json&$filter=SeqNo eq " + params[4];
-    // } else {
-    //     url = "https://https://api.geoenviron.dk:" + port + "/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
-    // }
-
     if (parseInt(params[4]) > 0) {
-        url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"?$format=json&$filter=SeqNo eq " + params[4];
+        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type +"?$format=json&$filter=SeqNo eq " + params[4];
     } else {
-        url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
+        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
     }
 
-    console.log(url);
+    // if (parseInt(params[4]) > 0) {
+    //     url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"?$format=json&$filter=SeqNo eq " + params[4];
+    // } else {
+    //     url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
+    // }
+
 
     let options = {
         method: 'GET',
@@ -58,9 +58,11 @@ router.post('/api/extension/geoenviron/:type/:token', function (req, response) {
         auth: config.extensionConfig.geokon.auth,
         headers: {
             'auth-token': token,
-            'ip-address': "192.168.0.0"
+            'ip-address': ip
         },
     };
+
+    console.log(options);
 
     request(options, function (err, res, body) {
 
