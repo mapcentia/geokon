@@ -48,6 +48,8 @@ var store = [];
 var table = [];
 var getypes;
 
+var cl = [];
+
 
 var models = require('../models');
 
@@ -109,6 +111,7 @@ module.exports = module.exports = {
         var ReactDOM = require('react-dom');
 
         var me = this;
+
 
         $(document).arrive('.custom-popup a', function () {
             $(this).on("click", function (e) {
@@ -400,7 +403,7 @@ module.exports = module.exports = {
             method: "POST",
             host: "",
             db: "",
-            uri: "/api/extension/geoenviron/" + type + "/" + token+ "/" + client,
+            uri: "/api/extension/geoenviron/" + type + "/" + token + "/" + client,
             clickable: true,
             id: id,
             styleMap: {
@@ -419,12 +422,27 @@ module.exports = module.exports = {
             sql: "{minX},{minY},{maxX},{maxY}," + seq,
 
             loading: function () {
+
+                try {
+                    cl[type].removeLayer();
+                } catch (e) {
+                    console.error(e.message)
+                }
+
                 layers.incrementCountLoading(type);
                 backboneEvents.get().trigger("startLoading:layers", type);
                 console.log("loading");
             },
 
             onLoad: function () {
+
+                var zoom = cloud.get().map.getZoom();
+
+                if (zoom < 16) {
+                    cloud.get().map.removeLayer(store[id].layer);
+                } else {
+                    cloud.get().map.addLayer(store[id].layer);
+                }
 
                 layers.decrementCountLoading(type);
 
@@ -435,12 +453,13 @@ module.exports = module.exports = {
                         var minSize = 5,
                             map = cloud.get().map,
                             bounds = layer.getBounds(),
-                            ne_px = map.project(bounds.getNorthEast(), map.getZoom()),
-                            sw_px = map.project(bounds.getSouthWest(), map.getZoom()),
+                            ne_px = map.project(bounds.getNorthEast(), zoom),
+                            sw_px = map.project(bounds.getSouthWest(), zoom),
                             width = ne_px.x - sw_px.x,
                             height = sw_px.y - ne_px.y;
 
-                        if (height < minSize || width < minSize) {
+
+                        if (height < minSize || width < minSize || zoom < 16) {
 
                             store[id].layer.removeLayer(layer);
 
@@ -457,13 +476,23 @@ module.exports = module.exports = {
 
                 });
 
-                table[type].loadDataInTable(true);
+                //table[type].loadDataInTable(true);
 
                 backboneEvents.get().trigger("doneLoading:layers");
 
                 if (seq !== -999) {
                     cloud.get().zoomToExtentOfgeoJsonStore(store[id], 16);
                 }
+
+                if (zoom < 16) {
+                    cl[type] = new QCluster.PointClusterer(store[id].layer.toGeoJSON(), 'nigeria', cloud.get().map, 'nigeria-layer',
+                        {
+                            backgroundColor: models[type].color,
+                            dataFormat: 'GeoJSON'
+                        });
+                }
+
+
             },
 
             onEachFeature: function (feature, layer) {
@@ -542,6 +571,7 @@ module.exports = module.exports = {
 
 
         cloud.get().addGeoJsonStore(store[id]);
+
         store[id].load();
 
     },
@@ -549,6 +579,7 @@ module.exports = module.exports = {
     clear: function (type) {
         store[type].abort();
         store[type].reset();
+        cl[type].removeLayer();
         cloud.get().removeGeoJsonStore(store[type]);
 
         table[type].moveEndOff();
