@@ -13,6 +13,42 @@ var models = require('../models');
 
 var config = require('../../../config/config.js');
 
+
+router.get('/api/extension/licenses/:token/:client', function (req, response) {
+
+    'use strict';
+
+    let token = req.params.token;
+    let client = req.params.client;
+
+    let url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/Licenses?$format=json&$filter=AppGroup eq 'GIS'";
+
+    let options = {
+        method: 'GET',
+        uri: url,
+        auth: config.extensionConfig.geokon.auth,
+        headers: {
+            'auth-token': token
+        },
+    };
+
+    console.log(options);
+
+    request(options, function (err, res, body) {
+
+        response.header('content-type', 'application/json');
+        response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.header('Expires', '0');
+
+        console.log(body);
+
+        let json = JSON.parse(body);
+
+        response.send(json);
+    });
+
+});
+
 router.post('/api/extension/geoenviron/:type/:token/:client', function (req, response) {
 
     'use strict';
@@ -44,13 +80,6 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
     } else {
         url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
     }
-
-    // if (parseInt(params[4]) > 0) {
-    //     url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"?$format=json&$filter=SeqNo eq " + params[4];
-    // } else {
-    //     url = "https://mapcentia-api.geoenviron.dk/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
-    // }
-
 
     let options = {
         method: 'GET',

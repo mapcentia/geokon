@@ -53,6 +53,8 @@ var cl = [];
 
 var models = require('../models');
 
+var functions = require('../functions');
+
 var template =
     '<div class="mouseover-content">' +
     '   {{#content.fields}}' +
@@ -243,6 +245,45 @@ module.exports = module.exports = {
             })
         });
 
+        class Licenses extends React.Component {
+            constructor(props) {
+                super(props);
+
+                this.listLicenses = props.licenses.map((license) =>
+
+                    <li key={license.AppCode}>{license.AppDescription} {license.AppActive}</li>
+                )
+            }
+
+            render() {
+                return (
+                    <ul>
+                        {this.listLicenses}
+                    </ul>
+                )
+            }
+        }
+
+        class Functions extends React.Component {
+            constructor(props) {
+                super(props);
+
+                this.listFunctions = props.functions.map((func) =>
+
+                    <li key={func}>{func}</li>
+                );
+
+            }
+
+            render() {
+                return (
+                    <ul>
+                        {this.listFunctions}
+                    </ul>
+                )
+            }
+        }
+
         /**
          *
          */
@@ -264,7 +305,9 @@ module.exports = module.exports = {
 
                 this.switch = this.switch.bind(this);
 
-                this.listEntities = entities.map((entity) =>
+                this.licenses = props.licenses.value;
+                this.functions = props.functions;
+                this.listEntities = props.entities.map((entity) =>
 
                     <li key={entity.type} className="layer-item list-group-item">
                         <div className="checkbox">
@@ -309,7 +352,6 @@ module.exports = module.exports = {
 
             }
 
-
             switch(e) {
 
                 if (e.target.checked) {
@@ -321,44 +363,62 @@ module.exports = module.exports = {
 
             render() {
                 return (
-
                     <div role='tabpanel'>
                         <div className='panel panel-default'>
                             <div className='panel-body'>
-
                                 <ul className="list-group">
                                     {this.listEntities}
                                 </ul>
+                                <Licenses licenses={this.licenses}/>
+                                <Functions functions={this.functions}/>
 
                             </div>
                         </div>
                     </div>
-
-
                 );
             }
         }
 
-        // Append to DOM
-        //==============
+        this.getLicens().then(function (licenses) {
 
-        try {
+            console.log(licenses);
+
+            let licens = "none";
+
+            for (let i = 0; i < licenses.value.length; i++) {
+                if (licenses.value[i].AppActive === "1") {
+                    licens = licenses.value[i].AppCode;
+                }
+            }
+
+            // Test
+            licens = "gispro";
+
+            console.log(licens);
+
+            let fn = [];
+
+            for (const [key, value] of Object.entries(functions)) {
+                if (value[licens]) {
+                    fn.push(key);
+                }
+            }
+
             ReactDOM.render(
-                <GeoEnviron entities={entities}/>,
+                <GeoEnviron entities={entities} licenses={licenses} functions={fn}/>,
                 document.getElementById(exId)
             );
-        } catch (e) {
 
-        }
+            $(".geoenviron-table-label").on("click", function (e) {
+                let type = ($(this).prev().children("input").data('key'));
+                let title = ($(this).prev().children("input").data('title'));
+                $(".geoenviron-attr-table").hide();
+                $("#" + type).show();
+                $("#info-modal").animate({right: "0"}, 200);
+                $("#info-modal .modal-title").html(title);
+                e.stopPropagation();
+            });
 
-        $(".geoenviron-table-label").on("click", function (e) {
-            let type = ($(this).prev().children("input").data('key'));
-            let title = ($(this).prev().children("input").data('title'));
-            $(".geoenviron-attr-table").hide();
-            $("#" + type).show();
-            $("#info-modal").animate({right: "0"}, 200);
-            $("#info-modal .modal-title").html(title);
-            e.stopPropagation();
         });
 
 
@@ -569,7 +629,6 @@ module.exports = module.exports = {
             //template: templateb"
         });
 
-
         cloud.get().addGeoJsonStore(store[id]);
 
         store[id].load();
@@ -586,5 +645,30 @@ module.exports = module.exports = {
 
         $("#geoenviron-table").empty();
 
+    },
+
+    getLicens: function () {
+        let me = this;
+        let token = urlVars.token;
+        let client = urlVars.client;
+
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                dataType: 'json',
+                url: '/api/extension/licenses/' + token + '/' + client,
+                type: "GET",
+                success: function (data) {
+                    resolve(data);
+                },
+                error: function () {
+                    reject();
+                    console.error(error);
+
+                },
+                complete: function () {
+
+                }
+            });
+        })
     }
 };
