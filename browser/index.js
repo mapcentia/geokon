@@ -50,6 +50,8 @@ var getypes;
 
 var cl = [];
 
+var licens;
+
 
 var models = require('../models');
 
@@ -102,18 +104,18 @@ module.exports = module.exports = {
 
         var parentThis = this;
 
-        /**
-         *
-         */
         var React = require('react');
 
-        /**
-         *
-         */
         var ReactDOM = require('react-dom');
 
         var me = this;
 
+        // Hide tabs
+        $('a[href="#draw-content"]').hide();
+        $('a[href="#print-content"]').hide();
+        $('a[href="#layer-content"]').hide();
+        $('a[href="#streetview-content"]').hide();
+        $(".custom-search").prop("disabled", true);
 
         $(document).arrive('.custom-popup a', function () {
             $(this).on("click", function (e) {
@@ -179,9 +181,11 @@ module.exports = module.exports = {
                     }
 
                     if (getypes.indexOf(v.seqNoType) !== -1) {
-
-                        parentThis.request(i);
-                        $('*[data-seqnotype="' + v.seqNoType + '"]').prop('checked', true);
+                        let cb = $('*[data-seqnotype="' + v.seqNoType + '"]');
+                        if (!cb.is(':checked')) {
+                            parentThis.request(i);
+                            cb.prop('checked', true);
+                        }
                     }
                 } catch (e) {
                     console.error(e.message)
@@ -284,9 +288,6 @@ module.exports = module.exports = {
             }
         }
 
-        /**
-         *
-         */
         class GeoEnviron extends React.Component {
 
             constructor(props) {
@@ -379,52 +380,80 @@ module.exports = module.exports = {
             }
         }
 
-        this.getLicens().then(function (licenses) {
+        this.getLicens().then(
 
-            console.log(licenses);
+            function (licenses) {
 
-            let licens = "none";
+                licens = "none";
 
-            for (let i = 0; i < licenses.value.length; i++) {
-                if (licenses.value[i].AppActive === "1") {
-                    licens = licenses.value[i].AppCode;
+                for (let i = 0; i < licenses.value.length; i++) {
+                    if (licenses.value[i].AppActive === "1" && licenses.value[i].AppCode === "gisbasis") {
+                        licens = licenses.value[i].AppCode;
+                    }
                 }
-            }
-
-            // Test
-            licens = "gispro";
-
-            console.log(licens);
-
-            let fn = [];
-
-            for (const [key, value] of Object.entries(functions)) {
-                if (value[licens]) {
-                    fn.push(key);
+                for (let i = 0; i < licenses.value.length; i++) {
+                    if (licenses.value[i].AppActive === "1" && licenses.value[i].AppCode === "gispro") {
+                        licens = licenses.value[i].AppCode;
+                    }
                 }
+                for (let i = 0; i < licenses.value.length; i++) {
+                    if (licenses.value[i].AppActive === "1" && licenses.value[i].AppCode === "gispremium") {
+                        licens = licenses.value[i].AppCode;
+                    }
+                }
+
+                // Test
+                //licens = "gispro";
+
+                console.log(licens);
+
+                if (licens === "none") {
+                    return;
+                }
+
+                if (licens === "gisbasis" || licens === "gispro" || licens === "gispremium") {
+                    $('a[href="#layer-content"]').show();
+                    $(".custom-search").prop("disabled", false);
+                }
+
+                if (licens === "gispro" || licens === "gispremium") {
+                    $('a[href="#streetview-content"]').show();
+                }
+
+                let fn = [];
+
+                for (const [key, value] of Object.entries(functions)) {
+                    if (value[licens]) {
+                        fn.push(key);
+                    }
+                }
+
+                ReactDOM.render(
+                    <GeoEnviron entities={entities} licenses={licenses} functions={fn}/>,
+                    document.getElementById(exId)
+                );
+
+                $(".geoenviron-table-label").on("click", function (e) {
+                    let type = ($(this).prev().children("input").data('key'));
+                    let title = ($(this).prev().children("input").data('title'));
+                    $(".geoenviron-attr-table").hide();
+                    $("#" + type).show();
+                    $("#info-modal").animate({right: "0"}, 200);
+                    $("#info-modal .modal-title").html(title);
+                    e.stopPropagation();
+                });
+
+            },
+
+            function (e) {
+                //alert(e)
             }
-
-            ReactDOM.render(
-                <GeoEnviron entities={entities} licenses={licenses} functions={fn}/>,
-                document.getElementById(exId)
-            );
-
-            $(".geoenviron-table-label").on("click", function (e) {
-                let type = ($(this).prev().children("input").data('key'));
-                let title = ($(this).prev().children("input").data('title'));
-                $(".geoenviron-attr-table").hide();
-                $("#" + type).show();
-                $("#info-modal").animate({right: "0"}, 200);
-                $("#info-modal .modal-title").html(title);
-                e.stopPropagation();
-            });
-
-        });
+        );
 
 
     },
 
-    request: function (type, seqNoType, seqNo, zoom) {
+    request: function (type, seqNoType, seqNo) {
 
         let me = this;
         let seq = seqNo !== undefined ? seqNo : -999;
@@ -557,9 +586,11 @@ module.exports = module.exports = {
 
             onEachFeature: function (feature, layer) {
 
-                layer.on("click", function () {
-                    history.pushState(null, null, anchor.init() + "¤" + feature.properties.GELink.split("?")[1]);
-                });
+                if (licens === "gispro" || licens === "gispremium") {
+                    layer.on("click", function () {
+                        history.pushState(null, null, anchor.init() + "¤" + feature.properties.GELink.split("?")[1]);
+                    });
+                }
 
                 layer.on({
 
@@ -648,6 +679,7 @@ module.exports = module.exports = {
     },
 
     getLicens: function () {
+
         let me = this;
         let token = urlVars.token;
         let client = urlVars.client;
@@ -660,10 +692,8 @@ module.exports = module.exports = {
                 success: function (data) {
                     resolve(data);
                 },
-                error: function () {
-                    reject();
-                    console.error(error);
-
+                error: function (error) {
+                    reject(error.responseJSON.message);
                 },
                 complete: function () {
 

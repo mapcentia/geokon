@@ -42,7 +42,26 @@ router.get('/api/extension/licenses/:token/:client', function (req, response) {
 
         console.log(body);
 
-        let json = JSON.parse(body);
+        let json;
+
+        try {
+            json = JSON.parse(body);
+
+        } catch (e) {
+            response.status(500).send({
+                success: false,
+                message: "Could not parse JSON from GeoEnviron"
+            });
+            return;
+        }
+
+        if (err || res.statusCode !== 200) {
+            response.status(400).send({
+                success: false,
+                message: json
+            });
+            return;
+        }
 
         response.send(json);
     });
@@ -99,24 +118,10 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
         response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
         response.header('Expires', '0');
 
-
         console.log(body);
 
-        let gJSON = {
-            "type": "FeatureCollection",
-            "features": [],
-            "success": true
-        };
-
-        if (res.statusCode !== 200) {
-            response.status(400).send({
-                success: false,
-                message: "Got an error from GeoEnviron"
-            });
-            return;
-        }
-
         let json;
+
         try {
             json = JSON.parse(body);
 
@@ -128,10 +133,21 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
             return;
         }
 
-        //console.log(models[type])
+        if (err || res.statusCode !== 200) {
+            response.status(400).send({
+                success: false,
+                message: json
+            });
+            return;
+        }
+
+        let gJSON = {
+            "type": "FeatureCollection",
+            "features": [],
+            "success": true
+        };
 
         for (let i = 0; i < json.value.length; i++) {
-            //console.log(json.value[i]);
 
             let unprojPrimitive = reproject.reproject(JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT))), "proj", "unproj", crss);
 
@@ -154,8 +170,6 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
             )
 
         }
-
-
         response.send(gJSON);
     });
 
