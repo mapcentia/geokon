@@ -527,7 +527,7 @@ module.exports = module.exports = {
 
                 var zoom = cloud.get().map.getZoom();
 
-                if (zoom < 16) {
+                if (zoom < 16 && seq === -999) {
                     cloud.get().map.removeLayer(store[id].layer);
                 } else {
                     cloud.get().map.addLayer(store[id].layer);
@@ -573,7 +573,7 @@ module.exports = module.exports = {
                     cloud.get().zoomToExtentOfgeoJsonStore(store[id], 16);
                 }
 
-                if (zoom < 16) {
+                if (zoom < 16 && seq === -999) {
                     cl[type] = new QCluster.PointClusterer(store[id].layer.toGeoJSON(), 'nigeria', cloud.get().map, 'nigeria-layer',
                         {
                             backgroundColor: models[type].color,
