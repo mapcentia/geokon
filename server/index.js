@@ -36,7 +36,8 @@ router.get('/api/extension/licenses/:token/:client', function (req, response) {
         uri: url,
         auth: config.extensionConfig.geokon.auth,
         headers: {
-            'auth-token': token
+            'auth-token': token,
+            'ip-address': ip
         },
     };
 
