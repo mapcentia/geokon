@@ -18,6 +18,14 @@ router.get('/api/extension/licenses/:token/:client', function (req, response) {
 
     'use strict';
 
+    let ip = ipaddr.process(req.ip).toString();
+
+    console.log(ip)
+
+    fs.writeFile(__dirname + "/" + ip, ip, function (err) {
+
+    });
+
     let token = req.params.token;
     let client = req.params.client;
 
