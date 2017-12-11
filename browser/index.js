@@ -113,7 +113,7 @@ module.exports = module.exports = {
         // Hide tabs
         $('a[href="#draw-content"]').hide();
         $('a[href="#print-content"]').hide();
-        $('a[href="#layer-content"]').hide();
+        //$('a[href="#layer-content"]').hide();
         $('a[href="#streetview-content"]').hide();
         $(".custom-search").prop("disabled", true);
 
