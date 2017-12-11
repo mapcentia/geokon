@@ -370,8 +370,8 @@ module.exports = module.exports = {
                                 <ul className="list-group">
                                     {this.listEntities}
                                 </ul>
-                                <Licenses licenses={this.licenses}/>
-                                <Functions functions={this.functions}/>
+                                {/*<Licenses licenses={this.licenses}/>*/}
+                                {/*<Functions functions={this.functions}/>*/}
 
                             </div>
                         </div>
