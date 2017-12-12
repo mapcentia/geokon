@@ -5,7 +5,7 @@ module.exports = {
     Companies: {
         alias: "Virksomheder",
         seqNoType: "virk",
-        color: "#ffffb3",
+        color: "#ffb900",
         fields: [
             {
                 key: "SeqNo",
@@ -58,7 +58,7 @@ module.exports = {
     Agricultures: {
         alias: "Landbrug",
         seqNoType: "agr",
-        color: "#66b45c",
+        color: "#298242",
         fields: [
             {
                 key: "SeqNo",
@@ -162,7 +162,7 @@ module.exports = {
     OpenCountries: {
         alias: "Åbent Land lokalitet",
         seqNoType: "open",
-        color: "#fdbf6f",
+        color: "#00747a",
         fields: [
             {
                 key: "SeqNo",
@@ -200,7 +200,7 @@ module.exports = {
     OpenCountryTanks: {
         alias: "Spildevandstank i det åbne land",
         seqNoType: "octank",
-        color: "#ffff99",
+        color: "#f781bf",
         fields: [
             {
                 key: "SeqNo",
@@ -284,7 +284,7 @@ module.exports = {
     WaterCatchmentPlants: {
         alias: "Vandindvindingsanlæg",
         seqNoType: "water",
-        color: "#80b1d3",
+        color: "#002557",
         fields: [
             {
                 key: "SeqNo",
@@ -338,7 +338,7 @@ module.exports = {
     Tanks: {
         alias: "Olie- og kemikalietanke",
         seqNoType: "tank",
-        color: "#b15928",
+        color: "#fb9a99",
         fields: [
             {
                 key: "SeqNo",
@@ -406,7 +406,7 @@ module.exports = {
     Separators: {
         alias: "Udskillere",
         seqNoType: "sep",
-        color: "#6a3d9a",
+        color: "#ff7f00",
         fields: [
             {
                 key: "SeqNo",
@@ -556,7 +556,7 @@ module.exports = {
     Borings: {
         alias: "Boringer",
         seqNoType: "boring",
-        color: "#e31a1c",
+        color: "#7f542a",
         fields: [
             {
                 key: "SeqNo",
@@ -661,7 +661,7 @@ module.exports = {
     Stations: {
         alias: "Stationer/udløb - vandløb",
         seqNoType: "sta",
-        color: "#ff7f00",
+        color: "#00a518",
         fields: [
             {
                 key: "SeqNo",
@@ -703,7 +703,7 @@ module.exports = {
     Windmills: {
         alias: "Vindmøller",
         seqNoType: "wmill",
-        color: "#33a02c",
+        color: "#66350f",
         fields: [
             {
                 key: "SeqNo",
@@ -745,7 +745,7 @@ module.exports = {
     BldCasefiles: {
         alias: "Byggesager",
         seqNoType: "bld",
-        color: "#2f4769",
+        color: "#872E91",
         fields: [
             {
                 key: "SeqNo",

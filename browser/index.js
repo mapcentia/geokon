@@ -501,7 +501,8 @@ module.exports = module.exports = {
                 weight: 5,
                 color: seq === -999 ? models[type].color : '#ff00ff',
                 dashArray: '',
-                fillOpacity: 0.2
+                fillOpacity: 0.2,
+                opacity: 1.0
             },
             error: function (e) {
                 console.error(e);
@@ -572,7 +573,7 @@ module.exports = module.exports = {
                 backboneEvents.get().trigger("doneLoading:layers");
 
                 if (seq !== -999) {
-                    cloud.get().zoomToExtentOfgeoJsonStore(store[id], 16);
+                    cloud.get().zoomToExtentOfgeoJsonStore(store[id], 18);
                 }
 
                 if (zoom < 16 && seq === -999) {
@@ -582,7 +583,6 @@ module.exports = module.exports = {
                             dataFormat: 'GeoJSON'
                         });
                 }
-
 
             },
 
