@@ -407,7 +407,7 @@ module.exports = module.exports = {
 
                 console.log(licens);
 
-                $("#ge-licenses").html("GE GIS licens: <b>" + licens + "</b>");
+                $("#ge-licenses").html(licens);
 
                 if (licens === "none") {
                     return;
