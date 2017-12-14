@@ -158,6 +158,10 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
 
         for (let i = 0; i < json.value.length; i++) {
 
+            if (json.value[i].GeometryWKT === null) {
+                break;
+            }
+
             let unprojPrimitive = reproject.reproject(JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT))), "proj", "unproj", crss);
 
             let v = JSON.parse(JSON.stringify(unprojPrimitive));
