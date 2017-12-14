@@ -507,7 +507,7 @@ module.exports = module.exports = {
             error: function (e) {
                 console.error(e);
                 if (e.status !== 0) {
-                    alert("Got an error from GeoEnviron")
+                    console("Got an error from GeoEnviron")
                 }
             },
 
