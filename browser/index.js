@@ -414,7 +414,7 @@ module.exports = module.exports = {
 
                 console.log(licens);
 
-                $("#ge-licensesge-licenses").html(licens);
+                $("#ge-licenses").html(licens);
 
                 if (licens === "none") {
                     return;
