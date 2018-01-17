@@ -12,6 +12,10 @@ module.exports = {
                 alias: "SeqNo"
 
             }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
+
+            }, {
                 key: "Id",
                 alias: "Lok nr."
 
@@ -63,6 +67,10 @@ module.exports = {
             {
                 key: "SeqNo",
                 alias: "SeqNo"
+
+            }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
 
             }, {
                 key: "Id",
@@ -119,6 +127,10 @@ module.exports = {
                 alias: "SeqNo"
 
             }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
+
+            }, {
                 key: "Id",
                 alias: "Id"
 
@@ -169,6 +181,10 @@ module.exports = {
                 alias: "SeqNo"
 
             }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
+
+            }, {
                 key: "Id",
                 alias: "Id"
 
@@ -205,6 +221,10 @@ module.exports = {
             {
                 key: "SeqNo",
                 alias: "SeqNo"
+
+            }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
 
             }, {
                 key: "Id",
@@ -253,6 +273,10 @@ module.exports = {
                 alias: "SeqNo"
 
             }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
+
+            }, {
                 key: "Id",
                 alias: "Id"
 
@@ -289,6 +313,10 @@ module.exports = {
             {
                 key: "SeqNo",
                 alias: "SeqNo"
+
+            }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
 
             }, {
                 key: "Id",
@@ -343,6 +371,10 @@ module.exports = {
             {
                 key: "SeqNo",
                 alias: "SeqNo"
+
+            }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
 
             }, {
                 key: "Id",
@@ -413,6 +445,10 @@ module.exports = {
                 alias: "SeqNo"
 
             }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
+
+            }, {
                 key: "Id",
                 alias: "Lok nr."
 
@@ -475,6 +511,10 @@ module.exports = {
                 alias: "SeqNo"
 
             }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
+
+            }, {
                 key: "Id",
                 alias: "Lok nr."
 
@@ -509,6 +549,10 @@ module.exports = {
             {
                 key: "SeqNo",
                 alias: "SeqNo"
+
+            }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
 
             }, {
                 key: "Id",
@@ -561,6 +605,15 @@ module.exports = {
             {
                 key: "SeqNo",
                 alias: "SeqNo"
+
+            }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
+
+            },
+            {
+                key: "SeqNoType",
+                alias: "SeqNoType"
 
             },
             {
@@ -621,6 +674,10 @@ module.exports = {
                 alias: "SeqNo"
 
             }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
+
+            }, {
                 key: "Id",
                 alias: "Lok nr."
 
@@ -668,6 +725,10 @@ module.exports = {
                 alias: "SeqNo"
 
             }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
+
+            }, {
                 key: "Id",
                 alias: "Vandløbets Id"
 
@@ -710,6 +771,10 @@ module.exports = {
                 alias: "SeqNo"
 
             }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
+
+            }, {
                 key: "Id",
                 alias: "Lok nr."
 
@@ -750,6 +815,10 @@ module.exports = {
             {
                 key: "SeqNo",
                 alias: "SeqNo"
+
+            }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
 
             }, {
                 key: "Id",

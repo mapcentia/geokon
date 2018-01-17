@@ -52,6 +52,10 @@ var cl = [];
 
 var licens;
 
+var toolBar;
+
+var jquery = require('jquery');
+require('snackbarjs');
 
 var models = require('../models');
 
@@ -75,6 +79,10 @@ var template =
  * @type {string}
  */
 var exId = "geoenviron";
+
+var WKT = require('terraformer-wkt-parser');
+
+var reproject = require('reproject');
 
 /**
  *
@@ -381,7 +389,6 @@ module.exports = module.exports = {
         }
 
         this.getLicens().then(
-
             function (licenses) {
 
                 licens = "none";
@@ -403,11 +410,11 @@ module.exports = module.exports = {
                 }
 
                 // Test
-                //licens = "gispro";
+                //licens = "gisbasis";
 
                 console.log(licens);
 
-                $("#ge-licenses").html(licens);
+                $("#ge-licensesge-licenses").html(licens);
 
                 if (licens === "none") {
                     return;
@@ -461,6 +468,7 @@ module.exports = module.exports = {
         let seq = seqNo !== undefined ? seqNo : -999;
         let id = seqNo !== undefined ? "s_" + type : type;
         let cm = [];
+        let marker;
 
         // Set auth
         let token = urlVars.token;
@@ -475,6 +483,11 @@ module.exports = module.exports = {
             store[id].reset();
         } catch (e) {
         }
+
+        // events
+        cloud.get().map.on("editable:editing", function () {
+            //alert("editable:editing");
+        });
 
         $.each(models[type].fields, function (i, v) {
             cm.push({
@@ -528,9 +541,9 @@ module.exports = module.exports = {
 
             onLoad: function () {
 
-                var zoom = cloud.get().map.getZoom();
+                var zoom = cloud.get().map.getZoom(), zoonBreak = 16;
 
-                if (zoom < 16 && seq === -999) {
+                if (zoom < zoonBreak && seq === -999) {
                     cloud.get().map.removeLayer(store[id].layer);
                 } else {
                     cloud.get().map.addLayer(store[id].layer);
@@ -550,8 +563,7 @@ module.exports = module.exports = {
                             width = ne_px.x - sw_px.x,
                             height = sw_px.y - ne_px.y;
 
-
-                        if (height < minSize || width < minSize || zoom < 16) {
+                        if (height < minSize || width < minSize || zoom < zoonBreak) {
 
                             store[id].layer.removeLayer(layer);
 
@@ -568,15 +580,124 @@ module.exports = module.exports = {
 
                 });
 
-                //table[type].loadDataInTable(true);
-
                 backboneEvents.get().trigger("doneLoading:layers");
 
-                if (seq !== -999) {
+                if (seq !== -999 && store[id].geoJSON.features[0].geometry !== null) {
                     cloud.get().zoomToExtentOfgeoJsonStore(store[id], 18);
                 }
 
-                if (zoom < 16 && seq === -999) {
+                if (seq !== -999 && store[id].geoJSON.features[0].geometry === null) {
+
+                    var editor;
+
+                    var action = L._ToolbarAction.extend({
+                        initialize: function (map, myAction) {
+                            this.map = cloud.get().map;
+                            this.myAction = myAction;
+                            L._ToolbarAction.prototype.initialize.call(this);
+                        },
+                        addHooks: function () {
+                            // this.myAction.disable();
+                        }
+                    });
+
+                    var cancel = action.extend({
+                        options: {
+                            toolbarIcon: {
+                                html: '<i class="fa fa-times"></i>',
+                                tooltip: 'Cancel'
+                            }
+                        },
+                        addHooks: function () {
+                            if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
+                                cloud.get().map.editTools.stopDrawing();
+                                editor.disableEdit();
+                                cloud.get().map.removeLayer(editor);
+                            } else {
+                                return;
+                            }
+                            this.myAction.disable();
+                            action.prototype.addHooks.call(this);
+                        }
+                    });
+
+                    var start = action.extend({
+
+                        options: {
+                            toolbarIcon: {
+                                className: 'fa fa-play'
+
+                            },
+                            subToolbar: new L._Toolbar({
+                                actions: [
+                                    cancel
+                                ]
+                            })
+                        },
+
+                        addHooks: function () {
+                            try {
+                                cloud.get().map.removeLayer(editor);
+
+                            } catch (e) {
+
+                            }
+                            if (id === "s_Borings") {
+                                editor = cloud.get().map.editTools.startMarker();
+                            } else {
+                                editor = cloud.get().map.editTools.startPolygon();
+
+                            }
+                        }
+                    });
+
+
+                    var save = action.extend({
+
+                        options: {
+                            toolbarIcon: {
+                                className: 'fa fa-floppy-o'
+                            }
+                        },
+
+                        addHooks: function () {
+
+                            // Save feature
+                            var json = editor.toGeoJSON();
+
+                            console.log(json);
+                            json.properties = store[id].geoJSON.features[0].properties;
+
+                            me.commitDrawing(store[id], json, type, token, client).then(
+                                function () {
+                                    cloud.get().map.removeLayer(editor);
+                                    cloud.get().map.removeLayer(toolBar);
+                                    jquery.snackbar({
+                                        id: "snackbar-conflict",
+                                        content: "Entity '" + json.properties.SeqNoType + "' (" + json.properties.SeqNo + ") stedfæstet",
+                                        htmlAllowed: true,
+                                        timeout: 5000
+                                    });
+
+                                },
+                                function (e) {
+                                    //error
+                                });
+                        }
+
+                    });
+
+
+                    toolBar = new L._Toolbar.Control({
+                        position: 'topright',
+                        actions: [start, save]
+                    });
+
+                    toolBar.addTo(cloud.get().map);
+
+                }
+
+                if (zoom < zoonBreak && seq === -999) {
                     cl[type] = new QCluster.PointClusterer(store[id].layer.toGeoJSON(), 'nigeria', cloud.get().map, 'nigeria-layer',
                         {
                             backgroundColor: models[type].color,
@@ -588,9 +709,151 @@ module.exports = module.exports = {
 
             onEachFeature: function (feature, layer) {
 
+                var saveFn, cancelFn;
+
                 if (licens === "gispro" || licens === "gispremium") {
                     layer.on("click", function () {
                         history.pushState(null, null, anchor.init() + "¤" + feature.properties.GELink.split("?")[1]);
+
+                    });
+
+                    layer.on("dblclick", function (e) {
+
+                        var showToolbar = false;
+
+                        try {
+                            store["s_" + id].reset();
+                        } catch (e) {
+                        }
+
+                        if (e.target.feature.geometry.type !== "Point") {
+
+                            //Disable editing on all layers
+                            store[id].layer.eachLayer(function (l) {
+                                try {
+                                    l.disableEdit();
+                                } catch (e) {
+                                }
+                            });
+
+                            e.target.enableEdit();
+
+                            cancelFn = function () {
+                                e.target.disableEdit();
+                            };
+
+                            saveFn = function () {
+                                e.target.disableEdit();
+                                return e.target.toGeoJSON();
+                            };
+
+                            showToolbar = true;
+
+                        }
+
+                        if (id === "Borings" || id === "s_Borings") {
+
+                            try {
+                                cloud.get().map.removeLayer(marker);
+                            } catch (e) {
+                            }
+
+                            marker = L.marker(
+                                e.target.getLatLng(),
+                                {
+                                    icon: L.AwesomeMarkers.icon({
+                                            icon: 'arrows',
+                                            markerColor: 'blue',
+                                            prefix: 'fa'
+                                        }
+                                    )
+                                }
+                            ).addTo(cloud.get().map);
+
+                            marker.enableEdit();
+
+                            cancelFn = function () {
+                                marker.disableEdit();
+                                cloud.get().map.removeLayer(marker);
+                            };
+
+                            saveFn = function () {
+                                marker.disableEdit();
+                                cloud.get().map.removeLayer(marker);
+                                let f = marker.toGeoJSON();
+                                f.properties = e.target.feature.properties;
+                                return f;
+                            };
+
+                            showToolbar = true;
+
+                        }
+
+                        toolBar = new L._Toolbar.Control({
+
+                            position: 'topright',
+                            actions: [
+
+                                // Stop
+                                L._ToolbarAction.extend({
+                                    options: {
+                                        toolbarIcon: {
+                                            className: 'fa fa-stop'
+
+                                        }
+                                    },
+
+                                    addHooks: function () {
+
+                                        if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
+                                            // Disable editing on all layers
+                                            cancelFn();
+                                            store[id].reset();
+                                            store[id].load();
+                                            cloud.get().map.removeLayer(toolBar);
+
+                                        }
+
+                                    }
+                                }),
+
+                                // Gem
+                                L._ToolbarAction.extend({
+
+                                    options: {
+                                        toolbarIcon: {
+                                            className: 'fa fa-floppy-o'
+                                        }
+                                    },
+
+                                    addHooks: function () {
+
+                                        var json = saveFn();
+
+                                        me.commitDrawing(store[id], json, type, token, client).then(
+                                            function () {
+                                                store[id].reset();
+                                                store[id].load();
+                                                cloud.get().map.removeLayer(toolBar);
+                                                jquery.snackbar({
+                                                    id: "snackbar-conflict",
+                                                    content: "Entity '" + json.properties.SeqNoType + "' (" + json.properties.SeqNo + ") ændret",
+                                                    htmlAllowed: true,
+                                                    timeout: 5000
+                                                });
+
+                                            }
+                                        );
+
+                                    }
+
+                                })]
+                        });
+
+                        if (showToolbar) {
+                            toolBar.addTo(cloud.get().map);
+                        }
+
                     });
                 }
 
@@ -643,6 +906,7 @@ module.exports = module.exports = {
                     }
                 });
             }
+
         });
 
         table[type] = gc2table.init({
@@ -668,16 +932,43 @@ module.exports = module.exports = {
 
     },
 
+    commitDrawing: function (store, json, type, token, client) {
+        // Transform og convert geometry
+        var wkt = WKT.convert(reproject.reproject(JSON.parse(JSON.stringify(json.geometry)), "unproj", "proj", {
+            "proj": "+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs",
+            "unproj": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+        }));
+
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                dataType: 'json',
+                url: "/api/extension/geoenviron/" + type + "/" + token + "/" + client,
+                type: "PUT",
+                data: "&seqNo=" + json.properties.SeqNo + "&seqNoType=" + json.properties.SeqNoType + "&geometryWKT=" + wkt,
+                success: function (data) {
+                    resolve();
+                },
+                error: function (error) {
+                    reject();
+                },
+                complete: function () {
+
+                }
+            });
+        })
+    },
+
     clear: function (type) {
         store[type].abort();
         store[type].reset();
-        cl[type].removeLayer();
+        try {
+            cl[type].removeLayer();
+        } catch (e) {
+            // pass
+        }
         cloud.get().removeGeoJsonStore(store[type]);
-
         table[type].moveEndOff();
-
         $("#geoenviron-table").empty();
-
     },
 
     getLicens: function () {

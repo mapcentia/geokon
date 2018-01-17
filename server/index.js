@@ -20,7 +20,7 @@ router.get('/api/extension/licenses/:token/:client', function (req, response) {
 
     let ip = ipaddr.process(req.ip).toString();
 
-    console.log(ip)
+    //console.log(ip)
 
     fs.writeFile(__dirname + "/" + ip, ip, function (err) {
 
@@ -41,7 +41,7 @@ router.get('/api/extension/licenses/:token/:client', function (req, response) {
         },
     };
 
-    console.log(options);
+    //console.log(options);
 
     request(options, function (err, res, body) {
 
@@ -104,10 +104,12 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
         ].join(",") + "))";
 
     if (parseInt(params[4]) > 0) {
-        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type +"?$format=json&$filter=SeqNo eq " + params[4];
+        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "?$format=json&$filter=SeqNo eq " + params[4];
     } else {
-        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type +"ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
+        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
     }
+
+    console.log(url);
 
     let options = {
         method: 'GET',
@@ -119,7 +121,7 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
         },
     };
 
-    console.log(options);
+    //console.log(options);
 
     request(options, function (err, res, body) {
 
@@ -158,21 +160,22 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
 
         for (let i = 0; i < json.value.length; i++) {
 
-            if (json.value[i].GeometryWKT === null) {
-                break;
+            var v = null, properties = {};
+
+            // Test
+            //json.value[i].GeometryWKT = null;
+
+            if (json.value[i].GeometryWKT !== null) {
+                let unprojPrimitive = reproject.reproject(JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT))), "proj", "unproj", crss);
+
+                v = JSON.parse(JSON.stringify(unprojPrimitive));
+
+                delete v.bbox;
             }
-
-            let unprojPrimitive = reproject.reproject(JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT))), "proj", "unproj", crss);
-
-            let v = JSON.parse(JSON.stringify(unprojPrimitive));
-
-            var properties = {};
 
             models[type].fields.map(function (e) {
                 properties[e.key] = json.value[i][e.key];
             });
-
-            delete v.bbox;
 
             gJSON.features.push(
                 {
@@ -181,9 +184,68 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
                     "properties": properties
                 }
             )
-
         }
         response.send(gJSON);
+    });
+});
+
+router.put('/api/extension/geoenviron/:type/:token/:client', function (req, response) {
+
+    'use strict';
+
+    let crss = {
+        "proj": "+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs",
+        "unproj": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+    };
+
+    let url;
+    let type = req.params.type;
+    let token = req.params.token;
+    let client = req.params.client;
+    let ip = ipaddr.process(req.ip).toString();
+
+    let seqNo = req.body.seqNo;
+    let seqNoType = req.body.seqNoType;
+    let geometryWKT = req.body.geometryWKT;
+
+
+    let json = {
+        "GeometryWKT": geometryWKT,
+        "SeqNo": seqNo,
+        "SeqNoType": seqNoType
+    };
+
+
+    url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/Geometries";
+
+    let options = {
+        method: 'POST',
+        uri: url,
+        auth: config.extensionConfig.geokon.auth,
+        json: json,
+        headers: {
+            'auth-token': token,
+            'ip-address': ip
+        },
+    };
+
+    //console.log(options);
+
+    request(options, function (err, res, body) {
+
+        response.header('content-type', 'application/json');
+        response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.header('Expires', '0');
+
+        if (err || res.statusCode !== 201) {
+            response.status(400).send({
+                success: false,
+                message: body
+            });
+            return;
+        }
+
+        response.send(body);
     });
 
 
