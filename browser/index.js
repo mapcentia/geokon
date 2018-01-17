@@ -529,13 +529,13 @@ module.exports = module.exports = {
             loading: function () {
 
                 try {
-                    cl[type].removeLayer();
+                    cl[id].removeLayer();
                 } catch (e) {
                     console.error(e.message)
                 }
 
-                layers.incrementCountLoading(type);
-                backboneEvents.get().trigger("startLoading:layers", type);
+                layers.incrementCountLoading(id);
+                backboneEvents.get().trigger("startLoading:layers", id);
                 console.log("loading");
             },
 
@@ -549,7 +549,7 @@ module.exports = module.exports = {
                     cloud.get().map.addLayer(store[id].layer);
                 }
 
-                layers.decrementCountLoading(type);
+                layers.decrementCountLoading(id);
 
                 $.each(store[id].layer._layers, function (x, layer) {
 
@@ -698,7 +698,7 @@ module.exports = module.exports = {
                 }
 
                 if (zoom < zoonBreak && seq === -999) {
-                    cl[type] = new QCluster.PointClusterer(store[id].layer.toGeoJSON(), 'nigeria', cloud.get().map, 'nigeria-layer',
+                    cl[id] = new QCluster.PointClusterer(store[id].layer.toGeoJSON(), 'nigeria', cloud.get().map, 'nigeria-layer',
                         {
                             backgroundColor: models[type].color,
                             dataFormat: 'GeoJSON'
@@ -909,7 +909,7 @@ module.exports = module.exports = {
 
         });
 
-        table[type] = gc2table.init({
+        table[id] = gc2table.init({
             el: "#geoenviron-table_" + type,
             geocloud2: cloud.get(),
             store: store[id],
@@ -961,14 +961,17 @@ module.exports = module.exports = {
     clear: function (type) {
         store[type].abort();
         store[type].reset();
+
         try {
             cl[type].removeLayer();
         } catch (e) {
-            // pass
+            console.info(e.message)
         }
+
         cloud.get().removeGeoJsonStore(store[type]);
         table[type].moveEndOff();
         $("#geoenviron-table").empty();
+
     },
 
     getLicens: function () {
