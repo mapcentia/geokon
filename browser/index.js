@@ -534,6 +534,8 @@ module.exports = module.exports = {
                     console.error(e.message)
                 }
 
+                cloud.get().map.closePopup();
+
                 layers.incrementCountLoading(id);
                 backboneEvents.get().trigger("startLoading:layers", id);
                 console.log("loading");
@@ -625,7 +627,7 @@ module.exports = module.exports = {
 
                         options: {
                             toolbarIcon: {
-                                className: 'fa fa-play'
+                                className: 'fa fa-pencil'
 
                             },
                             subToolbar: new L._Toolbar({
@@ -712,147 +714,174 @@ module.exports = module.exports = {
                 var saveFn, cancelFn;
 
                 if (licens === "gispro" || licens === "gispremium") {
-                    layer.on("click", function () {
+                    layer.on("click", function (e) {
                         history.pushState(null, null, anchor.init() + "¤" + feature.properties.GELink.split("?")[1]);
 
-                    });
-
-                    layer.on("dblclick", function (e) {
+                        var popup = L.popup({
+                            autoPan: false
+                        });
 
                         var showToolbar = false;
 
-                        try {
-                            store["s_" + id].reset();
-                        } catch (e) {
+                        if (e.target.feature.geometry.type !== "Point" || id === "Borings" || id === "s_Borings") {
+                            popup
+                                .setLatLng(e.latlng)
+                                .setContent('<button class="btn btn-primary btn-xs" id="ge-start-edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>')
+                                .openOn(cloud.get().map);
                         }
 
-                        if (e.target.feature.geometry.type !== "Point") {
-
-                            //Disable editing on all layers
-                            store[id].layer.eachLayer(function (l) {
-                                try {
-                                    l.disableEdit();
-                                } catch (e) {
-                                }
-                            });
-
-                            e.target.enableEdit();
-
-                            cancelFn = function () {
-                                e.target.disableEdit();
-                            };
-
-                            saveFn = function () {
-                                e.target.disableEdit();
-                                return e.target.toGeoJSON();
-                            };
-
-                            showToolbar = true;
-
-                        }
-
-                        if (id === "Borings" || id === "s_Borings") {
-
+                        $("#ge-start-edit").on("click", function(){
                             try {
-                                cloud.get().map.removeLayer(marker);
+                                store["s_" + id].reset();
                             } catch (e) {
                             }
 
-                            marker = L.marker(
-                                e.target.getLatLng(),
-                                {
-                                    icon: L.AwesomeMarkers.icon({
-                                            icon: 'arrows',
-                                            markerColor: 'blue',
-                                            prefix: 'fa'
-                                        }
-                                    )
-                                }
-                            ).addTo(cloud.get().map);
-
-                            marker.enableEdit();
-
-                            cancelFn = function () {
-                                marker.disableEdit();
-                                cloud.get().map.removeLayer(marker);
-                            };
-
-                            saveFn = function () {
-                                marker.disableEdit();
-                                cloud.get().map.removeLayer(marker);
-                                let f = marker.toGeoJSON();
-                                f.properties = e.target.feature.properties;
-                                return f;
-                            };
-
-                            showToolbar = true;
-
-                        }
-
-                        toolBar = new L._Toolbar.Control({
-
-                            position: 'topright',
-                            actions: [
-
-                                // Stop
-                                L._ToolbarAction.extend({
-                                    options: {
-                                        toolbarIcon: {
-                                            className: 'fa fa-stop'
-
-                                        }
-                                    },
-
-                                    addHooks: function () {
-
-                                        if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
-                                            // Disable editing on all layers
-                                            cancelFn();
-                                            store[id].reset();
-                                            store[id].load();
-                                            cloud.get().map.removeLayer(toolBar);
-
-                                        }
-
+                            //Disable editing on all layers
+                            Object.keys(store).map(function (k) {
+                                store[k].layer.eachLayer(function (l) {
+                                    try {
+                                        l.disableEdit();
+                                    } catch (e) {
                                     }
-                                }),
+                                });
+                            });
+                            // Enable reload on all layers
+                            Object.keys(table).map(function (k) {
+                                table[k].moveEndOn();
+                            });
 
-                                // Gem
-                                L._ToolbarAction.extend({
+                            if (e.target.feature.geometry.type !== "Point") {
 
-                                    options: {
-                                        toolbarIcon: {
-                                            className: 'fa fa-floppy-o'
-                                        }
-                                    },
+                                e.target.enableEdit();
+                                cloud.get().map.closePopup();
+                                table[type].moveEndOff();
 
-                                    addHooks: function () {
+                                cancelFn = function () {
+                                    e.target.disableEdit();
+                                    table[type].moveEndOn();
+                                };
 
-                                        var json = saveFn();
+                                saveFn = function () {
+                                    e.target.disableEdit();
+                                    table[type].moveEndOn();
+                                    return e.target.toGeoJSON();
+                                };
 
-                                        me.commitDrawing(store[id], json, type, token, client).then(
-                                            function () {
+                                showToolbar = true;
+
+                            }
+
+                            if (id === "Borings" || id === "s_Borings") {
+
+                                try {
+                                    cloud.get().map.removeLayer(marker);
+                                } catch (e) {
+                                }
+
+                                marker = L.marker(
+                                    e.target.getLatLng(),
+                                    {
+                                        icon: L.AwesomeMarkers.icon({
+                                                icon: 'arrows',
+                                                markerColor: 'blue',
+                                                prefix: 'fa'
+                                            }
+                                        )
+                                    }
+                                ).addTo(cloud.get().map);
+
+                                marker.enableEdit();
+
+                                cloud.get().map.closePopup();
+
+                                table[type].moveEndOff();
+
+                                cancelFn = function () {
+                                    marker.disableEdit();
+                                    table[type].moveEndOn();
+                                    cloud.get().map.removeLayer(marker);
+                                };
+
+                                saveFn = function () {
+                                    marker.disableEdit();
+                                    table[type].moveEndOn();
+                                    cloud.get().map.removeLayer(marker);
+                                    let f = marker.toGeoJSON();
+                                    f.properties = e.target.feature.properties;
+                                    return f;
+                                };
+
+                                showToolbar = true;
+
+                            }
+
+                            toolBar = new L._Toolbar.Control({
+
+                                position: 'topright',
+                                actions: [
+
+                                    // Stop
+                                    L._ToolbarAction.extend({
+                                        options: {
+                                            toolbarIcon: {
+                                                className: 'fa fa-stop'
+
+                                            }
+                                        },
+
+                                        addHooks: function () {
+
+                                            if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
+                                                // Disable editing on all layers
+                                                cancelFn();
                                                 store[id].reset();
                                                 store[id].load();
                                                 cloud.get().map.removeLayer(toolBar);
-                                                jquery.snackbar({
-                                                    id: "snackbar-conflict",
-                                                    content: "Entity '" + json.properties.SeqNoType + "' (" + json.properties.SeqNo + ") ændret",
-                                                    htmlAllowed: true,
-                                                    timeout: 5000
-                                                });
 
                                             }
-                                        );
 
-                                    }
+                                        }
+                                    }),
 
-                                })]
+                                    // Gem
+                                    L._ToolbarAction.extend({
+
+                                        options: {
+                                            toolbarIcon: {
+                                                className: 'fa fa-floppy-o'
+                                            }
+                                        },
+
+                                        addHooks: function () {
+
+                                            var json = saveFn();
+
+                                            me.commitDrawing(store[id], json, type, token, client).then(
+                                                function () {
+                                                    store[id].reset();
+                                                    store[id].load();
+                                                    cloud.get().map.removeLayer(toolBar);
+                                                    jquery.snackbar({
+                                                        id: "snackbar-conflict",
+                                                        content: "Entity '" + json.properties.SeqNoType + "' (" + json.properties.SeqNo + ") ændret",
+                                                        htmlAllowed: true,
+                                                        timeout: 5000
+                                                    });
+
+                                                }
+                                            );
+
+                                        }
+
+                                    })]
+                            });
+
+                            if (showToolbar) {
+                                toolBar.addTo(cloud.get().map);
+                            }
                         });
 
-                        if (showToolbar) {
-                            toolBar.addTo(cloud.get().map);
-                        }
+
 
                     });
                 }
@@ -915,7 +944,7 @@ module.exports = module.exports = {
             store: store[id],
             cm: cm,
             autoUpdate: seq === -999,
-            autoPan: true,
+            autoPan: false,
             openPopUp: false,
             setViewOnSelect: false,
             responsive: false,
