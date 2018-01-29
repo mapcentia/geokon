@@ -118,6 +118,8 @@ module.exports = module.exports = {
 
         var me = this;
 
+        var visibleGeLayers = [];
+
         // Hide tabs
         $('a[href="#draw-content"]').hide();
         $('a[href="#print-content"]').hide();
@@ -245,6 +247,20 @@ module.exports = module.exports = {
             });
         }
 
+        // Get GE layers from URL param
+        if (urlVars.gelayers) {
+            visibleGeLayers = urlVars.gelayers.split(",");
+
+        } else {
+            visibleGeLayers = [];
+        }
+
+        if (visibleGeLayers.length > 0) {
+            visibleGeLayers = visibleGeLayers.map(function (e) {
+                return e.split("#")[0];
+            });
+        }
+
         var entities = [];
 
         $.each(models, function (i, v) {
@@ -359,15 +375,28 @@ module.exports = module.exports = {
                     }
                 });
 
+                $.each(visibleGeLayers, function (i, v) {
+                    console.log(v)
+                    $('*[data-key="' + v + '"]').prop('checked', true);
+                    parentThis.request(v);
+                });
+
             }
 
             switch(e) {
-
                 if (e.target.checked) {
-                    parentThis.request(e.target.dataset.key)
+
+                    visibleGeLayers.push(e.target.dataset.key);
+                    parentThis.request(e.target.dataset.key);
+
                 } else {
-                    parentThis.clear(e.target.dataset.key)
+                    let index = visibleGeLayers.indexOf(e.target.dataset.key);
+                    if (index > -1) {
+                        visibleGeLayers.splice(index, 1);
+                    }
+                    parentThis.clear(e.target.dataset.key);
                 }
+                window.history.pushState('', '', parentThis.updateURLParameter(window.location.href, 'gelayers',  visibleGeLayers.join(",") + anchor.getAnchor()));
             }
 
             render() {
@@ -745,9 +774,11 @@ module.exports = module.exports = {
                                     }
                                 });
                             });
-                            // Enable reload on all layers
+                            // Enable reload on all layers, except select layers
                             Object.keys(table).map(function (k) {
-                                table[k].moveEndOn();
+                                if (k.substring(0,2) !== "s_") {
+                                    table[k].moveEndOn();
+                                }
                             });
 
                             if (e.target.feature.geometry.type !== "Point") {
@@ -1025,5 +1056,25 @@ module.exports = module.exports = {
                 }
             });
         })
+    },
+
+    updateURLParameter: function(url, param, paramVal){
+        var newAdditionalURL = "";
+        var tempArray = url.split("?");
+        var baseURL = tempArray[0];
+        var additionalURL = tempArray[1];
+        var temp = "";
+        if (additionalURL) {
+            tempArray = additionalURL.split("&");
+            for (var i=0; i<tempArray.length; i++){
+                if(tempArray[i].split('=')[0] != param){
+                    newAdditionalURL += temp + tempArray[i];
+                    temp = "&";
+                }
+            }
+        }
+
+        var rows_txt = temp + "" + param + "=" + paramVal;
+        return baseURL + "?" + newAdditionalURL + rows_txt;
     }
 };
