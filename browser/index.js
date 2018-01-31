@@ -403,7 +403,10 @@ module.exports = module.exports = {
                     str = str.substring(1);
                 }
 
-                window.history.pushState('', '', parentThis.updateURLParameter(window.location.href, 'gelayers',  str + anchor.getAnchor()));
+               // window.history.pushState('', '', parentThis.updateURLParameter(window.location.href, 'gelayers',  str + anchor.getAnchor()));
+
+                history.pushState(null, null, anchor.init() + "¤&gelayers=" + str);
+
             }
 
             render() {
