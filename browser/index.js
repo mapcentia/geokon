@@ -376,7 +376,6 @@ module.exports = module.exports = {
                 });
 
                 $.each(visibleGeLayers, function (i, v) {
-                    console.log(v)
                     $('*[data-key="' + v + '"]').prop('checked', true);
                     parentThis.request(v);
                 });
@@ -384,6 +383,7 @@ module.exports = module.exports = {
             }
 
             switch(e) {
+
                 if (e.target.checked) {
 
                     visibleGeLayers.push(e.target.dataset.key);
@@ -396,7 +396,14 @@ module.exports = module.exports = {
                     }
                     parentThis.clear(e.target.dataset.key);
                 }
-                window.history.pushState('', '', parentThis.updateURLParameter(window.location.href, 'gelayers',  visibleGeLayers.join(",") + anchor.getAnchor()));
+
+                var str = visibleGeLayers.join(",");
+
+                if (str.substring(0, 1) == ',') {
+                    str = str.substring(1);
+                }
+
+                window.history.pushState('', '', parentThis.updateURLParameter(window.location.href, 'gelayers',  str + anchor.getAnchor()));
             }
 
             render() {
