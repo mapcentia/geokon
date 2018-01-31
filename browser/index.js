@@ -399,7 +399,7 @@ module.exports = module.exports = {
 
                 var str = visibleGeLayers.join(",");
 
-                if (str.substring(0, 1) == ',') {
+                if (str.substring(0, 1) === ',') {
                     str = str.substring(1);
                 }
 
