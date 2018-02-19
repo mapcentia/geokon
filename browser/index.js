@@ -542,6 +542,7 @@ module.exports = module.exports = {
             jsonp: false,
             method: "POST",
             host: "",
+            base64: false,
             db: "",
             uri: "/api/extension/geoenviron/" + type + "/" + token + "/" + client,
             clickable: true,
