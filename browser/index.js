@@ -40,7 +40,7 @@ var anchor;
  * @type {*|exports|module.exports}
  */
 var urlVars = require('./../../../browser/modules/urlparser').urlVars;
-
+var uriJs = require('./../../../browser/modules/urlparser').uriJs;
 
 var mapObj;
 
@@ -403,7 +403,10 @@ module.exports = module.exports = {
                     str = str.substring(1);
                 }
 
-                window.history.pushState('', '', parentThis.updateURLParameter(window.location.href, 'gelayers',  str + anchor.getAnchor()));
+                var uriObj = new uriJs(window.location.href);
+                uriObj.setSearch("gelayers", str);
+
+                window.history.pushState('', '', uriObj.toString());
             }
 
             render() {
@@ -1064,25 +1067,5 @@ module.exports = module.exports = {
                 }
             });
         })
-    },
-
-    updateURLParameter: function(url, param, paramVal){
-        var newAdditionalURL = "";
-        var tempArray = url.split("?");
-        var baseURL = tempArray[0];
-        var additionalURL = tempArray[1];
-        var temp = "";
-        if (additionalURL) {
-            tempArray = additionalURL.split("&");
-            for (var i=0; i<tempArray.length; i++){
-                if(tempArray[i].split('=')[0] != param){
-                    newAdditionalURL += temp + tempArray[i];
-                    temp = "&";
-                }
-            }
-        }
-
-        var rows_txt = temp + "" + param + "=" + paramVal;
-        return baseURL + "?" + newAdditionalURL + rows_txt;
     }
 };
