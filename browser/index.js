@@ -632,11 +632,11 @@ module.exports = module.exports = {
 
                     var editor;
 
-                    var action = L._ToolbarAction.extend({
+                    var action = LeafletToolbar.ToolbarAction.extend({
                         initialize: function (map, myAction) {
                             this.map = cloud.get().map;
                             this.myAction = myAction;
-                            L._ToolbarAction.prototype.initialize.call(this);
+                            LeafletToolbar.ToolbarAction.prototype.initialize.call(this);
                         },
                         addHooks: function () {
                             // this.myAction.disable();
@@ -670,7 +670,7 @@ module.exports = module.exports = {
                                 className: 'fa fa-pencil'
 
                             },
-                            subToolbar: new L._Toolbar({
+                            subToolbar: new LeafletToolbar({
                                 actions: [
                                     cancel
                                 ]
@@ -730,7 +730,7 @@ module.exports = module.exports = {
                     });
 
 
-                    toolBar = new L._Toolbar.Control({
+                    toolBar = new LeafletToolbar.Control({
                         position: 'topright',
                         actions: [start, save]
                     });
@@ -857,13 +857,13 @@ module.exports = module.exports = {
 
                             }
 
-                            toolBar = new L._Toolbar.Control({
+                            toolBar = new LeafletToolbar.Control({
 
                                 position: 'topright',
                                 actions: [
 
                                     // Stop
-                                    L._ToolbarAction.extend({
+                                    LeafletToolbar.ToolbarAction.extend({
                                         options: {
                                             toolbarIcon: {
                                                 className: 'fa fa-stop'
@@ -886,7 +886,7 @@ module.exports = module.exports = {
                                     }),
 
                                     // Gem
-                                    L._ToolbarAction.extend({
+                                    LeafletToolbar.ToolbarAction.extend({
 
                                         options: {
                                             toolbarIcon: {
