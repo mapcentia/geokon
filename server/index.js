@@ -250,4 +250,50 @@ router.put('/api/extension/geoenviron/:type/:token/:client', function (req, resp
 
 
 });
+
+router.delete('/api/extension/geoenviron/:type/:token/:client/:geometries', function (req, response) {
+
+    'use strict';
+    let url;
+    let type = req.params.type;
+    let token = req.params.token;
+    let client = req.params.client;
+    let geometries = req.params.geometries;
+    let ip = ipaddr.process(req.ip).toString();
+
+    url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/Geometries" + geometries;
+
+    console.log(url)
+
+    let options = {
+        method: 'DELETE',
+        uri: url,
+        auth: config.extensionConfig.geokon.auth,
+        headers: {
+            'auth-token': token,
+            'ip-address': ip
+        },
+    };
+
+    //console.log(options);
+
+    request(options, function (err, res, body) {
+
+        response.header('content-type', 'application/json');
+        response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.header('Expires', '0');
+
+        if (err || res.statusCode !== 201) {
+            response.status(400).send({
+                success: false,
+                message: body
+            });
+            return;
+        }
+
+        response.send(body);
+    });
+
+
+});
 module.exports = router;

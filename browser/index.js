@@ -711,7 +711,7 @@ module.exports = module.exports = {
                             json.properties = store[id].geoJSON.features[0].properties;
 
                             me.commitDrawing(store[id], json, type, token, client).then(
-                                function () {
+                                function (e) {
                                     cloud.get().map.removeLayer(editor);
                                     cloud.get().map.removeLayer(toolBar);
                                     jquery.snackbar({
@@ -723,7 +723,8 @@ module.exports = module.exports = {
 
                                 },
                                 function (e) {
-                                    //error
+                                    // Error
+                                    alert(e.responseText);
                                 });
                         }
 
@@ -755,6 +756,7 @@ module.exports = module.exports = {
 
                 if (licens === "gispro" || licens === "gispremium") {
                     layer.on("click", function (e) {
+                        console.log(e)
                         history.pushState(null, null, anchor.init() + "¤" + feature.properties.GELink.split("?")[1]);
 
                         var popup = L.popup({
@@ -766,11 +768,32 @@ module.exports = module.exports = {
                         if (e.target.feature.geometry.type !== "Point" || id === "Borings" || id === "s_Borings") {
                             popup
                                 .setLatLng(e.latlng)
-                                .setContent('<button class="btn btn-primary btn-xs" id="ge-start-edit"><i class="fa fa-pencil" aria-hidden="true"></i></button>')
+                                .setContent('<button class="btn btn-primary btn-xs ge-start-edit"><i class="fa fa-pencil" aria-hidden="true"></i></button><button class="btn btn-primary btn-xs ge-delete"><i class="fa fa-trash" aria-hidden="true"></i></button>')
                                 .openOn(cloud.get().map);
                         }
+                        $(".ge-delete").unbind("click.ge-delete").bind("click.ge-delete", function () {
 
-                        $("#ge-start-edit").on("click", function(){
+                            if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
+                                // Disable editing on all layers
+
+                                me.commitDelete(store[id], e.target.toGeoJSON(), type, token, client).then(
+                                    function () {
+                                        store[id].reset();
+                                        store[id].load();
+                                        cloud.get().map.removeLayer(toolBar);
+                                    },
+                                    function (e) {
+                                        console.log(e);
+                                        alert(e.responseText);
+                                    });
+
+
+
+                            }
+
+                        });
+
+                        $(".ge-start-edit").unbind("click.ge-start-edit").bind("click.ge-start-edit", function () {
                             try {
                                 store["s_" + id].reset();
                             } catch (e) {
@@ -787,7 +810,7 @@ module.exports = module.exports = {
                             });
                             // Enable reload on all layers, except select layers
                             Object.keys(table).map(function (k) {
-                                if (k.substring(0,2) !== "s_") {
+                                if (k.substring(0, 2) !== "s_") {
                                     table[k].moveEndOn();
                                 }
                             });
@@ -899,7 +922,7 @@ module.exports = module.exports = {
                                             var json = saveFn();
 
                                             me.commitDrawing(store[id], json, type, token, client).then(
-                                                function () {
+                                                function (e) {
                                                     store[id].reset();
                                                     store[id].load();
                                                     cloud.get().map.removeLayer(toolBar);
@@ -910,6 +933,10 @@ module.exports = module.exports = {
                                                         timeout: 5000
                                                     });
 
+                                                },
+                                                function (e) {
+                                                    // Error
+                                                    alert(e.responseText);
                                                 }
                                             );
 
@@ -922,7 +949,6 @@ module.exports = module.exports = {
                                 toolBar.addTo(cloud.get().map);
                             }
                         });
-
 
 
                     });
@@ -1003,6 +1029,27 @@ module.exports = module.exports = {
 
     },
 
+    commitDelete: function (store, json, type, token, client) {
+        //http://devapp1:10051/GeoEnvironODataService.svc/Geometries(SeqNo=600300300M,SeqNoType='agr')
+
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+                dataType: 'json',
+                url: "/api/extension/geoenviron/" + type + "/" + token + "/" + client + "/(SeqNo=" + json.properties.SeqNo + ",SeqNoType='" + json.properties.SeqNoType + "')",
+                type: "DELETE",
+                success: function (data) {
+                    resolve(data);
+                },
+                error: function (error) {
+                    reject(error);
+                },
+                complete: function () {
+
+                }
+            });
+        })
+    },
+
     commitDrawing: function (store, json, type, token, client) {
         // Transform og convert geometry
         var wkt = WKT.convert(reproject.reproject(JSON.parse(JSON.stringify(json.geometry)), "unproj", "proj", {
@@ -1017,10 +1064,10 @@ module.exports = module.exports = {
                 type: "PUT",
                 data: "&seqNo=" + json.properties.SeqNo + "&seqNoType=" + json.properties.SeqNoType + "&geometryWKT=" + wkt,
                 success: function (data) {
-                    resolve();
+                    resolve(data);
                 },
                 error: function (error) {
-                    reject();
+                    reject(error);
                 },
                 complete: function () {
 
