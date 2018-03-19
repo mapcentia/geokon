@@ -1035,7 +1035,7 @@ module.exports = module.exports = {
         return new Promise(function (resolve, reject) {
             $.ajax({
                 dataType: 'json',
-                url: "/api/extension/geoenviron/" + type + "/" + token + "/" + client + "/(SeqNo=" + json.properties.SeqNo + ",SeqNoType='" + json.properties.SeqNoType + "')",
+                url: "/api/extension/geoenviron/" + type + "/" + token + "/" + client + "/(SeqNo=" + json.properties.SeqNo + "M"+ ",SeqNoType=%27" + json.properties.SeqNoType + "%27)",
                 type: "DELETE",
                 success: function (data) {
                     resolve(data);
@@ -1049,6 +1049,7 @@ module.exports = module.exports = {
             });
         })
     },
+
 
     commitDrawing: function (store, json, type, token, client) {
         // Transform og convert geometry
