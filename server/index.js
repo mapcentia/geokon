@@ -96,12 +96,12 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
     let p2 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(params[2]), parseFloat(params[3])]);
 
     let wkt = "POLYGON((" + [
-            p1[0] + " " + p1[1],
-            p1[0] + " " + p2[1],
-            p2[0] + " " + p2[1],
-            p2[0] + " " + p1[1],
-            p1[0] + " " + p1[1],
-        ].join(",") + "))";
+        p1[0] + " " + p1[1],
+        p1[0] + " " + p2[1],
+        p2[0] + " " + p2[1],
+        p2[0] + " " + p1[1],
+        p1[0] + " " + p1[1],
+    ].join(",") + "))";
 
     if (parseInt(params[4]) > 0) {
         url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "?$format=json&$filter=SeqNo eq " + params[4];
@@ -255,7 +255,6 @@ router.delete('/api/extension/geoenviron/:type/:token/:client/:geometries', func
 
     'use strict';
     let url;
-    let type = req.params.type;
     let token = req.params.token;
     let client = req.params.client;
     let geometries = req.params.geometries;
@@ -275,15 +274,13 @@ router.delete('/api/extension/geoenviron/:type/:token/:client/:geometries', func
         },
     };
 
-    //console.log(options);
-
     request(options, function (err, res, body) {
 
         response.header('content-type', 'application/json');
         response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
         response.header('Expires', '0');
 
-        if (err || res.statusCode !== 201) {
+        if (err || res.statusCode !== 204) {
             response.status(400).send({
                 success: false,
                 message: body
@@ -291,7 +288,9 @@ router.delete('/api/extension/geoenviron/:type/:token/:client/:geometries', func
             return;
         }
 
-        response.send(body);
+        response.status(200).send({
+            success: true
+        });
     });
 
 
