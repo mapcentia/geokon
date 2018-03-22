@@ -273,6 +273,29 @@ module.exports = module.exports = {
             })
         });
 
+        backboneEvents.get().on("end:conflictSearch", function (e) {
+            console.log(e)
+
+            let token = urlVars.token;
+            let client = urlVars.client;
+
+            $.ajax({
+                dataType: 'json',
+                url: '/api/extension/conflict/' + token + '/' + client,
+                type: "POST",
+                success: function (data) {
+
+
+                },
+                error: function (error) {
+                    console(error.responseJSON.message);
+                },
+                complete: function () {
+
+                }
+            });
+        });
+
         class Licenses extends React.Component {
             constructor(props) {
                 super(props);
