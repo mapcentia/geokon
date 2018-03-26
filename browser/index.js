@@ -57,6 +57,8 @@ var toolBar;
 var jquery = require('jquery');
 require('snackbarjs');
 
+var io = require('socket.io-client');
+
 var models = require('../models');
 
 var functions = require('../functions');
@@ -83,6 +85,7 @@ var exId = "geoenviron";
 var WKT = require('terraformer-wkt-parser');
 
 var reproject = require('reproject');
+var socketId;
 
 /**
  *
@@ -101,6 +104,7 @@ module.exports = module.exports = {
         utils = o.utils;
         layers = o.layers;
         anchor = o.anchor;
+        socketId = o.socketId;
         backboneEvents = o.backboneEvents;
         return this;
     },
@@ -119,6 +123,25 @@ module.exports = module.exports = {
         var me = this;
 
         var visibleGeLayers = [];
+
+        // Start listen to the web socket
+        io.connect().on(socketId.get(), function (data) {
+            if (typeof data.num !== "undefined") {
+                $("#conflict-ge-progress").html(data.num + " " + (data.title || data.table));
+                if (data.error === null) {
+                    $("#conflict-ge-console").append(data.num + " table: " + data.table + ", hits: " + data.hits + " , time: " + data.time + "\n");
+                } else {
+                    $("#conflict-ge-console").append(data.table + " : " + data.error + "\n");
+                }
+            }
+        });
+
+        $(document).arrive('[data-key]', function () {
+            $(this).on("change", function (e) {
+                parentThis.switchLayer($(this).data('key'), $(this).context.checked);
+                e.stopPropagation();
+            });
+        });
 
         // Hide tabs
         $('a[href="#draw-content"]').hide();
@@ -274,27 +297,73 @@ module.exports = module.exports = {
         });
 
         backboneEvents.get().on("end:conflictSearch", function (e) {
-            console.log(e)
 
             let token = urlVars.token;
             let client = urlVars.client;
+
+            jquery.snackbar({
+                id: "snackbar-ge-conflict",
+                content: "<span id='conflict-ge-progress'>" + __("Waiting to start....") + "</span>",
+                htmlAllowed: true,
+                timeout: 1000000
+            });
 
             $.ajax({
                 dataType: 'json',
                 url: '/api/extension/conflict/' + token + '/' + client,
                 type: "POST",
-                success: function (data) {
+                data: "wkt=" + e.projWktWithBuffer + "&socketId=" + socketId.get(),
+                success: function (response) {
+                    let row, hitsTable = $("#hits table"), noHitsTable = $("#nohits table");
+                    $.each(response.hits, function (i, v) {
+                        row = "<tr><td>" + v.title + "</td><td>" + v.hits + "</td><td><div class='checkbox'><label><input type='checkbox' data-key='" + i + "' " + ($.inArray(i, visibleGeLayers) > -1 ? "checked" : "") + "></label></div></td></tr>";
 
+                        if (v.hits > 0) {
+                            hitsTable.append(row);
+                        } else {
+                            noHitsTable.append(row);
 
+                        }
+
+                    })
                 },
                 error: function (error) {
-                    console(error.responseJSON.message);
+                    console.error(error.responseJSON.message);
                 },
                 complete: function () {
-
+                    jquery("#snackbar-ge-conflict").snackbar("hide");
                 }
             });
         });
+
+        this.switchLayer = function (layer, visible) {
+            console.log(layer)
+            let el = $('*[data-key="' + layer + '"]');
+            if (visible) {
+                visibleGeLayers.push(layer);
+                parentThis.request(layer);
+                el.prop('checked', true);
+
+            } else {
+                let index = visibleGeLayers.indexOf(layer);
+                if (index > -1) {
+                    visibleGeLayers.splice(index, 1);
+                }
+                parentThis.clear(layer);
+                el.prop('checked', false);
+            }
+
+            var str = visibleGeLayers.join(",");
+
+            if (str.substring(0, 1) === ',') {
+                str = str.substring(1);
+            }
+
+            var uriObj = new uriJs(window.location.href);
+            uriObj.setSearch("gelayers", str);
+
+            window.history.pushState('', '', uriObj.toString());
+        };
 
         class Licenses extends React.Component {
             constructor(props) {
@@ -407,29 +476,8 @@ module.exports = module.exports = {
 
             switch(e) {
 
-                if (e.target.checked) {
+                //parentThis.switchLayer(e.target.dataset.key, e.target.checked)
 
-                    visibleGeLayers.push(e.target.dataset.key);
-                    parentThis.request(e.target.dataset.key);
-
-                } else {
-                    let index = visibleGeLayers.indexOf(e.target.dataset.key);
-                    if (index > -1) {
-                        visibleGeLayers.splice(index, 1);
-                    }
-                    parentThis.clear(e.target.dataset.key);
-                }
-
-                var str = visibleGeLayers.join(",");
-
-                if (str.substring(0, 1) === ',') {
-                    str = str.substring(1);
-                }
-
-                var uriObj = new uriJs(window.location.href);
-                uriObj.setSearch("gelayers", str);
-
-                window.history.pushState('', '', uriObj.toString());
             }
 
             render() {
@@ -449,6 +497,7 @@ module.exports = module.exports = {
                 );
             }
         }
+
 
         this.getLicens().then(
             function (licenses) {
@@ -811,7 +860,6 @@ module.exports = module.exports = {
                                     });
 
 
-
                             }
 
                         });
@@ -1058,7 +1106,7 @@ module.exports = module.exports = {
         return new Promise(function (resolve, reject) {
             $.ajax({
                 dataType: 'json',
-                url: "/api/extension/geoenviron/" + type + "/" + token + "/" + client + "/(SeqNo=" + json.properties.SeqNo + "M"+ ",SeqNoType=%27" + json.properties.SeqNoType + "%27)",
+                url: "/api/extension/geoenviron/" + type + "/" + token + "/" + client + "/(SeqNo=" + json.properties.SeqNo + "M" + ",SeqNoType=%27" + json.properties.SeqNoType + "%27)",
                 type: "DELETE",
                 success: function (data) {
                     resolve(data);

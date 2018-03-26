@@ -4,6 +4,7 @@ var router = express.Router();
 var http = require('http');
 var fs = require('fs');
 var ipaddr = require('ipaddr.js');
+var moment = require('moment');
 
 var reproject = require('reproject');
 var WKT = require('terraformer-wkt-parser');
@@ -300,111 +301,98 @@ router.post('/api/extension/conflict/:token/:client', function (req, response) {
 
     'use strict';
 
-    let crss = {
-        "proj": "+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs",
-        "unproj": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-    };
-
     let url;
     let token = req.params.token;
     let client = req.params.client;
     let ip = ipaddr.process(req.ip).toString();
     let wkt = req.body.wkt;
+    let socketId = req.body.socketId;
     let modelsKeys = [];
+    let count = 0;
+    let type;
+    let hit;
+    let hits = {};
+
+    response.header('content-type', 'application/json');
+    response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.header('Expires', '0');
 
 
     for (var key in models) {
         if (models.hasOwnProperty(key)) {
-            console.log(key);
             modelsKeys.push(key);
         }
     }
 
 
     (function iter() {
+        let startTime = new Date().getTime();
 
-    })()
+        type = modelsKeys[count];
+        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
+        console.log(url)
 
-    url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
-
-    console.log(url);
-
-    let options = {
-        method: 'POST',
-        uri: url,
-        auth: config.extensionConfig.geokon.auth,
-        headers: {
-            'auth-token': token,
-            'ip-address': ip
-        },
-    };
-
-    //console.log(options);
-
-    request(options, function (err, res, body) {
-
-        response.header('content-type', 'application/json');
-        response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
-        response.header('Expires', '0');
-
-        console.log(body);
-
-        let json;
-
-        try {
-            json = JSON.parse(body);
-
-        } catch (e) {
-            response.status(500).send({
-                success: false,
-                message: "Could not parse JSON from GeoEnviron"
-            });
-            return;
-        }
-
-        if (err || res.statusCode !== 200) {
-            response.status(400).send({
-                success: false,
-                message: json
-            });
-            return;
-        }
-
-        let gJSON = {
-            "type": "FeatureCollection",
-            "features": [],
-            "success": true
+        let options = {
+            method: 'GET',
+            uri: url,
+            auth: config.extensionConfig.geokon.auth,
+            headers: {
+                'auth-token': token,
+                'ip-address': ip
+            },
         };
 
-        for (let i = 0; i < json.value.length; i++) {
+        request(options, function (err, res, body) {
 
-            var v = null, properties = {};
+            let json, time = new Date().getTime() - startTime, error;
 
-            // Test
-            //json.value[i].GeometryWKT = null;
+            try {
+                json = JSON.parse(body);
 
-            if (json.value[i].GeometryWKT !== null) {
-                let unprojPrimitive = reproject.reproject(JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT))), "proj", "unproj", crss);
-
-                v = JSON.parse(JSON.stringify(unprojPrimitive));
-
-                delete v.bbox;
+            } catch (e) {
+                error = body;
             }
 
-            models[type].fields.map(function (e) {
-                properties[e.key] = json.value[i][e.key];
-            });
+            if (err || res.statusCode !== 200) {
+                error = json;
+            }
 
-            gJSON.features.push(
-                {
-                    "type": "Feature",
-                    "geometry": v,
-                    "properties": properties
-                }
-            )
-        }
-        response.send(gJSON);
-    });
+            for (let i = 0; i < json.value.length; i++) {
+                console.log(json.value[i])
+
+            }
+
+            hit = {
+                table: type,
+                title: models[modelsKeys[count]].alias,
+                hits: json.value.length,
+                data: json.value,
+                num: (count+1) + "/" +modelsKeys.length,
+                time: time,
+                id: socketId,
+                error: error || null,
+                message: "",
+
+            };
+            hits[type] = hit;
+            io.emit(socketId, hit);
+
+            count++;
+
+            if (count === modelsKeys.length) {
+                var report = {
+                    hits: hits,
+                    dateTime: moment().format('MMMM Do YYYY, H:mm')
+                };
+                response.send(report);
+            } else {
+                iter();
+            }
+        });
+
+
+
+    })();
 });
 
 
