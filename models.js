@@ -171,6 +171,51 @@ module.exports = {
         ]
     },
 
+    ContaminatedLand: {
+        alias: "Jordforurenignslokalitet",
+        seqNoType: "indu",
+        color: "#d95f0e",
+        fields: [
+            {
+                key: "SeqNo",
+                alias: "SeqNo"
+
+            }, {
+                key: "SeqNoType",
+                alias: "SeqNoType"
+
+            }, {
+                key: "Id",
+                alias: "Id"
+
+            }, {
+                key: "Name",
+                alias: "Landbrugsnavn"
+
+            }, {
+                key: "Status",
+                alias: "Status"
+
+            }, {
+                key: "EnforceCount",
+                alias: "Antal Håndhævelser"
+
+            }, {
+                key: "LastEnforceTypeName",
+                alias: "Håndhævelsestype"
+
+            }, {
+                key: "LastEnforceDate",
+                alias: "Sidste håndhævelsesdato"
+
+            }, {
+                key: "LastEnforceStatusName",
+                alias: "Status på sidste håndhævelse"
+
+            }
+        ]
+    },
+
     OpenCountries: {
         alias: "Åbent Land lokalitet",
         seqNoType: "open",
