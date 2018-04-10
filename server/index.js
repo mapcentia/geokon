@@ -353,8 +353,10 @@ router.post('/api/extension/conflict/:token/:client', function (req, response) {
                 error = body;
             }
 
+            console.log(res.statusCode)
             if (err || res.statusCode !== 200) {
                 error = json;
+                json.value=[];
             }
 
             for (let i = 0; i < json.value.length; i++) {

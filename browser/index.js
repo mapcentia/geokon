@@ -324,8 +324,11 @@ module.exports = module.exports = {
                             noHitsTable.append(row);
 
                         }
+                    });
+                    var uriObj = new uriJs(window.location.href);
+                    uriObj.setSearch("conflictId", e.file);
+                    window.history.pushState('', '', uriObj.toString());
 
-                    })
                 },
                 error: function (error) {
                     console.error(error.responseJSON.message);
@@ -334,6 +337,12 @@ module.exports = module.exports = {
                     jquery("#snackbar-ge-conflict").snackbar("hide");
                 }
             });
+        });
+
+        backboneEvents.get().on("end:conflictSearchPrint", function (e) {
+            var uriObj = new uriJs(window.location.href);
+            uriObj.setSearch("pdfId", e.key);
+            window.history.pushState('', '', uriObj.toString());
         });
 
         this.switchLayer = function (layer, visible) {
@@ -361,7 +370,6 @@ module.exports = module.exports = {
 
             var uriObj = new uriJs(window.location.href);
             uriObj.setSearch("gelayers", str);
-
             window.history.pushState('', '', uriObj.toString());
         };
 
@@ -548,10 +556,12 @@ module.exports = module.exports = {
                     }
                 }
 
+
                 ReactDOM.render(
                     <GeoEnviron entities={entities} licenses={licenses} functions={fn}/>,
                     document.getElementById(exId)
                 );
+
 
                 $(".geoenviron-table-label").on("click", function (e) {
                     let type = ($(this).prev().children("input").data('key'));
@@ -569,8 +579,6 @@ module.exports = module.exports = {
                 //alert(e)
             }
         );
-
-
     },
 
     request: function (type, seqNoType, seqNo) {
