@@ -125,15 +125,17 @@ module.exports = module.exports = {
         var visibleGeLayers = [];
 
         // Start listen to the web socket
-        io.connect().on(socketId.get(), function (data) {
-            if (typeof data.num !== "undefined") {
-                $("#conflict-ge-progress").html(data.num + " " + (data.title || data.table));
-                if (data.error === null) {
-                    $("#conflict-ge-console").append(data.num + " table: " + data.table + ", hits: " + data.hits + " , time: " + data.time + "\n");
-                } else {
-                    $("#conflict-ge-console").append(data.table + " : " + data.error + "\n");
+        backboneEvents.get().on("on:conflict", function () {
+            io.connect().on(socketId.get(), function (data) {
+                if (typeof data.num !== "undefined") {
+                    $("#conflict-ge-progress").html(data.num + " " + (data.title || data.table));
+                    if (data.error === null) {
+                        $("#conflict-ge-console").append(data.num + " table: " + data.table + ", hits: " + data.hits + " , time: " + data.time + "\n");
+                    } else {
+                        $("#conflict-ge-console").append(data.table + " : " + data.error + "\n");
+                    }
                 }
-            }
+            });
         });
 
         $(document).arrive('[data-key]', function () {
@@ -322,9 +324,9 @@ module.exports = module.exports = {
                             hitsTable.append(row);
                         } else {
                             noHitsTable.append(row);
-
                         }
                     });
+
                     var uriObj = new uriJs(window.location.href);
                     uriObj.setSearch("conflictId", e.file);
                     window.history.pushState('', '', uriObj.toString());
