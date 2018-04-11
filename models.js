@@ -171,7 +171,7 @@ module.exports = {
         ]
     },
 
-    ContaminatedLands: {
+    /*ContaminatedLands: {
         alias: "Jordforureningslokalitet",
         seqNoType: "indu",
         color: "#d95f0e",
@@ -219,7 +219,7 @@ module.exports = {
 
             }
         ]
-    },
+    },*/
 
     OpenCountries: {
         alias: "Åbent Land lokalitet",
