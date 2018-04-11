@@ -171,8 +171,8 @@ module.exports = {
         ]
     },
 
-    ContaminatedLand: {
-        alias: "Jordforurenignslokalitet",
+    ContaminatedLands: {
+        alias: "Jordforureningslokalitet",
         seqNoType: "indu",
         color: "#d95f0e",
         fields: [
