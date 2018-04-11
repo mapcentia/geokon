@@ -190,10 +190,10 @@ module.exports = {
 
             }, {
                 key: "Name",
-                alias: "Landbrugsnavn"
+                alias: "Lokalitetsnavn"
 
             }, {
-                key: "Status",
+                key: "StatusName",
                 alias: "Status"
 
             }, {
@@ -211,6 +211,11 @@ module.exports = {
             }, {
                 key: "LastEnforceStatusName",
                 alias: "Status på sidste håndhævelse"
+
+            },
+            {
+                key: "GELink",
+                alias: "GELink"
 
             }
         ]
