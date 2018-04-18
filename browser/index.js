@@ -329,7 +329,7 @@ module.exports = module.exports = {
                         }
                     });
 
-                    console.log("Mapcentia:conflictId" + e.file)
+                    console.log("Mapcentia:conflictId:" + e.file)
 
                 },
                 error: function (error) {
@@ -342,7 +342,7 @@ module.exports = module.exports = {
         });
 
         backboneEvents.get().on("end:conflictSearchPrint", function (e) {
-            console.log("Mapcentia:pdfId" + "/tmp/print/pdf/" + e.key + ".pdf")
+            console.log("Mapcentia:pdfId:" + "/tmp/print/pdf/" + e.key + ".pdf")
 
         });
 
