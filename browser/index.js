@@ -152,15 +152,15 @@ module.exports = module.exports = {
         $('a[href="#streetview-content"]').hide();
         $(".custom-search").prop("disabled", true);
 
-        $(document).arrive('.custom-popup a', function () {
-            $(this).on("click", function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                history.pushState(null, null, anchor.init() + "¤" + $(this)[0].href.split("?")[1]);
-                console.log("Mapcentia:select:" + $(this)[0].href.split("?")[1]);
-
-            });
-        });
+        // $(document).arrive('.custom-popup a', function () {
+        //     $(this).on("click", function (e) {
+        //         e.preventDefault();
+        //         e.stopPropagation();
+        //         history.pushState(null, null, anchor.init() + "¤" + $(this)[0].href.split("?")[1]);
+        //         console.log("Mapcentia:select:" + $(this)[0].href.split("?")[1]);
+        //
+        //     });
+        // });
 
         mapObj = cloud.get().map;
 
