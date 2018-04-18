@@ -157,6 +157,8 @@ module.exports = module.exports = {
                 e.preventDefault();
                 e.stopPropagation();
                 history.pushState(null, null, anchor.init() + "¤" + $(this)[0].href.split("?")[1]);
+                console.log("Mapcentia:select:" + $(this)[0].href.split("?")[1]);
+
             });
         });
 
@@ -327,9 +329,7 @@ module.exports = module.exports = {
                         }
                     });
 
-                    var uriObj = new uriJs(window.location.href);
-                    uriObj.setSearch("conflictId", e.file);
-                    window.history.pushState('', '', uriObj.toString());
+                    console.log("Mapcentia:conflictId" + e.file)
 
                 },
                 error: function (error) {
@@ -342,13 +342,11 @@ module.exports = module.exports = {
         });
 
         backboneEvents.get().on("end:conflictSearchPrint", function (e) {
-            var uriObj = new uriJs(window.location.href);
-            uriObj.setSearch("pdfId", e.key);
-            window.history.pushState('', '', uriObj.toString());
+            console.log("Mapcentia:pdfId" + "/tmp/print/pdf/" + e.key + ".pdf")
+
         });
 
         this.switchLayer = function (layer, visible) {
-            console.log(layer)
             let el = $('*[data-key="' + layer + '"]');
             if (visible) {
                 visibleGeLayers.push(layer);
@@ -373,6 +371,8 @@ module.exports = module.exports = {
             var uriObj = new uriJs(window.location.href);
             uriObj.setSearch("gelayers", str);
             window.history.pushState('', '', uriObj.toString());
+            console.log("Mapcentia:gelayers:" + str);
+
         };
 
         class Licenses extends React.Component {
@@ -838,8 +838,8 @@ module.exports = module.exports = {
 
                 if (licens === "gispro" || licens === "gispremium") {
                     layer.on("click", function (e) {
-                        console.log(e)
                         history.pushState(null, null, anchor.init() + "¤" + feature.properties.GELink.split("?")[1]);
+                        console.log("Mapcentia:select:" + feature.properties.GELink.split("?")[1]);
 
                         var popup = L.popup({
                             autoPan: false
