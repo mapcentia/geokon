@@ -10,9 +10,12 @@ var reproject = require('reproject');
 var WKT = require('terraformer-wkt-parser');
 var utils = require('../../../browser/modules/utils');
 
-var models = require('../models');
 
 var config = require('../../../config/config.js');
+
+var models = {};
+
+
 
 
 router.get('/api/extension/licenses/:token/:client', function (req, response) {
@@ -174,7 +177,7 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
                 delete v.bbox;
             }
 
-            models[type].fields.map(function (e) {
+            models[client][type].fields.map(function (e) {
                 properties[e.key] = json.value[i][e.key];
             });
 
@@ -318,8 +321,8 @@ router.post('/api/extension/conflict/:token/:client', function (req, response) {
     response.header('Expires', '0');
 
 
-    for (var key in models) {
-        if (models.hasOwnProperty(key)) {
+    for (var key in models[client]) {
+        if (models[client].hasOwnProperty(key)) {
             modelsKeys.push(key);
         }
     }
@@ -366,7 +369,7 @@ router.post('/api/extension/conflict/:token/:client', function (req, response) {
 
             hit = {
                 table: type,
-                title: models[modelsKeys[count]].alias,
+                title: models[client][modelsKeys[count]].alias,
                 hits: json.value.length,
                 data: json.value,
                 num: (count+1) + "/" +modelsKeys.length,
@@ -395,6 +398,32 @@ router.post('/api/extension/conflict/:token/:client', function (req, response) {
 
 
     })();
+});
+
+router.get('/api/extension/geoenviron/model/:client', function (req, response) {
+    var client = req.params.client, file = "model.json";
+
+    console.log(config.configUrl + "/" + file);
+
+    request.get(config.configUrl + "/" + file, function (err, res, body) {
+
+        if (err || res.statusCode !== 200) {
+
+            response.header('content-type', 'application/json');
+            response.status(400).send({
+                success: false,
+                message: "Could not get the requested config JSON file."
+            });
+
+            return;
+        }
+
+        models[client] = JSON.parse(body);
+
+        console.log(models);
+
+        response.send(JSON.parse(body));
+    })
 });
 
 

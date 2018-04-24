@@ -59,7 +59,7 @@ require('snackbarjs');
 
 var io = require('socket.io-client');
 
-var models = require('../models');
+var models;
 
 var functions = require('../functions');
 
@@ -151,16 +151,6 @@ module.exports = module.exports = {
         //$('a[href="#layer-content"]').hide();
         $('a[href="#streetview-content"]').hide();
         $(".custom-search").prop("disabled", true);
-
-        // $(document).arrive('.custom-popup a', function () {
-        //     $(this).on("click", function (e) {
-        //         e.preventDefault();
-        //         e.stopPropagation();
-        //         history.pushState(null, null, anchor.init() + "¤" + $(this)[0].href.split("?")[1]);
-        //         console.log("Mapcentia:select:" + $(this)[0].href.split("?")[1]);
-        //
-        //     });
-        // });
 
         mapObj = cloud.get().map;
 
@@ -290,62 +280,6 @@ module.exports = module.exports = {
 
         var entities = [];
 
-        $.each(models, function (i, v) {
-            entities.push({
-                "type": i,
-                "title": v.alias,
-                "color": v.color,
-                "seqNoType": v.seqNoType,
-                "show": (getypes.indexOf(v.seqNoType) !== -1)
-            })
-        });
-
-        backboneEvents.get().on("end:conflictSearch", function (e) {
-
-            let token = urlVars.token;
-            let client = urlVars.client;
-
-            jquery.snackbar({
-                id: "snackbar-ge-conflict",
-                content: "<span id='conflict-ge-progress'>" + __("Waiting to start....") + "</span>",
-                htmlAllowed: true,
-                timeout: 1000000
-            });
-
-            $.ajax({
-                dataType: 'json',
-                url: '/api/extension/conflict/' + token + '/' + client,
-                type: "POST",
-                data: "wkt=" + e.projWktWithBuffer + "&socketId=" + socketId.get(),
-                success: function (response) {
-                    let row, hitsTable = $("#hits table"), noHitsTable = $("#nohits table");
-                    $.each(response.hits, function (i, v) {
-                        row = "<tr><td>" + v.title + "</td><td>" + v.hits + "</td><td><div class='checkbox'><label><input type='checkbox' data-key='" + i + "' " + ($.inArray(i, visibleGeLayers) > -1 ? "checked" : "") + "></label></div></td></tr>";
-
-                        if (v.hits > 0) {
-                            hitsTable.append(row);
-                        } else {
-                            noHitsTable.append(row);
-                        }
-                    });
-
-                    console.log("Mapcentia:conflictId:" + e.file)
-
-                },
-                error: function (error) {
-                    console.error(error.responseJSON.message);
-                },
-                complete: function () {
-                    jquery("#snackbar-ge-conflict").snackbar("hide");
-                }
-            });
-        });
-
-        backboneEvents.get().on("end:conflictSearchPrint", function (e) {
-            console.log("Mapcentia:pdfId:" + "/tmp/print/pdf/" + e.key + ".pdf")
-
-        });
-
         this.switchLayer = function (layer, visible) {
             let el = $('*[data-key="' + layer + '"]');
             if (visible) {
@@ -371,216 +305,296 @@ module.exports = module.exports = {
             var uriObj = new uriJs(window.location.href);
             uriObj.setSearch("gelayers", str);
             window.history.pushState('', '', uriObj.toString());
-            console.log("Mapcentia:gelayers:" + str);
+            console.log("GEMessage:gelayers:" + str);
 
         };
 
-        class Licenses extends React.Component {
-            constructor(props) {
-                super(props);
+        $.ajax({
+            dataType: 'json',
+            url: '/api/extension/geoenviron/model/' + urlVars.client,
+            type: "GET",
+            success: function (response) {
 
-                this.listLicenses = props.licenses.map((license) =>
+                console.log(response);
 
-                    <li key={license.AppCode}>{license.AppDescription} {license.AppActive}</li>
-                )
-            }
+                models = response;
 
-            render() {
-                return (
-                    <ul>
-                        {this.listLicenses}
-                    </ul>
-                )
-            }
-        }
-
-        class Functions extends React.Component {
-            constructor(props) {
-                super(props);
-
-                this.listFunctions = props.functions.map((func) =>
-
-                    <li key={func}>{func}</li>
-                );
-
-            }
-
-            render() {
-                return (
-                    <ul>
-                        {this.listFunctions}
-                    </ul>
-                )
-            }
-        }
-
-        class GeoEnviron extends React.Component {
-
-            constructor(props) {
-
-                super(props);
-
-                this.state = {};
-
-                this.vWidth = {
-                    width: "calc(100% - 50px)"
-                };
-
-                this.hand = {
-                    cursor: "pointer"
-                };
-
-                this.switch = this.switch.bind(this);
-
-                this.licenses = props.licenses.value;
-                this.functions = props.functions;
-                this.listEntities = props.entities.map((entity) =>
-
-                    <li key={entity.type} className="layer-item list-group-item">
-                        <div className="checkbox">
-                            <label className="overlay-label" style={this.vWidth}>
-                                <input
-                                    type="checkbox" data-key={entity.type} data-seqnotype={entity.seqNoType}
-                                    data-title={entity.title}
-                                    onChange={this.switch} defaultChecked={entity.show}/>
-                                <span style={{
-                                    backgroundColor: entity.color,
-                                    display: "inline-block",
-                                    width: "15px",
-                                    height: "15px",
-                                    marginRight: "5px",
-                                    verticalAlign: "middle",
-                                    top: "-2px",
-                                    position: "relative"
-                                }}/>
-                                {entity.title}
-                            </label>
-                            <span className="geoenviron-table-label label label-primary" style={this.hand}>Table</span>
-                        </div>
-                    </li>
-                )
-            }
-
-            componentDidMount() {
-
-                var me = this;
                 $.each(models, function (i, v) {
-                    if (getypes.indexOf(v.seqNoType) !== -1) {
-                        me.switch({
-                            target: {
-                                dataset: {
-                                    key: i
-                                },
-                                checked: true
+                    entities.push({
+                        "type": i,
+                        "title": v.alias,
+                        "color": v.color,
+                        "seqNoType": v.seqNoType,
+                        "show": (getypes.indexOf(v.seqNoType) !== -1)
+                    })
+                });
+
+                backboneEvents.get().on("end:conflictSearch", function (e) {
+
+                    let token = urlVars.token;
+                    let client = urlVars.client;
+
+                    jquery.snackbar({
+                        id: "snackbar-ge-conflict",
+                        content: "<span id='conflict-ge-progress'>" + __("Waiting to start....") + "</span>",
+                        htmlAllowed: true,
+                        timeout: 1000000
+                    });
+
+                    $.ajax({
+                        dataType: 'json',
+                        url: '/api/extension/conflict/' + token + '/' + client,
+                        type: "POST",
+                        data: "wkt=" + e.projWktWithBuffer + "&socketId=" + socketId.get(),
+                        success: function (response) {
+                            let row, hitsTable = $("#hits table"), noHitsTable = $("#nohits table");
+                            $.each(response.hits, function (i, v) {
+                                row = "<tr><td>" + v.title + "</td><td>" + v.hits + "</td><td><div class='checkbox'><label><input type='checkbox' data-key='" + i + "' " + ($.inArray(i, visibleGeLayers) > -1 ? "checked" : "") + "></label></div></td></tr>";
+
+                                if (v.hits > 0) {
+                                    hitsTable.append(row);
+                                } else {
+                                    noHitsTable.append(row);
+                                }
+                            });
+
+                            console.log("GEMessage:conflictId:" + e.file)
+
+                        },
+                        error: function (error) {
+                            console.error(error.responseJSON.message);
+                        },
+                        complete: function () {
+                            jquery("#snackbar-ge-conflict").snackbar("hide");
+                        }
+                    });
+                });
+
+                backboneEvents.get().on("end:conflictSearchPrint", function (e) {
+                    console.log("GEMessage:pdfId:" + "/tmp/print/pdf/" + e.key + ".pdf")
+
+                });
+
+
+
+                class Licenses extends React.Component {
+                    constructor(props) {
+                        super(props);
+
+                        this.listLicenses = props.licenses.map((license) =>
+
+                            <li key={license.AppCode}>{license.AppDescription} {license.AppActive}</li>
+                        )
+                    }
+
+                    render() {
+                        return (
+                            <ul>
+                                {this.listLicenses}
+                            </ul>
+                        )
+                    }
+                }
+
+                class Functions extends React.Component {
+                    constructor(props) {
+                        super(props);
+
+                        this.listFunctions = props.functions.map((func) =>
+
+                            <li key={func}>{func}</li>
+                        );
+
+                    }
+
+                    render() {
+                        return (
+                            <ul>
+                                {this.listFunctions}
+                            </ul>
+                        )
+                    }
+                }
+
+                class GeoEnviron extends React.Component {
+
+                    constructor(props) {
+
+                        super(props);
+
+                        this.state = {};
+
+                        this.vWidth = {
+                            width: "calc(100% - 50px)"
+                        };
+
+                        this.hand = {
+                            cursor: "pointer"
+                        };
+
+                        this.switch = this.switch.bind(this);
+
+                        this.licenses = props.licenses.value;
+                        this.functions = props.functions;
+                        this.listEntities = props.entities.map((entity) =>
+
+                            <li key={entity.type} className="layer-item list-group-item">
+                                <div className="checkbox">
+                                    <label className="overlay-label" style={this.vWidth}>
+                                        <input
+                                            type="checkbox" data-key={entity.type} data-seqnotype={entity.seqNoType}
+                                            data-title={entity.title}
+                                            onChange={this.switch} defaultChecked={entity.show}/>
+                                        <span style={{
+                                            backgroundColor: entity.color,
+                                            display: "inline-block",
+                                            width: "15px",
+                                            height: "15px",
+                                            marginRight: "5px",
+                                            verticalAlign: "middle",
+                                            top: "-2px",
+                                            position: "relative"
+                                        }}/>
+                                        {entity.title}
+                                    </label>
+                                    <span className="geoenviron-table-label label label-primary"
+                                          style={this.hand}>Table</span>
+                                </div>
+                            </li>
+                        )
+                    }
+
+                    componentDidMount() {
+
+                        var me = this;
+                        $.each(models, function (i, v) {
+                            if (getypes.indexOf(v.seqNoType) !== -1) {
+                                me.switch({
+                                    target: {
+                                        dataset: {
+                                            key: i
+                                        },
+                                        checked: true
+                                    }
+                                });
                             }
                         });
+
+                        $.each(visibleGeLayers, function (i, v) {
+                            $('*[data-key="' + v + '"]').prop('checked', true);
+                            parentThis.request(v);
+                        });
+
                     }
-                });
 
-                $.each(visibleGeLayers, function (i, v) {
-                    $('*[data-key="' + v + '"]').prop('checked', true);
-                    parentThis.request(v);
-                });
+                    switch(e) {
 
-            }
+                        //parentThis.switchLayer(e.target.dataset.key, e.target.checked)
 
-            switch(e) {
+                    }
 
-                //parentThis.switchLayer(e.target.dataset.key, e.target.checked)
+                    render() {
+                        return (
+                            <div role='tabpanel'>
+                                <div className='panel panel-default'>
+                                    <div className='panel-body'>
+                                        <ul className="list-group">
+                                            {this.listEntities}
+                                        </ul>
+                                        {/*<Licenses licenses={this.licenses}/>*/}
+                                        {/*<Functions functions={this.functions}/>*/}
 
-            }
-
-            render() {
-                return (
-                    <div role='tabpanel'>
-                        <div className='panel panel-default'>
-                            <div className='panel-body'>
-                                <ul className="list-group">
-                                    {this.listEntities}
-                                </ul>
-                                {/*<Licenses licenses={this.licenses}/>*/}
-                                {/*<Functions functions={this.functions}/>*/}
-
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        );
+                    }
+                }
+
+
+                me.getLicens().then(
+                    function (licenses) {
+
+                        licens = "none";
+
+                        for (let i = 0; i < licenses.value.length; i++) {
+                            if (licenses.value[i].AppActive === "1" && licenses.value[i].AppCode === "gisbasis") {
+                                licens = licenses.value[i].AppCode;
+                            }
+                        }
+                        for (let i = 0; i < licenses.value.length; i++) {
+                            if (licenses.value[i].AppActive === "1" && licenses.value[i].AppCode === "gispro") {
+                                licens = licenses.value[i].AppCode;
+                            }
+                        }
+                        for (let i = 0; i < licenses.value.length; i++) {
+                            if (licenses.value[i].AppActive === "1" && licenses.value[i].AppCode === "gispremium") {
+                                licens = licenses.value[i].AppCode;
+                            }
+                        }
+
+                        // Test
+                        //licens = "gisbasis";
+
+                        console.log(licens);
+
+                        $("#ge-licenses").html(licens);
+
+                        if (licens === "none") {
+                            return;
+                        }
+
+                        if (licens === "gisbasis" || licens === "gispro" || licens === "gispremium") {
+                            $('a[href="#layer-content"]').show();
+                            $(".custom-search").prop("disabled", false);
+                        }
+
+                        if (licens === "gispro" || licens === "gispremium") {
+                            $('a[href="#streetview-content"]').show();
+                        }
+
+                        let fn = [];
+
+                        for (const [key, value] of Object.entries(functions)) {
+                            if (value[licens]) {
+                                fn.push(key);
+                            }
+                        }
+
+
+                        ReactDOM.render(
+                            <GeoEnviron entities={entities} licenses={licenses} functions={fn}/>,
+                            document.getElementById(exId)
+                        );
+
+
+                        $(".geoenviron-table-label").on("click", function (e) {
+                            let type = ($(this).prev().children("input").data('key'));
+                            let title = ($(this).prev().children("input").data('title'));
+                            $(".geoenviron-attr-table").hide();
+                            $("#" + type).show();
+                            $("#info-modal").animate({right: "0"}, 200);
+                            $("#info-modal .modal-title").html(title);
+                            e.stopPropagation();
+                        });
+
+                    },
+
+                    function (e) {
+                        //alert(e)
+                    }
                 );
-            }
-        }
-
-
-        this.getLicens().then(
-            function (licenses) {
-
-                licens = "none";
-
-                for (let i = 0; i < licenses.value.length; i++) {
-                    if (licenses.value[i].AppActive === "1" && licenses.value[i].AppCode === "gisbasis") {
-                        licens = licenses.value[i].AppCode;
-                    }
-                }
-                for (let i = 0; i < licenses.value.length; i++) {
-                    if (licenses.value[i].AppActive === "1" && licenses.value[i].AppCode === "gispro") {
-                        licens = licenses.value[i].AppCode;
-                    }
-                }
-                for (let i = 0; i < licenses.value.length; i++) {
-                    if (licenses.value[i].AppActive === "1" && licenses.value[i].AppCode === "gispremium") {
-                        licens = licenses.value[i].AppCode;
-                    }
-                }
-
-                // Test
-                //licens = "gisbasis";
-
-                console.log(licens);
-
-                $("#ge-licenses").html(licens);
-
-                if (licens === "none") {
-                    return;
-                }
-
-                if (licens === "gisbasis" || licens === "gispro" || licens === "gispremium") {
-                    $('a[href="#layer-content"]').show();
-                    $(".custom-search").prop("disabled", false);
-                }
-
-                if (licens === "gispro" || licens === "gispremium") {
-                    $('a[href="#streetview-content"]').show();
-                }
-
-                let fn = [];
-
-                for (const [key, value] of Object.entries(functions)) {
-                    if (value[licens]) {
-                        fn.push(key);
-                    }
-                }
-
-
-                ReactDOM.render(
-                    <GeoEnviron entities={entities} licenses={licenses} functions={fn}/>,
-                    document.getElementById(exId)
-                );
-
-
-                $(".geoenviron-table-label").on("click", function (e) {
-                    let type = ($(this).prev().children("input").data('key'));
-                    let title = ($(this).prev().children("input").data('title'));
-                    $(".geoenviron-attr-table").hide();
-                    $("#" + type).show();
-                    $("#info-modal").animate({right: "0"}, 200);
-                    $("#info-modal .modal-title").html(title);
-                    e.stopPropagation();
-                });
 
             },
+            error: function (error) {
+                alert("Kunne ikke hente opsætning fra GE");
+            },
+            complete: function () {
 
-            function (e) {
-                //alert(e)
             }
-        );
+        });
+
+
     },
 
     request: function (type, seqNoType, seqNo) {
@@ -839,7 +853,7 @@ module.exports = module.exports = {
                 if (licens === "gispro" || licens === "gispremium") {
                     layer.on("click", function (e) {
                         history.pushState(null, null, anchor.init() + "¤" + feature.properties.GELink.split("?")[1]);
-                        console.log("Mapcentia:select:" + feature.properties.GELink.split("?")[1]);
+                        console.log("GEMessage:select:" + feature.properties.GELink.split("?")[1]);
 
                         var popup = L.popup({
                             autoPan: false
