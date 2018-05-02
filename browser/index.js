@@ -311,14 +311,10 @@ module.exports = module.exports = {
 
         $.ajax({
             dataType: 'json',
-            url: '/api/extension/geoenviron/model/' + urlVars.client,
+            url: '/api/extension/geoenviron/model/' + urlVars.token + "/" + urlVars.client,
             type: "GET",
             success: function (response) {
-
-                console.log(response);
-
                 models = response;
-
                 $.each(models, function (i, v) {
                     entities.push({
                         "type": i,
@@ -328,12 +324,9 @@ module.exports = module.exports = {
                         "show": (getypes.indexOf(v.seqNoType) !== -1)
                     })
                 });
-
                 backboneEvents.get().on("end:conflictSearch", function (e) {
-
                     let token = urlVars.token;
                     let client = urlVars.client;
-
                     jquery.snackbar({
                         id: "snackbar-ge-conflict",
                         content: "<span id='conflict-ge-progress'>" + __("Waiting to start....") + "</span>",
@@ -374,8 +367,6 @@ module.exports = module.exports = {
                     console.log("GEMessage:pdfId:" + "/tmp/print/pdf/" + e.key + ".pdf")
 
                 });
-
-
 
                 class Licenses extends React.Component {
                     constructor(props) {

@@ -16,8 +16,6 @@ var config = require('../../../config/config.js');
 var models = {};
 
 
-
-
 router.get('/api/extension/licenses/:token/:client', function (req, response) {
 
     'use strict';
@@ -53,7 +51,7 @@ router.get('/api/extension/licenses/:token/:client', function (req, response) {
         response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
         response.header('Expires', '0');
 
-        console.log(body);
+        //console.log(body);
 
         let json;
 
@@ -113,7 +111,7 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
         url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
     }
 
-    console.log(url);
+    //console.log(url);
 
     let options = {
         method: 'GET',
@@ -133,7 +131,7 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
         response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
         response.header('Expires', '0');
 
-        console.log(body);
+        //console.log(body);
 
         let json;
 
@@ -176,6 +174,9 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
 
                 delete v.bbox;
             }
+            console.log(models[client]);
+            console.log(client);
+            console.log(type);
 
             models[client][type].fields.map(function (e) {
                 properties[e.key] = json.value[i][e.key];
@@ -266,7 +267,7 @@ router.delete('/api/extension/geoenviron/:type/:token/:client/:geometries', func
 
     url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/Geometries" + geometries;
 
-    console.log(url)
+    //console.log(url)
 
     let options = {
         method: 'DELETE',
@@ -333,7 +334,7 @@ router.post('/api/extension/conflict/:token/:client', function (req, response) {
 
         type = modelsKeys[count];
         url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
-        console.log(url)
+        //console.log(url)
 
         let options = {
             method: 'GET',
@@ -356,14 +357,14 @@ router.post('/api/extension/conflict/:token/:client', function (req, response) {
                 error = body;
             }
 
-            console.log(res.statusCode)
+            //console.log(res.statusCode)
             if (err || res.statusCode !== 200) {
                 error = json;
-                json.value=[];
+                json.value = [];
             }
 
             for (let i = 0; i < json.value.length; i++) {
-                console.log(json.value[i])
+                //console.log(json.value[i])
 
             }
 
@@ -372,7 +373,7 @@ router.post('/api/extension/conflict/:token/:client', function (req, response) {
                 title: models[client][modelsKeys[count]].alias,
                 hits: json.value.length,
                 data: json.value,
-                num: (count+1) + "/" +modelsKeys.length,
+                num: (count + 1) + "/" + modelsKeys.length,
                 time: time,
                 id: socketId,
                 error: error || null,
@@ -396,33 +397,49 @@ router.post('/api/extension/conflict/:token/:client', function (req, response) {
         });
 
 
-
     })();
 });
 
-router.get('/api/extension/geoenviron/model/:client', function (req, response) {
-    var client = req.params.client, file = "model.json";
+router.get('/api/extension/geoenviron/model/:token/:client', function (req, response) {
+    let client = req.params.client,
+        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/GetGisSettings?$format=json",
+        ip = ipaddr.process(req.ip).toString(),
+        token = req.params.token;
 
-    console.log(config.configUrl + "/" + file);
+    //console.log(url);
 
-    request.get(config.configUrl + "/" + file, function (err, res, body) {
+    let options = {
+        method: 'GET',
+        uri: url,
+        auth: config.extensionConfig.geokon.auth,
+        headers: {
+            'auth-token': token,
+            'ip-address': ip
+        },
+    };
 
+    request.get(options, function (err, res, body) {
+        let json;
+        try {
+            json = JSON.parse(body);
+        } catch (e) {
+            response.status(500).send({
+                success: false,
+                message: "Could not parse JSON from GeoEnviron"
+            });
+            return;
+        }
         if (err || res.statusCode !== 200) {
-
             response.header('content-type', 'application/json');
             response.status(400).send({
                 success: false,
                 message: "Could not get the requested config JSON file."
             });
-
             return;
         }
-
-        models[client] = JSON.parse(body);
-
-        console.log(models);
-
-        response.send(JSON.parse(body));
+        models[client] = JSON.parse(json.value);
+        //console.log(models);
+        response.send(json.value);
     })
 });
 
