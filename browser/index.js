@@ -86,6 +86,7 @@ var WKT = require('terraformer-wkt-parser');
 
 var reproject = require('reproject');
 var socketId;
+var conflictSearch;
 
 /**
  *
@@ -106,6 +107,7 @@ module.exports = module.exports = {
         anchor = o.anchor;
         socketId = o.socketId;
         backboneEvents = o.backboneEvents;
+        conflictSearch = o.extensions.conflictSearch.index;
         return this;
     },
 
@@ -309,6 +311,50 @@ module.exports = module.exports = {
 
         };
 
+        conflictSearch.setPreProcessor(
+
+            function (e) {
+
+                let id = "_" + 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+
+                conflictSearch.setSearchStr("tag:" + id);
+
+                return new Promise(function (resolve, reject) {
+
+                    let token = urlVars.token;
+                    let client = urlVars.client;
+
+                    jquery.snackbar({
+                        id: "snackbar-ge-conflict",
+                        content: "<span id='conflict-ge-progress'>" + __("Transfer data from GE....") + "</span>",
+                        htmlAllowed: true,
+                        timeout: 1000000
+                    });
+
+                    $.ajax({
+                        dataType: 'json',
+                        url: '/api/extension/conflict/' + token + '/' + client + '/' + id,
+                        type: "POST",
+                        data: "wkt=" + e.projWktWithBuffer + "&socketId=" + socketId.get(),
+                        success: function (response) {
+                            resolve();
+                            //console.log("GEMessage:conflictId:" + e.file)
+                        },
+                        error: function (error) {
+                            //console.error(error.responseJSON.message);
+                            reject(error);
+                        },
+                        complete: function () {
+                            jquery("#snackbar-ge-conflict").snackbar("hide");
+                        }
+                    });
+                });
+            }
+        );
+
         $.ajax({
             dataType: 'json',
             url: '/api/extension/geoenviron/model/' + urlVars.token + "/" + urlVars.client,
@@ -324,43 +370,10 @@ module.exports = module.exports = {
                         "show": (getypes.indexOf(v.seqNoType) !== -1)
                     })
                 });
+
                 backboneEvents.get().on("end:conflictSearch", function (e) {
-                    let token = urlVars.token;
-                    let client = urlVars.client;
-                    jquery.snackbar({
-                        id: "snackbar-ge-conflict",
-                        content: "<span id='conflict-ge-progress'>" + __("Waiting to start....") + "</span>",
-                        htmlAllowed: true,
-                        timeout: 1000000
-                    });
+                    console.log("GEMessage:conflictId:" + e.file)
 
-                    $.ajax({
-                        dataType: 'json',
-                        url: '/api/extension/conflict/' + token + '/' + client,
-                        type: "POST",
-                        data: "wkt=" + e.projWktWithBuffer + "&socketId=" + socketId.get(),
-                        success: function (response) {
-                            let row, hitsTable = $("#hits table"), noHitsTable = $("#nohits table");
-                            $.each(response.hits, function (i, v) {
-                                row = "<tr><td>" + v.title + "</td><td>" + v.hits + "</td><td><div class='checkbox'><label><input type='checkbox' data-key='" + i + "' " + ($.inArray(i, visibleGeLayers) > -1 ? "checked" : "") + "></label></div></td></tr>";
-
-                                if (v.hits > 0) {
-                                    hitsTable.append(row);
-                                } else {
-                                    noHitsTable.append(row);
-                                }
-                            });
-
-                            console.log("GEMessage:conflictId:" + e.file)
-
-                        },
-                        error: function (error) {
-                            console.error(error.responseJSON.message);
-                        },
-                        complete: function () {
-                            jquery("#snackbar-ge-conflict").snackbar("hide");
-                        }
-                    });
                 });
 
                 backboneEvents.get().on("end:conflictSearchPrint", function (e) {
@@ -584,7 +597,6 @@ module.exports = module.exports = {
 
             }
         });
-
 
     },
 
