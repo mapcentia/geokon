@@ -360,8 +360,6 @@ router.post('/api/extension/conflict/:token/:client/:id', function (req, respons
             return;
         }
 
-        let gc2SessionId = sessionData.session_id;
-
         console.log("Session started:");
         console.log(sessionData);
 
@@ -406,7 +404,20 @@ router.post('/api/extension/conflict/:token/:client/:id', function (req, respons
 
             (function iter() {
                 if (count === modelsKeys.length) {
-                    response.send(all);
+
+                    let url = "https://geokon.mapcentia.com/controllers/mapfile";
+
+                    request({
+                        method: 'GET',
+                        uri: url,
+                        headers: {
+                            Cookie: "PHPSESSID=" + sessionData.session_id + ";" // GC2's private API is session based
+                        }
+
+                    }, function (err, res, body) {
+                        response.send(all);
+                    });
+
                 } else {
                     noResults = true;
                     type = modelsKeys[count];
@@ -478,8 +489,6 @@ router.post('/api/extension/conflict/:token/:client/:id', function (req, respons
                         let allSqlsStr = insertSqls.join("\n");
 
                         console.log(allSqlsStr);
-                        //exit(0)
-
 
                         let url = config.gc2.host + "/controllers/layer/records/conflict." + id + "_" + type.toLowerCase() + ".the_geom";
                         console.log(url);
@@ -494,7 +503,82 @@ router.post('/api/extension/conflict/:token/:client/:id', function (req, respons
                                         "tags": [id],
                                         "layergroup": "Conflict",
                                         "meta": {single_tile: true},
-                                        "class": [{"sortid":10,"name":"Virksomheder","expression":"","label":false,"label_size":"","label_color":"","color":"","outlinecolor":"#FFCC00","style_opacity":"","symbol":"","angle":"","size":"","width":"3","overlaycolor":"","overlayoutlinecolor":"#FF0000","overlaysymbol":"","overlaysize":"","overlaywidth":1,"label_text":"","label_position":"","label_font":"","label_fontweight":"","label_angle":"","label_backgroundcolor":"","overlaystyle_opacity":"","label_force":false,"id":0,"class_minscaledenom":"","class_maxscaledenom":"","leader":false,"leader_gridstep":"","leader_maxdistance":"","leader_color":"","pattern":"","linecap":"","geomtransform":"","maxsize":"","overlaypattern":"","overlaylinecap":"","overlayangle":"","overlaygeomtransform":"(buffer([shape], 10))","overlaymaxsize":"","label_minscaledenom":"","label_maxscaledenom":"","label_outlinecolor":"","label_buffer":"","label_repeatdistance":"","label_backgroundpadding":"","label_offsetx":"","label_offsety":"","label_expression":"","label_maxsize":"","label_minfeaturesize":"","label2":false,"label2_text":"","label2_force":false,"label2_minscaledenom":"","label2_maxscaledenom":"","label2_position":"","label2_size":"","label2_font":"","label2_fontweight":"","label2_color":"","label2_outlinecolor":"","label2_buffer":"","label2_repeatdistance":"","label2_angle":"","label2_backgroundcolor":"","label2_backgroundpadding":"","label2_offsetx":"","label2_offsety":"","label2_expression":"","label2_maxsize":"","label2_minfeaturesize":""}],
+                                        "class": [{
+                                            "sortid": 10,
+                                            "name": "Virksomheder",
+                                            "expression": "",
+                                            "label": false,
+                                            "label_size": "",
+                                            "label_color": "",
+                                            "color": "",
+                                            "outlinecolor": "#FFCC00",
+                                            "style_opacity": "",
+                                            "symbol": "",
+                                            "angle": "",
+                                            "size": "",
+                                            "width": "3",
+                                            "overlaycolor": "",
+                                            "overlayoutlinecolor": "#FF0000",
+                                            "overlaysymbol": "",
+                                            "overlaysize": "",
+                                            "overlaywidth": 1,
+                                            "label_text": "",
+                                            "label_position": "",
+                                            "label_font": "",
+                                            "label_fontweight": "",
+                                            "label_angle": "",
+                                            "label_backgroundcolor": "",
+                                            "overlaystyle_opacity": "",
+                                            "label_force": false,
+                                            "id": 0,
+                                            "class_minscaledenom": "",
+                                            "class_maxscaledenom": "",
+                                            "leader": false,
+                                            "leader_gridstep": "",
+                                            "leader_maxdistance": "",
+                                            "leader_color": "",
+                                            "pattern": "",
+                                            "linecap": "",
+                                            "geomtransform": "",
+                                            "maxsize": "",
+                                            "overlaypattern": "",
+                                            "overlaylinecap": "",
+                                            "overlayangle": "",
+                                            "overlaygeomtransform": "(buffer([shape], 10))",
+                                            "overlaymaxsize": "",
+                                            "label_minscaledenom": "",
+                                            "label_maxscaledenom": "",
+                                            "label_outlinecolor": "",
+                                            "label_buffer": "",
+                                            "label_repeatdistance": "",
+                                            "label_backgroundpadding": "",
+                                            "label_offsetx": "",
+                                            "label_offsety": "",
+                                            "label_expression": "",
+                                            "label_maxsize": "",
+                                            "label_minfeaturesize": "",
+                                            "label2": false,
+                                            "label2_text": "",
+                                            "label2_force": false,
+                                            "label2_minscaledenom": "",
+                                            "label2_maxscaledenom": "",
+                                            "label2_position": "",
+                                            "label2_size": "",
+                                            "label2_font": "",
+                                            "label2_fontweight": "",
+                                            "label2_color": "",
+                                            "label2_outlinecolor": "",
+                                            "label2_buffer": "",
+                                            "label2_repeatdistance": "",
+                                            "label2_angle": "",
+                                            "label2_backgroundcolor": "",
+                                            "label2_backgroundpadding": "",
+                                            "label2_offsetx": "",
+                                            "label2_offsety": "",
+                                            "label2_expression": "",
+                                            "label2_maxsize": "",
+                                            "label2_minfeaturesize": ""
+                                        }],
                                         "_key_": "conflict." + id + "_" + type.toLowerCase() + ".the_geom"
                                     }
                             },
