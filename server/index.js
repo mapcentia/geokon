@@ -10,7 +10,6 @@ var reproject = require('reproject');
 var WKT = require('terraformer-wkt-parser');
 var utils = require('../../../browser/modules/utils');
 
-
 var config = require('../../../config/config.js');
 
 var models = {};
@@ -75,6 +74,93 @@ router.get('/api/extension/licenses/:token/:client', function (req, response) {
         response.send(json);
     });
 
+});
+
+router.get('/api/extension/geoenviron/all/:type/:token/:client', function (req, response) {
+
+    'use strict';
+
+    let crss = {
+        "proj": "+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs",
+        "unproj": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+    };
+
+    let url;
+    let type = req.params.type;
+    let token = req.params.token;
+    let client = req.params.client;
+    let ip = ipaddr.process(req.ip).toString();
+
+    url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "?$format=json&";
+
+    let options = {
+        method: 'GET',
+        uri: url,
+        auth: config.extensionConfig.geokon.auth,
+        headers: {
+            'auth-token': token,
+            'ip-address': ip
+        },
+    };
+
+    request(options, function (err, res, body) {
+
+        response.header('content-type', 'application/json');
+        response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+        response.header('Expires', '0');
+
+        let json;
+
+        try {
+            json = JSON.parse(body);
+        } catch (e) {
+            response.status(500).send({
+                success: false,
+                message: "Could not parse JSON from GeoEnviron",
+                data: body
+            });
+            return;
+        }
+
+        if (err || res.statusCode !== 200) {
+            response.status(400).send({
+                success: false,
+                message: json
+            });
+            return;
+        }
+
+        let gJSON = {
+            "type": "FeatureCollection",
+            "features": [],
+            "success": true
+        };
+
+        for (let i = 0; i < json.value.length; i++) {
+
+            var v = null, properties = {};
+
+            if (json.value[i].GeometryWKT !== null) {
+
+                v = JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT)));
+
+                delete v.bbox;
+            }
+
+            models[client][type].fields.map(function (e) {
+                properties[e.key] = json.value[i][e.key];
+            });
+
+            gJSON.features.push(
+                {
+                    "type": "Feature",
+                    "geometry": v,
+                    "properties": properties
+                }
+            )
+        }
+        response.send(gJSON);
+    });
 });
 
 router.post('/api/extension/geoenviron/:type/:token/:client', function (req, response) {
@@ -649,7 +735,7 @@ router.get('/api/extension/geoenviron/model/:token/:client', function (req, resp
         ip = ipaddr.process(req.ip).toString(),
         token = req.params.token;
 
-    //console.log(url);
+    console.log(url);
 
     let options = {
         method: 'GET',
