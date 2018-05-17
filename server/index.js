@@ -80,11 +80,6 @@ router.get('/api/extension/geoenviron/all/:type/:token/:client', function (req, 
 
     'use strict';
 
-    let crss = {
-        "proj": "+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs",
-        "unproj": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-    };
-
     let url;
     let type = req.params.type;
     let token = req.params.token;
