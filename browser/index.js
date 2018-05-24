@@ -400,6 +400,7 @@ module.exports = module.exports = {
                     }
                 }
 
+
                 class Functions extends React.Component {
                     constructor(props) {
                         super(props);
@@ -783,7 +784,7 @@ module.exports = module.exports = {
                             } catch (e) {
 
                             }
-                            if (id === "s_Borings") {
+                            if (models[type].geometryType === "point") {
                                 editor = cloud.get().map.editTools.startMarker();
                             } else {
                                 editor = cloud.get().map.editTools.startPolygon();
@@ -864,7 +865,7 @@ module.exports = module.exports = {
 
                         var showToolbar = false;
 
-                        if (e.target.feature.geometry.type !== "Point" || id === "Borings" || id === "s_Borings") {
+                        if (e.target.feature.geometry.type !== "Point" || models[type].geometryType === "point") {
                             popup
                                 .setLatLng(e.latlng)
                                 .setContent('<button class="btn btn-primary btn-xs ge-start-edit"><i class="fa fa-pencil" aria-hidden="true"></i></button><button class="btn btn-primary btn-xs ge-delete"><i class="fa fa-trash" aria-hidden="true"></i></button>')
@@ -917,16 +918,22 @@ module.exports = module.exports = {
 
                                 e.target.enableEdit();
                                 cloud.get().map.closePopup();
-                                table[type].moveEndOff();
+                                if (typeof table[type] !== "undefined") {
+                                    table[type].moveEndOff();
+                                }
 
                                 cancelFn = function () {
                                     e.target.disableEdit();
-                                    table[type].moveEndOn();
+                                    if (typeof table[type] !== "undefined") {
+                                        table[type].moveEndOn();
+                                    }
                                 };
 
                                 saveFn = function () {
                                     e.target.disableEdit();
-                                    table[type].moveEndOn();
+                                    if (typeof table[type] !== "undefined") {
+                                        table[type].moveEndOn();
+                                    }
                                     return e.target.toGeoJSON();
                                 };
 
@@ -934,7 +941,7 @@ module.exports = module.exports = {
 
                             }
 
-                            if (id === "Borings" || id === "s_Borings") {
+                            if (models[type].geometryType === "point") {
 
                                 try {
                                     cloud.get().map.removeLayer(marker);
@@ -957,17 +964,24 @@ module.exports = module.exports = {
 
                                 cloud.get().map.closePopup();
 
-                                table[type].moveEndOff();
+                                console.log("TEST: " + type);
+                                if (typeof table[type] !== "undefined") {
+                                    table[type].moveEndOff();
+                                }
 
                                 cancelFn = function () {
                                     marker.disableEdit();
-                                    table[type].moveEndOn();
+                                    if (typeof table[type] !== "undefined") {
+                                        table[type].moveEndOn();
+                                    }
                                     cloud.get().map.removeLayer(marker);
                                 };
 
                                 saveFn = function () {
                                     marker.disableEdit();
-                                    table[type].moveEndOn();
+                                    if (typeof table[type] !== "undefined") {
+                                        table[type].moveEndOn();
+                                    }
                                     cloud.get().map.removeLayer(marker);
                                     let f = marker.toGeoJSON();
                                     f.properties = e.target.feature.properties;
@@ -1186,7 +1200,9 @@ module.exports = module.exports = {
         }
 
         cloud.get().removeGeoJsonStore(store[type]);
-        table[type].moveEndOff();
+        if (typeof table[type] !== "undefined") {
+            table[type].moveEndOff();
+        }
         $("#geoenviron-table").empty();
 
     },

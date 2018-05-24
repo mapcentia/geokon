@@ -402,7 +402,7 @@ router.post('/api/extension/conflict/:token/:client/:id', function (req, respons
             model[key].fields.map(function (e) {
                 createSql += "\"" + e.key + "\"" + " character varying, ";
             });
-            if (key === "Borings") {
+            if (model[key].geometryType === "point") {
                 createSql += "the_geom geometry(Point,4326)";
             } else {
                 createSql += "the_geom geometry(Polygon,4326)";
