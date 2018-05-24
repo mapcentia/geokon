@@ -3,6 +3,20 @@
     "alias": "Virksomheder",
     "seqNoType": "virk",
     "color": "#ffb900",
+    "subLayers": [
+      {
+        "id": "",
+        "Alias": "",
+        "filter": "operators='within,overlaps'&geometry=WKT...",
+        "color": ""
+      },
+      {
+        "id": "",
+        "Alias": "",
+        "filter": "operators='within,overlaps'&geometry=WKT...",
+        "color": ""
+      }
+    ],
     "fields": [
       {
         "key": "SeqNo",
