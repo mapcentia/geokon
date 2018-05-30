@@ -10,6 +10,9 @@ var reproject = require('reproject');
 var WKT = require('terraformer-wkt-parser');
 var utils = require('../../../browser/modules/utils');
 
+var TerraformerParser = require('terraformer-wkt-parser');
+var Terraformer = require('terraformer');
+
 var config = require('../../../config/config.js');
 
 var models = {};
@@ -389,6 +392,12 @@ router.post('/api/extension/conflict/:token/:client/:id', function (req, respons
     let sessionData;
     let id = req.params.id;
 
+    // Get bbox from buffer. GE can't handle to many nodes
+    let geojson = TerraformerParser.parse(wkt);
+    var polygon = new Terraformer.Primitive(geojson);
+    var bbox = polygon.bbox();
+    wkt = "POLYGON((" + bbox[0] + " " + bbox[1] + "," + bbox[0] + " " + bbox[3] + "," + bbox[2] + " " + bbox[3] + ","  + bbox[2] + " " + bbox[1] +  "," + bbox[0] + " " + bbox[1] + "))";
+
     response.header('content-type', 'application/json');
     response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
     response.header('Expires', '0');
@@ -520,6 +529,8 @@ router.post('/api/extension/conflict/:token/:client/:id', function (req, respons
                     };
                     request(options, function (err, res, body) {
                         let json;
+
+                        console.log(body);
 
                         try {
                             json = JSON.parse(body);
@@ -725,46 +736,52 @@ router.post('/api/extension/conflict/:token/:client/:id', function (req, respons
 });
 
 router.get('/api/extension/geoenviron/model/:token/:client', function (req, response) {
-    let client = req.params.client,
-        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/GetGisSettings?$format=json",
-        ip = ipaddr.process(req.ip).toString(),
-        token = req.params.token;
 
-    console.log(url);
+    let client = req.params.client;
+    models[client] = require('../models');
+    response.send(models[client]);
 
-    let options = {
-        method: 'GET',
-        uri: url,
-        auth: config.extensionConfig.geokon.auth,
-        headers: {
-            'auth-token': token,
-            'ip-address': ip
-        },
-    };
 
-    request.get(options, function (err, res, body) {
-        let json;
-        try {
-            json = JSON.parse(body);
-        } catch (e) {
-            response.status(500).send({
-                success: false,
-                message: "Could not parse JSON from GeoEnviron"
-            });
-            return;
-        }
-        if (err || res.statusCode !== 200) {
-            response.header('content-type', 'application/json');
-            response.status(400).send({
-                success: false,
-                message: "Could not get the requested config JSON file."
-            });
-            return;
-        }
-        models[client] = JSON.parse(json.value);
-        //console.log(models);
-        response.send(json.value);
-    })
+    // let client = req.params.client,
+    //     url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/GetGisSettings?$format=json",
+    //     ip = ipaddr.process(req.ip).toString(),
+    //     token = req.params.token;
+    //
+    // console.log(url);
+    //
+    // let options = {
+    //     method: 'GET',
+    //     uri: url,
+    //     auth: config.extensionConfig.geokon.auth,
+    //     headers: {
+    //         'auth-token': token,
+    //         'ip-address': ip
+    //     },
+    // };
+    //
+    // request.get(options, function (err, res, body) {
+    //     let json;
+    //     try {
+    //         json = JSON.parse(body);
+    //     } catch (e) {
+    //         response.status(500).send({
+    //             success: false,
+    //             message: "Could not parse JSON from GeoEnviron"
+    //         });
+    //         return;
+    //     }
+    //     if (err || res.statusCode !== 200) {
+    //         response.header('content-type', 'application/json');
+    //         response.status(400).send({
+    //             success: false,
+    //             message: "Could not get the requested config JSON file."
+    //         });
+    //         return;
+    //     }
+    //     models[client] = JSON.parse(json.value);
+    //     //console.log(models);
+    //     response.send(json.value);
+    // })
 });
 
 module.exports = router;

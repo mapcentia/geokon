@@ -283,6 +283,7 @@ module.exports = module.exports = {
         var entities = [];
 
         this.switchLayer = function (layer, visible) {
+
             let el = $('*[data-key="' + layer + '"]');
             if (visible) {
                 visibleGeLayers.push(layer);
@@ -312,7 +313,6 @@ module.exports = module.exports = {
         };
 
         conflictSearch.setPreProcessor(
-
             function (e) {
 
                 let id = "_" + 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -367,6 +367,15 @@ module.exports = module.exports = {
                         "title": v.alias,
                         "color": v.color,
                         "seqNoType": v.seqNoType,
+                        "subLayers": v.subLayers ? v.subLayers.map(function (y) {
+                            return {
+                                "type": i + "_" + window.btoa(y.filter),
+                                "title": y.alias,
+                                "color": y.color,
+                                "seqNoType": v.seqNoType,
+                                "show": false
+                            }
+                        }) : [],
                         "show": (getypes.indexOf(v.seqNoType) !== -1)
                     })
                 });
@@ -421,6 +430,48 @@ module.exports = module.exports = {
                     }
                 }
 
+                class SubLayers extends React.Component {
+                    constructor(props) {
+                        super(props);
+
+                        this.state = {};
+
+                        this.listEntities = props.entities.map((entity) =>
+
+                            <li key={entity.type} className="layer-item list-group-item">
+                                <div className="checkbox">
+                                    <label className="overlay-label" style={this.vWidth}>
+                                        <input
+                                            type="checkbox" data-key={entity.type} data-seqnotype={entity.seqNoType}
+                                            data-title={entity.title}
+                                            onChange={this.switch} defaultChecked={entity.show}/>
+                                        <span style={{
+                                            backgroundColor: entity.color,
+                                            display: "inline-block",
+                                            width: "15px",
+                                            height: "15px",
+                                            marginRight: "5px",
+                                            verticalAlign: "middle",
+                                            top: "-2px",
+                                            position: "relative"
+                                        }}/>
+                                        {entity.title}
+                                    </label>
+                                </div>
+                            </li>
+                        )
+
+                    }
+
+                    render() {
+                        return (
+                            <ul className="list-group" style={{"paddingLeft": "15px"}}>
+                                {this.listEntities}
+                            </ul>
+                        );
+                    }
+                }
+
                 class GeoEnviron extends React.Component {
 
                     constructor(props) {
@@ -436,8 +487,6 @@ module.exports = module.exports = {
                         this.hand = {
                             cursor: "pointer"
                         };
-
-                        this.switch = this.switch.bind(this);
 
                         this.licenses = props.licenses.value;
                         this.functions = props.functions;
@@ -465,6 +514,7 @@ module.exports = module.exports = {
                                     <span className="geoenviron-table-label label label-primary"
                                           style={this.hand}>Table</span>
                                 </div>
+                                <SubLayers entities={entity.subLayers}/>
                             </li>
                         )
                     }
@@ -492,11 +542,6 @@ module.exports = module.exports = {
 
                     }
 
-                    switch(e) {
-
-                        //parentThis.switchLayer(e.target.dataset.key, e.target.checked)
-
-                    }
 
                     render() {
                         return (
@@ -603,6 +648,25 @@ module.exports = module.exports = {
 
     request: function (type, seqNoType, seqNo) {
 
+        console.log(type)
+
+        var parts = type.split("_"), filter, mainType, color, isSubLayer = false;
+
+        // Check if sub layer
+        if (parts.length > 1) {
+            filter = window.atob(parts[1]);
+            mainType = parts[0];
+            isSubLayer = true;
+            models[mainType].subLayers.map(function (i) {
+                if (i.filter === filter) {
+                    color = i.color;
+                }
+            });
+        } else {
+            mainType = type;
+            color = models[mainType].color
+        }
+
         let me = this;
         let seq = seqNo !== undefined ? seqNo : -999;
         let id = seqNo !== undefined ? "s_" + type : type;
@@ -628,7 +692,7 @@ module.exports = module.exports = {
             //alert("editable:editing");
         });
 
-        $.each(models[type].fields, function (i, v) {
+        $.each(models[mainType].fields, function (i, v) {
             cm.push({
                 header: v.alias,
                 dataIndex: v.key,
@@ -637,8 +701,10 @@ module.exports = module.exports = {
             });
         });
 
-        $("div").remove("#" + type);
-        $("#info-modal-body-wrapper .modal-body").append('<div class="geoenviron-attr-table" id="' + type + '"><table id="geoenviron-table_' + type + '" data-detail-view="true" data-detail-formatter="detailFormatter" data-show-toggle="true" data-show-export="true" data-show-columns="true"></table></div>');
+        if (!isSubLayer) {
+            $("div").remove("#" + type);
+            $("#info-modal-body-wrapper .modal-body").append('<div class="geoenviron-attr-table" id="' + type + '"><table id="geoenviron-table_' + type + '" data-detail-view="true" data-detail-formatter="detailFormatter" data-show-toggle="true" data-show-export="true" data-show-columns="true"></table></div>');
+        }
 
         var flag = false;
         store[id] = new geocloud.sqlStore({
@@ -647,12 +713,12 @@ module.exports = module.exports = {
             host: "",
             base64: false,
             db: "",
-            uri: "/api/extension/geoenviron/" + type + "/" + token + "/" + client,
+            uri: "/api/extension/geoenviron/" + mainType + "/" + token + "/" + client,
             clickable: true,
             id: id,
             styleMap: {
                 weight: 5,
-                color: seq === -999 ? models[type].color : '#ff00ff',
+                color: seq === -999 ? color : '#ff00ff',
                 dashArray: '',
                 fillOpacity: 0.2,
                 opacity: 1.0
@@ -843,7 +909,7 @@ module.exports = module.exports = {
                 if (zoom < zoonBreak && seq === -999) {
                     cl[id] = new QCluster.PointClusterer(store[id].layer.toGeoJSON(), 'nigeria', cloud.get().map, 'nigeria-layer',
                         {
-                            backgroundColor: models[type].color,
+                            backgroundColor: color,
                             dataFormat: 'GeoJSON'
                         });
                 }
@@ -865,7 +931,7 @@ module.exports = module.exports = {
 
                         var showToolbar = false;
 
-                        if (e.target.feature.geometry.type !== "Point" || models[type].geometryType === "point") {
+                        if (e.target.feature.geometry.type !== "Point" || models[mainType].geometryType === "point") {
                             popup
                                 .setLatLng(e.latlng)
                                 .setContent('<button class="btn btn-primary btn-xs ge-start-edit"><i class="fa fa-pencil" aria-hidden="true"></i></button><button class="btn btn-primary btn-xs ge-delete"><i class="fa fa-trash" aria-hidden="true"></i></button>')
@@ -941,7 +1007,7 @@ module.exports = module.exports = {
 
                             }
 
-                            if (models[type].geometryType === "point") {
+                            if (models[mainType].geometryType === "point") {
 
                                 try {
                                     cloud.get().map.removeLayer(marker);
@@ -964,14 +1030,14 @@ module.exports = module.exports = {
 
                                 cloud.get().map.closePopup();
 
-                                console.log("TEST: " + type);
+                                console.log("TEST: " + mainType);
                                 if (typeof table[type] !== "undefined") {
                                     table[type].moveEndOff();
                                 }
 
                                 cancelFn = function () {
                                     marker.disableEdit();
-                                    if (typeof table[type] !== "undefined") {
+                                    if (typeof table[mainType] !== "undefined") {
                                         table[type].moveEndOn();
                                     }
                                     cloud.get().map.removeLayer(marker);
@@ -979,7 +1045,7 @@ module.exports = module.exports = {
 
                                 saveFn = function () {
                                     marker.disableEdit();
-                                    if (typeof table[type] !== "undefined") {
+                                    if (typeof table[mainType] !== "undefined") {
                                         table[type].moveEndOn();
                                     }
                                     cloud.get().map.removeLayer(marker);
@@ -1075,7 +1141,7 @@ module.exports = module.exports = {
                         $.each(feature.properties, function (name, property) {
                             if (name !== "GELink" && name !== "_id") {
 
-                                $.each(models[type].fields, function (i, v) {
+                                $.each(models[mainType].fields, function (i, v) {
                                     if (v.key === name) {
                                         fi.push({
                                             title: v.alias,
@@ -1110,8 +1176,6 @@ module.exports = module.exports = {
                                 $("#tail").fadeOut(100);
                             }
                         }, 200)
-
-
                     }
                 });
             }
@@ -1119,7 +1183,7 @@ module.exports = module.exports = {
         });
 
         table[id] = gc2table.init({
-            el: "#geoenviron-table_" + type,
+            el: "#geoenviron-table_" + mainType,
             geocloud2: cloud.get(),
             store: store[id],
             cm: cm,
@@ -1131,9 +1195,10 @@ module.exports = module.exports = {
             callCustomOnload: true,
             height: 400,
             locale: window._vidiLocale.replace("_", "-"),
-            ns: "#" + type
+            ns: "#" + mainType
             //template: templateb"
         });
+
 
         cloud.get().addGeoJsonStore(store[id]);
 
@@ -1190,6 +1255,9 @@ module.exports = module.exports = {
     },
 
     clear: function (type) {
+
+        console.log(type)
+
         store[type].abort();
         store[type].reset();
 
