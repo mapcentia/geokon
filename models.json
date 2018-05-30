@@ -2,939 +2,915 @@
   "Companies": {
     "alias": "Virksomheder",
     "seqNoType": "virk",
-    "color": "#ffb900",
+    "color": "#FFB900",
     "subLayers": [
       {
-        "id": "",
-        "Alias": "",
+        "alias": "Test1",
         "filter": "operators='within,overlaps'&geometry=WKT...",
-        "color": ""
+        "color": "#FFB9AA",
+        "show": true
       },
       {
-        "id": "",
-        "Alias": "",
-        "filter": "operators='within,overlaps'&geometry=WKT...",
-        "color": ""
+        "alias": "Test2",
+        "filter": "operators='overlaps'&geometry=WKT...",
+        "color": "#AAB900",
+        "show": true
+
       }
     ],
+    "geometryType": "polygon",
     "fields": [
+      {
+        "key": "Id",
+        "alias": "Lok nr."
+      },
+      {
+        "key": "Name",
+        "alias": "Navn"
+      },
+      {
+        "key": "EstablishDate",
+        "alias": "Etableret"
+      },
+      {
+        "key": "MainActivity",
+        "alias": "Hovedaktivitet"
+      },
+      {
+        "key": "OfficerId",
+        "alias": "Sagsbehandler"
+      },
+      {
+        "key": "Status",
+        "alias": "Status"
+      },
+      {
+        "key": "SecondaryActivity",
+        "alias": "Bi-aktivitet"
+      },
+      {
+        "key": "EnvApprovalDate",
+        "alias": "Miljøgodkendelse"
+      },
+      {
+        "key": "LastInspectionDate",
+        "alias": "Seneste udførte tilsyn"
+      },
       {
         "key": "SeqNo",
         "alias": "SeqNo"
-
-      }, {
+      },
+      {
         "key": "SeqNoType",
         "alias": "SeqNoType"
-
-      }, {
-        "key": "Id",
-        "alias": "Lok nr."
-
-      }, {
-        "key": "Name",
-        "alias": "Virksomhedsnavn"
-
-      }, {
-        "key": "Status",
-        "alias": "Status"
-
-      }, {
-        "key": "MainActivity",
-        "alias": "Hovedaktivitet"
-
-      }, {
-        "key": "SecondaryActivity",
-        "alias": "bi-ktivitet"
-
-      }, {
-        "key": "EstablishDate",
-        "alias": "Etableret"
-
-      }, {
-        "key": "LastInspectionDate",
-        "alias": "Tilsyn"
-
-      }, {
-        "key": "EnvApprovalDate",
-        "alias": "Miljøgodk"
-
-      }, {
-        "key": "OfficerId",
-        "alias": "Sagsbehandler"
-
-      }, {
+      },
+      {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
   "Agricultures": {
     "alias": "Landbrug",
     "seqNoType": "agr",
     "color": "#298242",
+    "geometryType": "polygon",
     "fields": [
       {
-        "key": "SeqNo",
-        "alias": "SeqNo"
-
-      }, {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      }, {
         "key": "Id",
-        "alias": "Id"
-
-      }, {
+        "alias": "Lok nr."
+      },
+      {
         "key": "Name",
-        "alias": "Landbrugsnavn"
-
-      }, {
+        "alias": "Navn"
+      },
+      {
         "key": "Status",
         "alias": "Status"
-
-      }, {
-        "key": "MainActivity",
-        "alias": "Hovedaktivitet"
-
-      }, {
+      },
+      {
         "key": "EstablishDate",
         "alias": "Etableret"
-
-      }, {
-        "key": "LastInspectionDate",
-        "alias": "Tilsyn"
-
-      }, {
-        "key": "LivestockUnitsPermitted",
-        "alias": "Dyreenheder"
-
-      }, {
-        "key": "LivestockPermissionDate",
-        "alias": "Godk"
-
-      }, {
+      },
+      {
+        "key": "MainActivity",
+        "alias": "Hovedaktivitet"
+      },
+      {
         "key": "OfficerId",
         "alias": "Sagsbehandler"
-
+      },
+      {
+        "key": "LivestockUnitsPermitted",
+        "alias": "Dyreenheder"
+      },
+      {
+        "key": "LivestockPermissionDate",
+        "alias": "Tilladelsesdato (DE)"
+      },
+      {
+        "key": "LastInspectionDate",
+        "alias": "Seneste udførte tilsyn"
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
   "AgricultureStorages": {
-    "alias": "Gyllebeholdere",
+    "alias": "Opbevaringsanlæg",
     "seqNoType": "agrsto",
-    "color": "#fb9a99",
+    "color": "#FB9A99",
+    "geometryType": "polygon",
     "fields": [
       {
-        "key": "SeqNo",
-        "alias": "SeqNo"
-
-      }, {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      }, {
         "key": "Id",
-        "alias": "Id"
-
-      }, {
+        "alias": "Lok nr."
+      },
+      {
         "key": "Name",
-        "alias": "Landbrugsnavn"
-
-      }, {
+        "alias": "Navn"
+      },
+      {
         "key": "StorageSysType",
-        "alias": "Beholdertype"
-
-      }, {
-        "key": "Volume",
-        "alias": "Volumen m3"
-
-      }, {
-        "key": "CoverType",
-        "alias": "Overdækning"
-
-      }, {
+        "alias": "Opbevaringskategori"
+      },
+      {
         "key": "BuildingDate",
         "alias": "Byggedato"
-
-      }, {
+      },
+      {
+        "key": "CoverType",
+        "alias": "Overdækning"
+      },
+      {
+        "key": "Volume",
+        "alias": "Volumen (m3)"
+      },
+      {
         "key": "OutOfUseDate",
         "alias": "Taget ud af drift"
-
-      }, {
+      },
+      {
         "key": "LastControlDate",
         "alias": "Seneste kontrol"
-
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
-  "ContaminatedLands": {
-      "alias": "Jordforureningslokalitet",
-      "seqNoType": "indu",
-      "color": "#d95f0e",
-      "fields": [
-          {
-              "key": "SeqNo",
-              "alias": "SeqNo"
-
-          }, {
-              "key": "SeqNoType",
-              "alias": "SeqNoType"
-
-          }, {
-              "key": "Id",
-              "alias": "Id"
-
-          }, {
-              "key": "Name",
-              "alias": "Lokalitetsnavn"
-
-          }, {
-              "key": "StatusName",
-              "alias": "Status"
-
-          }, {
-              "key": "EnforceCount",
-              "alias": "Antal Håndhævelser"
-
-          }, {
-              "key": "LastEnforceTypeName",
-              "alias": "Håndhævelsestype"
-
-          }, {
-              "key": "LastEnforceDate",
-              "alias": "Sidste håndhævelsesdato"
-
-          }, {
-              "key": "LastEnforceStatusName",
-              "alias": "Status på sidste håndhævelse"
-
-          },
-          {
-              "key": "GELink",
-              "alias": "GELink"
-
-          }
-      ]
-  },
-
-  "OpenCountries": {
-    "alias": "Åbent Land lokalitet",
-    "seqNoType": "open",
-    "color": "#00747a",
+  "AgrStablePermissions": {
+    "alias": "Tilladte produktionsarealer",
+    "seqNoType": "agrsp",
+    "color": "#71CBB9",
+    "geometryType": "polygon",
     "fields": [
+      {
+        "key": "Id",
+        "alias": "Lok nr."
+      },
+      {
+        "key": "Name",
+        "alias": "Navn"
+      },
+      {
+        "key": "BuildingNo",
+        "alias": "Bygningsnr."
+      },
+      {
+        "key": "BuildingName",
+        "alias": "Bygningsnavn"
+      },
+      {
+        "key": "StableId",
+        "alias": "Stald afsnit"
+      },
+      {
+        "key": "StableArea",
+        "alias": "Produktionsareal (m2)"
+      },
+      {
+        "key": "SpeciesName",
+        "alias": "Dyretype"
+      },
+      {
+        "key": "StableSystemName",
+        "alias": "Staldsystem"
+      },
+      {
+        "key": "PermissionDate",
+        "alias": "Tilladelsesdato"
+      },
+      {
+        "key": "PermissionExpireDate",
+        "alias": "Udløbsdato"
+      },
       {
         "key": "SeqNo",
         "alias": "SeqNo"
-
-      }, {
+      },
+      {
         "key": "SeqNoType",
         "alias": "SeqNoType"
-
-      }, {
+      },
+      {
+        "key": "GELink",
+        "alias": "GELink"
+      }
+    ]
+  },
+  "OpenCountries": {
+    "alias": "Åbent Land",
+    "seqNoType": "open",
+    "color": "#00747A",
+    "geometryType": "polygon",
+    "fields": [
+      {
         "key": "Id",
-        "alias": "Id"
-
-      }, {
+        "alias": "Lok nr."
+      },
+      {
         "key": "Name",
-        "alias": "Lok navn"
-
-      }, {
+        "alias": "Navn"
+      },
+      {
         "key": "WasteWaterPurification",
-        "alias": "Rensning af spildevand"
-
-      }, {
-        "key": "PlannedAction",
-        "alias": "Planlagt Indsats"
-
-      }, {
+        "alias": "Spildevandsrensning gennemført"
+      },
+      {
         "key": "UseType",
         "alias": "Brugstype"
-
+      },
+      {
+        "key": "PlannedAction",
+        "alias": "Planlagt Indsats"
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
   "OpenCountryTanks": {
-    "alias": "Spildevandstank i det åbne land",
+    "alias": "Åbent Land Tanke",
     "seqNoType": "octank",
-    "color": "#f781bf",
+    "color": "#F781BF",
+    "geometryType": "polygon",
     "fields": [
       {
-        "key": "SeqNo",
-        "alias": "SeqNo"
-
-      }, {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      }, {
         "key": "Id",
-        "alias": "Id"
-
-      }, {
+        "alias": "Lok nr."
+      },
+      {
         "key": "Name",
-        "alias": "Lok navn"
-
-      }, {
+        "alias": "Navn"
+      },
+      {
         "key": "Status",
         "alias": "Status"
-
-      }, {
-        "key": "TankType",
-        "alias": "Tanktype"
-
-      }, {
-        "key": "EstablishedYear",
-        "alias": "Etableringsår"
-
-      }, {
-        "key": "Volume",
-        "alias": "Volumen Liter"
-
-      }, {
-        "key": "ChamberCount",
-        "alias": "Antal rum"
-
       },
       {
-        "key": "GELink",
-        "alias": "GELink"
-
-      }
-    ]
-  },
-
-  "OpenCountryPurifications": {
-    "alias": "Rensningsanlæg i det åbne land",
-    "color": "#a6cee3",
-    "seqNoType": "ocpur",
-    "fields": [
+        "key": "TankType",
+        "alias": "Tanktype"
+      },
+      {
+        "key": "EstablishedYear",
+        "alias": "Etableringsår"
+      },
+      {
+        "key": "Volume",
+        "alias": "Volumen (l)"
+      },
+      {
+        "key": "ChamberCount",
+        "alias": "Antal rum"
+      },
       {
         "key": "SeqNo",
         "alias": "SeqNo"
-
-      }, {
+      },
+      {
         "key": "SeqNoType",
         "alias": "SeqNoType"
-
-      }, {
-        "key": "Id",
-        "alias": "Id"
-
-      }, {
-        "key": "CurrentPurification",
-        "alias": "Rensning"
-
-      }, {
-        "key": "Recipient",
-        "alias": "Recipient"
-
-      }, {
-        "key": "Dimension",
-        "alias": "Dimensionering  PE"
-
-      }, {
-        "key": "PercolationArea",
-        "alias": "Nedsivningsareal m2"
-
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
+  "OpenCountryPurifications": {
+    "alias": "Åbent Land Rensning",
+    "seqNoType": "ocpur",
+    "color": "#A6CEE3",
+    "geometryType": "polygon",
+    "fields": [
+      {
+        "key": "Id",
+        "alias": "Lok nr."
+      },
+      {
+        "key": "CurrentPurification",
+        "alias": "Rensning"
+      },
+      {
+        "key": "Recipient",
+        "alias": "Recipient"
+      },
+      {
+        "key": "Dimension",
+        "alias": "Dimensionering (PE)"
+      },
+      {
+        "key": "PercolationArea",
+        "alias": "Nedsivningsareal (m2)"
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
+      },
+      {
+        "key": "GELink",
+        "alias": "GELink"
+      }
+    ]
+  },
   "WaterCatchmentPlants": {
     "alias": "Vandindvindingsanlæg",
     "seqNoType": "water",
     "color": "#002557",
+    "geometryType": "point",
     "fields": [
+      {
+        "key": "Id",
+        "alias": "Lok nr."
+      },
+      {
+        "key": "Name",
+        "alias": "Navn"
+      },
+      {
+        "key": "Active",
+        "alias": "Aktivt"
+      },
+      {
+        "key": "PlantType",
+        "alias": "Anlægstype"
+      },
+      {
+        "key": "LastSampleDate",
+        "alias": "Seneste prøve"
+      },
+      {
+        "key": "SecondaryPlantType",
+        "alias": "Bi-anlægstype"
+      },
+      {
+        "key": "CatchPermissionPermDate",
+        "alias": "Indvindingstilladelse - start"
+      },
+      {
+        "key": "CatchPermissionExpireDate",
+        "alias": "Indvindingstilladelse - slut"
+      },
+      {
+        "key": "CatchPermissionAmountYear",
+        "alias": "IndvindIngstilladelse (m3)"
+      },
       {
         "key": "SeqNo",
         "alias": "SeqNo"
-
-      }, {
+      },
+      {
         "key": "SeqNoType",
         "alias": "SeqNoType"
-
-      }, {
-        "key": "Id",
-        "alias": "LokNr"
-
-      }, {
-        "key": "Name",
-        "alias": "Navn"
-
-      }, {
-        "key": "Active",
-        "alias": "Aktivt"
-
-      }, {
-        "key": "PlantType",
-        "alias": "Anlægstype"
-
-      }, {
-        "key": "SecondaryPlantType",
-        "alias": "Bi-anlægstype"
-
-      }, {
-        "key": "LastSampleDate",
-        "alias": "Seneste prøve"
-
-      }, {
-        "key": "CatchPermissionPermDate",
-        "alias": "Indvindingstilladelse - start"
-
-      }, {
-        "key": "CatchPermissionExpireDate",
-        "alias": "Indvindingstilladelse - slut"
-
-      }, {
-        "key": "CatchPermissionAmountYear",
-        "alias": "IndvindIngstilladelse M3"
-
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
   "Tanks": {
     "alias": "Olie- og kemikalietanke",
     "seqNoType": "tank",
-    "color": "#fb9a99",
+    "color": "#FB9A99",
+    "geometryType": "polygon",
     "fields": [
       {
-        "key": "SeqNo",
-        "alias": "SeqNo"
-
-      }, {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      }, {
         "key": "Id",
         "alias": "Lok nr."
-
-      }, {
+      },
+      {
         "key": "Name",
-        "alias": "Lok navn"
-
-      }, {
+        "alias": "Navn"
+      },
+      {
         "key": "Content",
         "alias": "Indhold"
-
-      }, {
+      },
+      {
         "key": "Volume",
-        "alias": "Volumen Liter"
-
-      }, {
-        "key": "VolumeApprox",
-        "alias": "Anslået volumen Liter"
-
+        "alias": "Volumen (l)"
       },
       {
         "key": "Location",
         "alias": "Placering"
-
       },
       {
         "key": "EstablishedApprox",
         "alias": "Etableret"
-
       },
       {
         "key": "RemovedApprox",
         "alias": "Fjernet"
-
       },
       {
         "key": "CoveredUpApprox",
         "alias": "Afblændet"
-
       },
       {
         "key": "LastInspectionDate",
-        "alias": "(Sidste inspektion"
-
+        "alias": "Seneste inspektion"
       },
       {
         "key": "DensityTestDate",
         "alias": "Seneste tæthedsprøve"
-
+      },
+      {
+        "key": "VolumeApprox",
+        "alias": "Anslået volumen (l)"
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
   "Separators": {
     "alias": "Udskillere",
     "seqNoType": "sep",
-    "color": "#ff7f00",
+    "color": "#FF7F00",
+    "geometryType": "point",
     "fields": [
       {
-        "key": "SeqNo",
-        "alias": "SeqNo"
-
-      }, {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      }, {
         "key": "Id",
         "alias": "Lok nr."
-
       },
       {
         "key": "Name",
-        "alias": "Lok navn"
-
+        "alias": "Navn"
       },
       {
         "key": "SepType",
         "alias": "Udskillertype"
-
       },
       {
         "key": "Volume",
-        "alias": "Volumen m3"
-
+        "alias": "Volumen (l)"
       },
       {
         "key": "ApproveDate",
         "alias": "Godkendt"
-
       },
       {
         "key": "DeregistrationDate",
-        "alias": "Afmelding"
-
+        "alias": "Afmeldt"
       },
       {
         "key": "DismantleDate",
-        "alias": "Sløjfning"
-
+        "alias": "Sløjfet"
       },
       {
         "key": "DensityTestDate",
-        "alias": "Tæthedsprøvning"
-
+        "alias": "Seneste tæthedsprøve"
       },
       {
         "key": "LastDrainageDate",
-        "alias": "Tømning"
-
+        "alias": "Seneste tømning"
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
   "SandTraps": {
     "alias": "Sandfang",
     "seqNoType": "sdtrap",
-    "color": "#cab2d6",
+    "color": "#CAB2D6",
+    "geometryType": "point",
     "fields": [
       {
-        "key": "SeqNo",
-        "alias": "SeqNo"
-
-      }, {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      }, {
         "key": "Id",
         "alias": "Lok nr."
-
-      }, {
+      },
+      {
         "key": "Name",
-        "alias": "Lok navn"
-
+        "alias": "Navn"
+      },
+      {
+        "key": "SandTrapId",
+        "alias": "Sandfang id"
       },
       {
         "key": "Volume",
-        "alias": "Volumen m3"
-
+        "alias": "Volumen (l)"
       },
       {
         "key": "ApprovalDate",
         "alias": "Godkendt"
-
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
   "GeothermalHeatSystems": {
     "alias": "Jordvarmeanlæg",
     "seqNoType": "heat",
-    "color": "#1f78b4",
+    "color": "#1F78B4",
+    "geometryType": "polygon",
     "fields": [
       {
-        "key": "SeqNo",
-        "alias": "SeqNo"
-
-      }, {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      }, {
         "key": "Id",
         "alias": "Lok nr."
-
       },
       {
         "key": "Name",
-        "alias": "Lok navn"
-
+        "alias": "Navn"
       },
       {
         "key": "GeothermType",
         "alias": "Anlægstype"
-
-      },
-      {
-        "key": "TotalLiquidAmount",
-        "alias": "Total mængde væske i anlæg, Liter"
-
       },
       {
         "key": "ApprovalDate",
         "alias": "Godkendt"
-
       },
       {
         "key": "EstablishedDate",
         "alias": "Etableret"
-
       },
       {
         "key": "RemovedDate",
         "alias": "Fjernet"
-
+      },
+      {
+        "key": "TotalLiquidAmount",
+        "alias": "Total mængde væske i anlæg (l)"
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
   "Borings": {
     "alias": "Boringer",
     "seqNoType": "boring",
-    "color": "#7f542a",
+    "color": "#7F542A",
+    "geometryType": "point",
     "fields": [
       {
-        "key": "SeqNo",
-        "alias": "SeqNo"
-
-      }, {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      },
-      {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      },
-      {
         "key": "Id",
-        "alias": "Anlægs Id"
-
+        "alias": "Lok nr."
       },
       {
         "key": "Name",
-        "alias": "Anlægsnavn"
-
+        "alias": "Navn"
       },
       {
         "key": "BoreHoleId",
         "alias": "Boringsnr."
-
-      },
-      {
-        "key": "Use",
-        "alias": "Anvendelse"
-
-      },
-      {
-        "key": "LastGroundWaterLevel",
-        "alias": "Sidste pejling GVS kote"
-
-      },
-      {
-        "key": "Depth",
-        "alias": "Dybde m u.t."
-
       },
       {
         "key": "GroundLevel",
-        "alias": "terrænkote"
-
+        "alias": "Terrænkote"
+      },
+      {
+        "key": "Depth",
+        "alias": "Dybde (m.u.t.)"
+      },
+      {
+        "key": "LastGroundWaterLevel",
+        "alias": "Senest pejlede GVS kote"
       },
       {
         "key": "DismantleDate",
-        "alias": "Sløjfning"
-
+        "alias": "Sløjfet"
+      },
+      {
+        "key": "Use",
+        "alias": "Anveldelse"
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
-  "ContaminatedLandActivities": {
-    "alias": "Jordforureningsaktiviteter",
-    "seqNoType": "act",
-    "color": "#a60000",
+  "ContaminatedLands": {
+    "alias": "Jordforureningslokaliteter",
+    "seqNoType": "indu",
+    "color": "#D95F0E",
+    "geometryType": "polygon",
     "fields": [
       {
-        "key": "SeqNo",
-        "alias": "SeqNo"
-
-      }, {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      }, {
         "key": "Id",
         "alias": "Lok nr."
-
       },
       {
         "key": "Name",
-        "alias": "Lok navn"
-
+        "alias": "Navn"
       },
       {
-        "key": "Status",
-        "alias": "Kortlægning"
-
+        "key": "StatusName",
+        "alias": "Status"
       },
       {
-        "key": "StatusDate",
-        "alias": "Kortlægningsdato"
-
+        "key": "EnforceCount",
+        "alias": "Håndhævelser i alt"
+      },
+      {
+        "key": "LastEnforceTypeName",
+        "alias": "Seneste håndhævelse - Type"
+      },
+      {
+        "key": "LastEnforceDate",
+        "alias": "Seneste håndhævelse - Dato"
+      },
+      {
+        "key": "LastEnforceStatusName",
+        "alias": "Seneste håndhævelse - Status"
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
+      },
+      {
+        "key": "GELink",
+        "alias": "GELink"
+      }
+    ]
+  },
+  "ContaminatedLandActivities": {
+    "alias": "Jordforureningsaktiviteter",
+    "seqNoType": "act",
+    "color": "#A60000",
+    "geometryType": "polygon",
+    "fields": [
+      {
+        "key": "Id",
+        "alias": "Lok nr."
+      },
+      {
+        "key": "Name",
+        "alias": "Navn"
       },
       {
         "key": "ActivityName",
         "alias": "Aktivitetsnavn"
-
       },
       {
         "key": "ActivityType",
         "alias": "Aktivitetstype"
-
       },
       {
-        "key": "GELink",
-        "alias": "GELink"
-
-      }
-    ]
-  },
-
-  "Stations": {
-    "alias": "Stationer/udløb - vandløb",
-    "seqNoType": "sta",
-    "color": "#00a518",
-    "fields": [
+        "key": "Status",
+        "alias": "Kortlægning"
+      },
+      {
+        "key": "StatusDate",
+        "alias": "Kortlægningsdato"
+      },
       {
         "key": "SeqNo",
         "alias": "SeqNo"
-
-      }, {
+      },
+      {
         "key": "SeqNoType",
         "alias": "SeqNoType"
-
-      }, {
-        "key": "Id",
-        "alias": "Vandløbets Id"
-
-      },
-      {
-        "key": "Name",
-        "alias": "Vandløbets Navn"
-
-      },
-      {
-        "key": "StationName",
-        "alias": "Stationens navn"
-
-      },
-      {
-        "key": "StationType",
-        "alias": "Stationens type"
-
-      },
-      {
-        "key": "Active",
-        "alias": "Aktiv"
-
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
       }
     ]
   },
-
-  "Windmills": {
-    "alias": "Vindmøller",
-    "seqNoType": "wmill",
-    "color": "#66350f",
-    "fields": [
-      {
-        "key": "SeqNo",
-        "alias": "SeqNo"
-
-      }, {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      }, {
-        "key": "Id",
-        "alias": "Lok nr."
-
-      },
-      {
-        "key": "Name",
-        "alias": "Lok navn"
-
-      },
-      {
-        "key": "InitialisationDate",
-        "alias": "Idriftssættelse"
-
-      },
-      {
-        "key": "Effect",
-        "alias": "Effekt kW"
-
-      },
-      {
-        "key": "HubHeight",
-        "alias": "Navhøjde m"
-
-      },
-      {
-        "key": "GELink",
-        "alias": "GELink"
-
-      }
-    ]
-  },
-
   "BldCasefiles": {
     "alias": "Byggesager",
     "seqNoType": "bld",
     "color": "#872E91",
+    "geometryType": "point",
     "fields": [
       {
-        "key": "SeqNo",
-        "alias": "SeqNo"
-
-      }, {
-        "key": "SeqNoType",
-        "alias": "SeqNoType"
-
-      }, {
         "key": "Id",
         "alias": "Lok nr."
-
       },
       {
         "key": "Name",
-        "alias": "Lok navn"
-
+        "alias": "Navn"
       },
       {
         "key": "CasefileName",
-        "alias": "CasefileName"
-
+        "alias": "Sagsnavn"
       },
       {
         "key": "CasefileStatus",
-        "alias": "CasefileStatus"
-
+        "alias": "Sagsstatus"
       },
       {
         "key": "ApplicandReceivedDate",
-        "alias": "Modtagelse"
-
+        "alias": "Modtaget"
       },
       {
         "key": "AdequateDate",
-        "alias": "Fyldestgørende materiale modtaget"
-
+        "alias": "Fyldestgørende"
       },
       {
         "key": "Deadline",
-        "alias": "Afgørelse"
-
+        "alias": "Afgjort"
       },
       {
         "key": "ShelvingDate",
-        "alias": "Henlæggelse"
-
+        "alias": "Henlagt"
       },
       {
         "key": "EndDate",
         "alias": "Afsluttet"
-
       },
       {
         "key": "CaseClosed",
-        "alias": "Sag lukket"
-
+        "alias": "Lukket"
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
       },
       {
         "key": "GELink",
         "alias": "GELink"
-
+      }
+    ]
+  },
+  "Stations": {
+    "alias": "Stationer/udløb - vandløb",
+    "seqNoType": "sta",
+    "color": "#00A518",
+    "geometryType": "point",
+    "fields": [
+      {
+        "key": "Id",
+        "alias": "Vandløbsid"
+      },
+      {
+        "key": "Name",
+        "alias": "Vandløbsnavn"
+      },
+      {
+        "key": "StationName",
+        "alias": "Stationsnavn"
+      },
+      {
+        "key": "StationType",
+        "alias": "Stationstype"
+      },
+      {
+        "key": "Active",
+        "alias": "Aktiv"
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
+      },
+      {
+        "key": "GELink",
+        "alias": "GELink"
+      }
+    ]
+  },
+  "Windmills": {
+    "alias": "Vindmøller",
+    "seqNoType": "wmill",
+    "color": "#66350F",
+    "geometryType": "point",
+    "fields": [
+      {
+        "key": "Id",
+        "alias": "Lok nr."
+      },
+      {
+        "key": "Name",
+        "alias": "Navn"
+      },
+      {
+        "key": "InitialisationDate",
+        "alias": "Idriftsat"
+      },
+      {
+        "key": "Effect",
+        "alias": "Effekt (kW)"
+      },
+      {
+        "key": "HubHeight",
+        "alias": "Navhøjde (m)"
+      },
+      {
+        "key": "SeqNo",
+        "alias": "SeqNo"
+      },
+      {
+        "key": "SeqNoType",
+        "alias": "SeqNoType"
+      },
+      {
+        "key": "GELink",
+        "alias": "GELink"
       }
     ]
   }
