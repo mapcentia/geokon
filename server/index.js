@@ -737,51 +737,50 @@ router.post('/api/extension/conflict/:token/:client/:id', function (req, respons
 
 router.get('/api/extension/geoenviron/model/:token/:client', function (req, response) {
 
-    let client = req.params.client;
-    models[client] = require('../models');
-    response.send(models[client]);
+    //let client = req.params.client;
+    //models[client] = require('../models');
+    //response.send(models[client]);
 
+    let client = req.params.client,
+        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/GetGisSettings?$format=json",
+        ip = ipaddr.process(req.ip).toString(),
+        token = req.params.token;
 
-    // let client = req.params.client,
-    //     url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/GetGisSettings?$format=json",
-    //     ip = ipaddr.process(req.ip).toString(),
-    //     token = req.params.token;
-    //
-    // console.log(url);
-    //
-    // let options = {
-    //     method: 'GET',
-    //     uri: url,
-    //     auth: config.extensionConfig.geokon.auth,
-    //     headers: {
-    //         'auth-token': token,
-    //         'ip-address': ip
-    //     },
-    // };
-    //
-    // request.get(options, function (err, res, body) {
-    //     let json;
-    //     try {
-    //         json = JSON.parse(body);
-    //     } catch (e) {
-    //         response.status(500).send({
-    //             success: false,
-    //             message: "Could not parse JSON from GeoEnviron"
-    //         });
-    //         return;
-    //     }
-    //     if (err || res.statusCode !== 200) {
-    //         response.header('content-type', 'application/json');
-    //         response.status(400).send({
-    //             success: false,
-    //             message: "Could not get the requested config JSON file."
-    //         });
-    //         return;
-    //     }
-    //     models[client] = JSON.parse(json.value);
-    //     //console.log(models);
-    //     response.send(json.value);
-    // })
+    console.log(url);
+
+    let options = {
+        method: 'GET',
+        uri: url,
+        auth: config.extensionConfig.geokon.auth,
+        headers: {
+            'auth-token': token,
+            'ip-address': ip
+        },
+    };
+
+    request.get(options, function (err, res, body) {
+        let json;
+        try {
+            json = JSON.parse(body);
+        } catch (e) {
+            response.status(500).send({
+                success: false,
+                message: "Could not parse JSON from GeoEnviron"
+            });
+            return;
+        }
+        if (err || res.statusCode !== 200) {
+            response.header('content-type', 'application/json');
+            response.status(400).send({
+                success: false,
+                message: "Could not get the requested config JSON file."
+            });
+            return;
+        }
+        models[client] = JSON.parse(json.value);
+        //console.log(models);
+        response.send(json.value);
+    })
 });
 
 module.exports = router;
