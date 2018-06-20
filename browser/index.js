@@ -1139,13 +1139,13 @@ module.exports = module.exports = {
                         var fi = [];
 
                         $.each(feature.properties, function (name, property) {
-                            if (name !== "GELink" && name !== "_id") {
+                            if (name !== "GELink" && name !== "_id" && name !== "SeqNo" && name !== "SeqNoType") {
 
                                 $.each(models[mainType].fields, function (i, v) {
                                     if (v.key === name) {
                                         fi.push({
                                             title: v.alias,
-                                            value: feature.properties[name]
+                                            value: feature.properties[name] || "-"
                                         });
                                         return;
                                     }
