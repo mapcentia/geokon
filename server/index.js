@@ -161,7 +161,7 @@ router.get('/api/extension/geoenviron/all/:type/:token/:client', function (req, 
     });
 });
 
-router.post('/api/extension/geoenviron/:type/:token/:client', function (req, response) {
+router.post('/api/extension/geoenviron/:type/:token/:client/:filter', function (req, response) {
 
     'use strict';
 
@@ -170,10 +170,12 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
         "unproj": "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
     };
 
+    let geFilter = null;
     let url;
     let type = req.params.type;
     let token = req.params.token;
     let client = req.params.client;
+    let filter = req.params.filter;
     let ip = ipaddr.process(req.ip).toString();
     let params = req.body.q.split(",");
     let p1 = utils.transform("EPSG:4326", "EPSG:25832", [parseFloat(params[0]), parseFloat(params[1])]);
@@ -191,7 +193,15 @@ router.post('/api/extension/geoenviron/:type/:token/:client', function (req, res
         url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "?$format=json&$filter=SeqNo eq " + params[4];
     } else {
         url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
+
+        if (filter !== "" && filter !== "none") {
+            geFilter = Buffer.from(filter, 'base64').toString();
+            url += "&$filter=" + geFilter;
+        }
+
+        console.log(geFilter);
     }
+
 
     let options = {
         method: 'GET',
@@ -396,7 +406,7 @@ router.post('/api/extension/conflict/:token/:client/:id', function (req, respons
     let geojson = TerraformerParser.parse(wkt);
     var polygon = new Terraformer.Primitive(geojson);
     var bbox = polygon.bbox();
-    wkt = "POLYGON((" + bbox[0] + " " + bbox[1] + "," + bbox[0] + " " + bbox[3] + "," + bbox[2] + " " + bbox[3] + ","  + bbox[2] + " " + bbox[1] +  "," + bbox[0] + " " + bbox[1] + "))";
+    wkt = "POLYGON((" + bbox[0] + " " + bbox[1] + "," + bbox[0] + " " + bbox[3] + "," + bbox[2] + " " + bbox[3] + "," + bbox[2] + " " + bbox[1] + "," + bbox[0] + " " + bbox[1] + "))";
 
     response.header('content-type', 'application/json');
     response.header('Cache-Control', 'no-cache, no-store, must-revalidate');

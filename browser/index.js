@@ -88,6 +88,8 @@ var reproject = require('reproject');
 var socketId;
 var conflictSearch;
 
+moment.locale('da');
+
 /**
  *
  * @type {{set: module.exports.set, init: module.exports.init}}
@@ -285,6 +287,7 @@ module.exports = module.exports = {
         this.switchLayer = function (layer, visible) {
 
             let el = $('*[data-key="' + layer + '"]');
+
             if (visible) {
                 visibleGeLayers.push(layer);
                 parentThis.request(layer);
@@ -297,6 +300,9 @@ module.exports = module.exports = {
                 }
                 parentThis.clear(layer);
                 el.prop('checked', false);
+
+                delete store[layer];
+                delete table[layer];
             }
 
             var str = visibleGeLayers.join(",");
@@ -650,11 +656,12 @@ module.exports = module.exports = {
 
         console.log(type)
 
-        var parts = type.split("_"), filter, mainType, color, isSubLayer = false;
+        var parts = type.split("_"), filter, filterBase64, mainType, color, isSubLayer = false;
 
         // Check if sub layer
         if (parts.length > 1) {
             filter = window.atob(parts[1]);
+            filterBase64 = parts[1];
             mainType = parts[0];
             isSubLayer = true;
             models[mainType].subLayers.map(function (i) {
@@ -713,7 +720,7 @@ module.exports = module.exports = {
             host: "",
             base64: false,
             db: "",
-            uri: "/api/extension/geoenviron/" + mainType + "/" + token + "/" + client,
+            uri: "/api/extension/geoenviron/" + mainType + "/" + token + "/" + client + "/" + (filterBase64 || "none"),
             clickable: true,
             id: id,
             styleMap: {
@@ -876,10 +883,24 @@ module.exports = module.exports = {
                             console.log(json);
                             json.properties = store[id].geoJSON.features[0].properties;
 
+                            Object.keys(table).map(function (k) {
+                                if (k.substring(0, 2) === "s_") {
+                                    table[k].moveEndOff();
+                                }
+                            });
+
                             me.commitDrawing(store[id], json, type, token, client).then(
                                 function (e) {
                                     cloud.get().map.removeLayer(editor);
                                     cloud.get().map.removeLayer(toolBar);
+
+                                    // Reset select layer
+                                    store[id].reset();
+
+                                    // Reset and reload the real layer
+                                    store[id.split("_")[1]].reset();
+                                    store[id.split("_")[1]].load();
+
                                     jquery.snackbar({
                                         id: "snackbar-conflict",
                                         content: "Entity '" + json.properties.SeqNoType + "' (" + json.properties.SeqNo + ") stedfæstet",
@@ -973,6 +994,7 @@ module.exports = module.exports = {
                                     }
                                 });
                             });
+
                             // Enable reload on all layers, except select layers
                             Object.keys(table).map(function (k) {
                                 if (k.substring(0, 2) !== "s_") {
@@ -1142,10 +1164,19 @@ module.exports = module.exports = {
                             if (name !== "GELink" && name !== "_id" && name !== "SeqNo" && name !== "SeqNoType") {
 
                                 $.each(models[mainType].fields, function (i, v) {
+                                    var str;
+                                    if (name === "EstablishDate" || name === "EnvApprovalDate" || name === "LastInspectionDate") {
+                                        str = moment(feature.properties[name]).format('LL');
+                                        str = str !== "Invalid date" ? str : "-";
+                                    } else {
+                                        str = feature.properties[name];
+
+                                    }
+
                                     if (v.key === name) {
                                         fi.push({
                                             title: v.alias,
-                                            value: feature.properties[name] || "-"
+                                            value: str || "-"
                                         });
                                         return;
                                     }
