@@ -61,6 +61,8 @@ var io = require('socket.io-client');
 
 var models;
 
+var editMode = false;
+
 var functions = require('../functions');
 
 var template =
@@ -128,6 +130,8 @@ module.exports = module.exports = {
 
         var visibleGeLayers = [];
 
+        // Setup GE extension
+
         // Start listen to the web socket
         backboneEvents.get().on("on:conflict", function () {
             io.connect().on(socketId.get(), function (data) {
@@ -142,6 +146,7 @@ module.exports = module.exports = {
             });
         });
 
+        // Listen to layer switch check boxes
         $(document).arrive('[data-key]', function () {
             $(this).on("change", function (e) {
                 parentThis.switchLayer($(this).data('key'), $(this).context.checked);
@@ -156,12 +161,12 @@ module.exports = module.exports = {
         $('a[href="#streetview-content"]').hide();
         $(".custom-search").prop("disabled", true);
 
+        // Set native Leaflet object
         mapObj = cloud.get().map;
 
+        // Check URL for 'type' and 'seqno' and switch on layers
         if (urlVars.seqno !== undefined && urlVars.type !== undefined) {
-
             var type, seqNoType;
-
             $.each(models, function (i, v) {
                 if (v.seqNoType === urlVars.type.split("#")[0]) {
                     seqNoType = v.seqNoType;
@@ -169,13 +174,11 @@ module.exports = module.exports = {
                     me.request(type, seqNoType, urlVars.seqno.split("#")[0])
                 }
             });
-
         }
 
         // Listen to change in hash
         window.onhashchange = function () {
             var type, seqNoType, urlVars, getypes;
-
             urlVars = (function getUrlVars() {
                 var mapvars = {};
                 var parts = window.location.hash.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
@@ -183,9 +186,7 @@ module.exports = module.exports = {
                 });
                 return mapvars;
             })();
-
             $.each(models, function (i, v) {
-
                 try {
                     if (v.seqNoType === urlVars.type.split("#")[0]) {
                         seqNoType = v.seqNoType;
@@ -195,7 +196,6 @@ module.exports = module.exports = {
                 } catch (e) {
                     console.error(e.message)
                 }
-
                 try {
                     // Get GE types from hash
                     if (urlVars.getypes !== undefined) {
@@ -204,13 +204,11 @@ module.exports = module.exports = {
                     } else {
                         getypes = [];
                     }
-
                     if (getypes.length > 0) {
                         getypes = getypes.map(function (e) {
                             return e.split("#")[0];
                         });
                     }
-
                     if (getypes.indexOf(v.seqNoType) !== -1) {
                         let cb = $('*[data-seqnotype="' + v.seqNoType + '"]');
                         if (!cb.is(':checked')) {
@@ -222,46 +220,37 @@ module.exports = module.exports = {
                     console.error(e.message)
                 }
             });
-
-
         };
 
+        // Set i18n obejct
         var dict = {
-
             "Info": {
                 "da_DK": "GeoEnviron extension",
                 "en_US": "GeoEnviron extension"
             },
-
             "GeoEnviron": {
                 "da_DK": "GeoEnviron",
                 "en_US": "GeoEnviron"
             },
-
             "Activate": {
                 "da_DK": "Aktiver",
                 "en_US": "Activate"
             },
-
-
             "Clear map": {
                 "da_DK": "Ryd kort",
                 "en_US": "Clear map"
             },
-
-
         };
 
+        // Create tab for extension
         utils.createMainTab(exId, utils.__("GeoEnviron", dict), utils.__("Info", dict), require('./../../../browser/modules/height')().max);
 
         // Get GE types from URL param
         if (urlVars.getypes) {
             getypes = urlVars.getypes.split(",");
-
         } else {
             getypes = [];
         }
-
         if (getypes.length > 0) {
             getypes = getypes.map(function (e) {
                 return e.split("#")[0];
@@ -271,16 +260,48 @@ module.exports = module.exports = {
         // Get GE layers from URL param
         if (urlVars.gelayers) {
             visibleGeLayers = urlVars.gelayers.split(",");
-
         } else {
             visibleGeLayers = [];
         }
-
         if (visibleGeLayers.length > 0) {
             visibleGeLayers = visibleGeLayers.map(function (e) {
                 return e.split("#")[0];
             });
         }
+
+        // Setup main edit toolbar
+        var ourCustomControl = L.Control.extend({
+            options: {
+                position: 'topright'
+            },
+            onAdd: function (map) {
+                var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+                container.style.backgroundColor = 'white';
+                container.style.width = '34px';
+                container.style.height = '34px';
+                container.style.lineHeight = '30px';
+                container.style.textAlign = 'center';
+                container.innerHTML = "<i class=\"fa fa-pencil\" aria-hidden=\"true\"></i>";
+                container.onclick = function () {
+                    console.log('buttonClicked');
+                    if (!editMode) {
+                        editMode = true;
+                        container.style.backgroundColor = 'Grey';
+                        container.style.color = 'white';
+                    } else {
+                        editMode = false;
+                        container.style.backgroundColor = 'white';
+                        container.style.color = 'black';
+                    }
+
+                };
+
+                return container;
+            }
+
+
+        });
+        mapObj.addControl(new ourCustomControl());
 
         var entities = [];
 
@@ -479,7 +500,6 @@ module.exports = module.exports = {
                 }
 
                 class GeoEnviron extends React.Component {
-
                     constructor(props) {
 
                         super(props);
@@ -654,7 +674,6 @@ module.exports = module.exports = {
 
     request: function (type, seqNoType, seqNo) {
 
-        console.log(type)
 
         var parts = type.split("_"), filter, filterBase64, mainType, color, isSubLayer = false;
 
@@ -723,6 +742,7 @@ module.exports = module.exports = {
             uri: "/api/extension/geoenviron/" + mainType + "/" + token + "/" + client + "/" + (filterBase64 || "none"),
             clickable: true,
             id: id,
+            name: id,
             styleMap: {
                 weight: 5,
                 color: seq === -999 ? color : '#ff00ff',
@@ -939,217 +959,297 @@ module.exports = module.exports = {
 
             onEachFeature: function (feature, layer) {
 
-                var saveFn, cancelFn;
+                var saveFn, cancelFn, showToolbar = false;
 
                 if (licens === "gispro" || licens === "gispremium") {
+
                     layer.on("click", function (e) {
-                        history.pushState(null, null, anchor.init() + "¤" + feature.properties.GELink.split("?")[1]);
-                        console.log("GEMessage:select:" + feature.properties.GELink.split("?")[1]);
 
-                        var popup = L.popup({
-                            autoPan: false
+                        //Disable reset selected style on other layers
+                        Object.keys(store).map(function (k) {
+                            $.each(store[k].layer._layers, function (i, v) {
+                                store[k].layer.resetStyle(v);
+
+                            });
                         });
 
-                        var showToolbar = false;
+                        var clickBounds = L.latLngBounds(e.latlng, e.latlng), intersectingFeatures = [];
 
-                        if (e.target.feature.geometry.type !== "Point" || models[mainType].geometryType === "point") {
-                            popup
-                                .setLatLng(e.latlng)
-                                .setContent('<button class="btn btn-primary btn-xs ge-start-edit"><i class="fa fa-pencil" aria-hidden="true"></i></button><button class="btn btn-primary btn-xs ge-delete"><i class="fa fa-trash" aria-hidden="true"></i></button>')
-                                .openOn(cloud.get().map);
+                        for (var l in mapObj._layers) {
+                            var overlay = mapObj._layers[l];
+                            if (overlay._layers) {
+                                for (var f in overlay._layers) {
+                                    var feature = overlay._layers[f];
+                                    var bounds;
+                                    if (feature.getBounds) {
+                                        bounds = feature.getBounds();
+                                    }
+                                    else if (feature._latlng) {
+                                        bounds = L.latLngBounds(feature._latlng, feature._latlng);
+                                    }
+                                    if (bounds && clickBounds.intersects(bounds) && overlay.id) {
+                                        intersectingFeatures.push([feature, overlay.id]);
+                                    }
+                                }
+                            }
                         }
-                        $(".ge-delete").unbind("click.ge-delete").bind("click.ge-delete", function () {
 
-                            if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
-                                // Disable editing on all layers
-
-                                me.commitDelete(store[id], e.target.toGeoJSON(), type, token, client).then(
-                                    function () {
-                                        store[id].reset();
-                                        store[id].load();
-                                        cloud.get().map.removeLayer(toolBar);
-                                    },
-                                    function (e) {
-                                        console.log(e);
-                                        alert(e.responseText);
-                                    });
-
-
-                            }
-
-                        });
-
-                        $(".ge-start-edit").unbind("click.ge-start-edit").bind("click.ge-start-edit", function () {
-                            try {
-                                store["s_" + id].reset();
-                            } catch (e) {
-                            }
-
-                            //Disable editing on all layers
-                            Object.keys(store).map(function (k) {
-                                store[k].layer.eachLayer(function (l) {
-                                    try {
-                                        l.disableEdit();
-                                    } catch (e) {
+                        // if at least one feature found, show it
+                        if (intersectingFeatures.length) {
+                            if (intersectingFeatures.length === 1 && editMode === false) {
+                                table[id].object.trigger("selected" + "_" + table[id].uid, e.target._leaflet_id);
+                                history.pushState(null, null, anchor.init() + "¤" + e.target.feature.properties.GELink.split("?")[1]);
+                                console.log("GEMessage:select:" + e.target.feature.properties.GELink.split("?")[1]);
+                            } else {
+                                var html = "Found features: " + intersectingFeatures.length + "<br/>" + intersectingFeatures.map(function (o) {
+                                    var obj = o[0].feature.properties;
+                                    if (editMode) {
+                                        return '<span>' + obj[Object.keys(obj)[0]] + ', ' + obj[Object.keys(obj)[1]] + '</span><button data-toggle="tooltip" data-placement="right" title="Ændre entity" class="btn btn-primary btn-xs ge-start-edit-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-pencil" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Slet entity" class="btn btn-primary btn-xs ge-delete-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-trash" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Vis entity i GE" class="btn btn-primary btn-xs ge-select-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>'
+                                    } else {
+                                        return '<span>' + obj[Object.keys(obj)[0]] + ', ' + obj[Object.keys(obj)[1]] + '</span><button data-toggle="tooltip" data-placement="right" title="Vis entity i GE" class="btn btn-primary btn-xs ge-select-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>'
                                     }
+                                }).join('<br/>');
+
+                                mapObj.openPopup(html, e.latlng, {
+                                    offset: L.point(0, -24)
                                 });
-                            });
+                                intersectingFeatures.map(function (o) {
 
-                            // Enable reload on all layers, except select layers
-                            Object.keys(table).map(function (k) {
-                                if (k.substring(0, 2) !== "s_") {
-                                    table[k].moveEndOn();
-                                }
-                            });
+                                    let id = o[1];
+                                    let type = o[1];
 
-                            if (e.target.feature.geometry.type !== "Point") {
+                                    $(".ge-select-" + o[0].feature.properties.SeqNo).unbind("click.ge-delete-" + o[0].feature.properties.SeqNo).bind("click.ge-delete-" + o[0].feature.properties.SeqNo, function () {
 
-                                e.target.enableEdit();
-                                cloud.get().map.closePopup();
-                                if (typeof table[type] !== "undefined") {
-                                    table[type].moveEndOff();
-                                }
+                                        //Disable reset selected style on other layers
+                                        Object.keys(store).map(function (k) {
+                                            $.each(store[k].layer._layers, function (i, v) {
+                                                store[k].layer.resetStyle(v);
 
-                                cancelFn = function () {
-                                    e.target.disableEdit();
-                                    if (typeof table[type] !== "undefined") {
-                                        table[type].moveEndOn();
-                                    }
-                                };
+                                            });
+                                        });
+                                        // Set selected style
+                                        table[id].object.trigger("selected" + "_" + table[id].uid, o[0]._leaflet_id);
 
-                                saveFn = function () {
-                                    e.target.disableEdit();
-                                    if (typeof table[type] !== "undefined") {
-                                        table[type].moveEndOn();
-                                    }
-                                    return e.target.toGeoJSON();
-                                };
+                                        history.pushState(null, null, anchor.init() + "¤" + o[0].feature.properties.GELink.split("?")[1]);
+                                        console.log("GEMessage:select:" + o[0].feature.properties.GELink.split("?")[1]);
+                                    });
+                                    $(".ge-delete-" + o[0].feature.properties.SeqNo).unbind("click.ge-delete-" + o[0].feature.properties.SeqNo).bind("click.ge-delete-" + o[0].feature.properties.SeqNo, function () {
 
-                                showToolbar = true;
+                                        if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
+                                            // Disable editing on all layers
 
-                            }
-
-                            if (models[mainType].geometryType === "point") {
-
-                                try {
-                                    cloud.get().map.removeLayer(marker);
-                                } catch (e) {
-                                }
-
-                                marker = L.marker(
-                                    e.target.getLatLng(),
-                                    {
-                                        icon: L.AwesomeMarkers.icon({
-                                                icon: 'arrows',
-                                                markerColor: 'blue',
-                                                prefix: 'fa'
-                                            }
-                                        )
-                                    }
-                                ).addTo(cloud.get().map);
-
-                                marker.enableEdit();
-
-                                cloud.get().map.closePopup();
-
-                                console.log("TEST: " + mainType);
-                                if (typeof table[type] !== "undefined") {
-                                    table[type].moveEndOff();
-                                }
-
-                                cancelFn = function () {
-                                    marker.disableEdit();
-                                    if (typeof table[mainType] !== "undefined") {
-                                        table[type].moveEndOn();
-                                    }
-                                    cloud.get().map.removeLayer(marker);
-                                };
-
-                                saveFn = function () {
-                                    marker.disableEdit();
-                                    if (typeof table[mainType] !== "undefined") {
-                                        table[type].moveEndOn();
-                                    }
-                                    cloud.get().map.removeLayer(marker);
-                                    let f = marker.toGeoJSON();
-                                    f.properties = e.target.feature.properties;
-                                    return f;
-                                };
-
-                                showToolbar = true;
-
-                            }
-
-                            toolBar = new LeafletToolbar.Control({
-
-                                position: 'topright',
-                                actions: [
-
-                                    // Stop
-                                    LeafletToolbar.ToolbarAction.extend({
-                                        options: {
-                                            toolbarIcon: {
-                                                className: 'fa fa-stop'
-
-                                            }
-                                        },
-
-                                        addHooks: function () {
-
-                                            if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
-                                                // Disable editing on all layers
-                                                cancelFn();
-                                                store[id].reset();
-                                                store[id].load();
-                                                cloud.get().map.removeLayer(toolBar);
-
-                                            }
-
-                                        }
-                                    }),
-
-                                    // Gem
-                                    LeafletToolbar.ToolbarAction.extend({
-
-                                        options: {
-                                            toolbarIcon: {
-                                                className: 'fa fa-floppy-o'
-                                            }
-                                        },
-
-                                        addHooks: function () {
-
-                                            var json = saveFn();
-
-                                            me.commitDrawing(store[id], json, type, token, client).then(
-                                                function (e) {
+                                            me.commitDelete(store[id], o[0].toGeoJSON(), type, token, client).then(
+                                                function () {
                                                     store[id].reset();
                                                     store[id].load();
                                                     cloud.get().map.removeLayer(toolBar);
-                                                    jquery.snackbar({
-                                                        id: "snackbar-conflict",
-                                                        content: "Entity '" + json.properties.SeqNoType + "' (" + json.properties.SeqNo + ") ændret",
-                                                        htmlAllowed: true,
-                                                        timeout: 5000
-                                                    });
-
                                                 },
                                                 function (e) {
-                                                    // Error
+                                                    console.log(e);
                                                     alert(e.responseText);
+                                                });
+
+
+                                        }
+                                    });
+                                    $(".ge-start-edit-" + o[0].feature.properties.SeqNo).unbind("click.ge-start-edit-" + o[0].feature.properties.SeqNo).bind("click.ge-start-edit-" + o[0].feature.properties.SeqNo, function () {
+                                        try {
+                                            store["s_" + id].reset();
+                                        } catch (e) {
+                                        }
+
+                                        //Disable reset selected style on other layers
+                                        Object.keys(store).map(function (k) {
+                                            $.each(store[k].layer._layers, function (i, v) {
+                                                store[k].layer.resetStyle(v);
+
+                                            });
+                                        });
+                                        // Set selected style
+                                        table[id].object.trigger("selected" + "_" + table[id].uid, o[0]._leaflet_id);
+
+                                        //Disable editing on all layers
+                                        Object.keys(store).map(function (k) {
+                                            store[k].layer.eachLayer(function (l) {
+                                                try {
+                                                    l.disableEdit();
+                                                } catch (e) {
                                                 }
-                                            );
+                                            });
+                                        });
+
+                                        // Enable reload on all layers, except select layers
+                                        Object.keys(table).map(function (k) {
+                                            if (k.substring(0, 2) !== "s_") {
+                                                table[k].moveEndOn();
+                                            }
+                                        });
+
+                                        if (models[mainType].geometryType !== "point" && o[0].feature.geometry.type === "Point") {
+                                            alert("Zoom tættere på for at editere");
+                                        }
+
+                                        if (o[0].feature.geometry.type !== "Point") {
+                                            o[0].enableEdit();
+                                            cloud.get().map.closePopup();
+                                            if (typeof table[type] !== "undefined") {
+                                                table[type].moveEndOff();
+                                            }
+
+                                            cancelFn = function () {
+                                                o[0].disableEdit();
+                                                if (typeof table[type] !== "undefined") {
+                                                    table[type].moveEndOn();
+                                                }
+                                            };
+
+                                            saveFn = function () {
+                                                o[0].disableEdit();
+                                                if (typeof table[type] !== "undefined") {
+                                                    table[type].moveEndOn();
+                                                }
+                                                return o[0].toGeoJSON();
+                                            };
+
+                                            showToolbar = true;
 
                                         }
 
-                                    })]
-                            });
+                                        if (models[mainType].geometryType === "point") {
 
-                            if (showToolbar) {
-                                toolBar.addTo(cloud.get().map);
+                                            try {
+                                                cloud.get().map.removeLayer(marker);
+                                            } catch (e) {
+                                            }
+
+                                            marker = L.marker(
+                                                o[0].getLatLng(),
+                                                {
+                                                    icon: L.AwesomeMarkers.icon({
+                                                            icon: 'arrows',
+                                                            markerColor: 'blue',
+                                                            prefix: 'fa'
+                                                        }
+                                                    )
+                                                }
+                                            ).addTo(cloud.get().map);
+
+                                            marker.enableEdit();
+
+                                            cloud.get().map.closePopup();
+
+                                            console.log("TEST: " + mainType);
+                                            if (typeof table[type] !== "undefined") {
+                                                table[type].moveEndOff();
+                                            }
+
+                                            cancelFn = function () {
+                                                marker.disableEdit();
+                                                if (typeof table[mainType] !== "undefined") {
+                                                    table[type].moveEndOn();
+                                                }
+                                                cloud.get().map.removeLayer(marker);
+                                            };
+
+                                            saveFn = function () {
+                                                marker.disableEdit();
+                                                if (typeof table[mainType] !== "undefined") {
+                                                    table[type].moveEndOn();
+                                                }
+                                                cloud.get().map.removeLayer(marker);
+                                                let f = marker.toGeoJSON();
+                                                f.properties = o[0].feature.properties;
+                                                return f;
+                                            };
+
+                                            showToolbar = true;
+
+                                        }
+
+                                        toolBar = new LeafletToolbar.Control({
+
+                                            position: 'topright',
+                                            actions: [
+
+                                                // Stop
+                                                LeafletToolbar.ToolbarAction.extend({
+                                                    options: {
+                                                        toolbarIcon: {
+                                                            className: 'fa fa-stop'
+
+                                                        }
+                                                    },
+
+                                                    addHooks: function () {
+
+                                                        if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
+                                                            // Disable editing on all layers
+                                                            cancelFn();
+                                                            store[id].reset();
+                                                            store[id].load();
+                                                            cloud.get().map.removeLayer(toolBar);
+
+                                                        }
+
+                                                    }
+                                                }),
+
+                                                // Gem
+                                                LeafletToolbar.ToolbarAction.extend({
+
+                                                    options: {
+                                                        toolbarIcon: {
+                                                            className: 'fa fa-floppy-o'
+                                                        }
+                                                    },
+
+                                                    addHooks: function () {
+
+                                                        var json = saveFn();
+                                                        me.commitDrawing(store[id], json, type, token, client).then(
+                                                            function (e) {
+                                                                e.reset();
+                                                                e.load();
+                                                                cloud.get().map.removeLayer(toolBar);
+                                                                jquery.snackbar({
+                                                                    id: "snackbar-conflict",
+                                                                    content: "Entity '" + json.properties.SeqNoType + "' (" + json.properties.SeqNo + ") ændret",
+                                                                    htmlAllowed: true,
+                                                                    timeout: 5000
+                                                                });
+
+                                                            },
+                                                            function (e) {
+                                                                // Error
+                                                                alert(e.responseText);
+                                                            }
+                                                        );
+
+                                                    }
+
+                                                })]
+                                        });
+
+                                        if (showToolbar) {
+                                            toolBar.addTo(cloud.get().map);
+                                        }
+                                    });
+                                });
+
+                                //Disable reset selected style if multiple feature are selected
+                                if (intersectingFeatures.length > 1) {
+                                    setTimeout(function () {
+                                        Object.keys(store).map(function (k) {
+                                            $.each(store[k].layer._layers, function (i, v) {
+                                                store[k].layer.resetStyle(v);
+
+                                            });
+                                        });
+                                    }, 30);
+                                }
+
                             }
-                        });
-
+                        }
 
                     });
                 }
@@ -1258,7 +1358,6 @@ module.exports = module.exports = {
         })
     },
 
-
     commitDrawing: function (store, json, type, token, client) {
         // Transform og convert geometry
         var wkt = WKT.convert(reproject.reproject(JSON.parse(JSON.stringify(json.geometry)), "unproj", "proj", {
@@ -1273,7 +1372,7 @@ module.exports = module.exports = {
                 type: "PUT",
                 data: "&seqNo=" + json.properties.SeqNo + "&seqNoType=" + json.properties.SeqNoType + "&geometryWKT=" + wkt,
                 success: function (data) {
-                    resolve(data);
+                    resolve(store);
                 },
                 error: function (error) {
                     reject(error);
@@ -1287,7 +1386,6 @@ module.exports = module.exports = {
 
     clear: function (type) {
 
-        console.log(type)
 
         store[type].abort();
         store[type].reset();
