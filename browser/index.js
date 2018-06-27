@@ -463,6 +463,10 @@ module.exports = module.exports = {
 
                         this.state = {};
 
+                        this.entities = props.entities;
+
+                        this.name = props.name;
+
                         this.listEntities = props.entities.map((entity) =>
 
                             <li key={entity.type} className="layer-item list-group-item">
@@ -491,10 +495,26 @@ module.exports = module.exports = {
                     }
 
                     render() {
+                        const showButton = this.entities.length;
+                        let button;
+
+                        if (showButton) {
+                            button = <a style={{"paddingLeft": "25px"}} data-toggle="collapse" href={"#subs_" + this.name}>
+                                Sub-layers <i className="fa fa-plus"></i>
+                            </a>;
+                        } else {
+                            button = "";
+                        }
+
                         return (
-                            <ul className="list-group" style={{"paddingLeft": "15px"}}>
-                                {this.listEntities}
-                            </ul>
+                            <div>
+                                {button}
+                                <div className="collapse" id={"subs_" + this.name}>
+                                    <ul className="list-group" style={{"paddingLeft": "15px"}}>
+                                        {this.listEntities}
+                                    </ul>
+                                </div>
+                            </div>
                         );
                     }
                 }
@@ -518,30 +538,30 @@ module.exports = module.exports = {
                         this.functions = props.functions;
                         this.listEntities = props.entities.map((entity) =>
 
-                            <li key={entity.type} className="layer-item list-group-item">
-                                <div className="checkbox">
-                                    <label className="overlay-label" style={this.vWidth}>
-                                        <input
-                                            type="checkbox" data-key={entity.type} data-seqnotype={entity.seqNoType}
-                                            data-title={entity.title}
-                                            onChange={this.switch} defaultChecked={entity.show}/>
-                                        <span style={{
-                                            backgroundColor: entity.color,
-                                            display: "inline-block",
-                                            width: "15px",
-                                            height: "15px",
-                                            marginRight: "5px",
-                                            verticalAlign: "middle",
-                                            top: "-2px",
-                                            position: "relative"
-                                        }}/>
-                                        {entity.title}
-                                    </label>
-                                    <span className="geoenviron-table-label label label-primary"
-                                          style={this.hand}>Table</span>
-                                </div>
-                                <SubLayers entities={entity.subLayers}/>
-                            </li>
+                                <li key={entity.type} className="layer-item list-group-item">
+                                    <div className="checkbox">
+                                        <label className="overlay-label" style={this.vWidth}>
+                                            <input
+                                                type="checkbox" data-key={entity.type} data-seqnotype={entity.seqNoType}
+                                                data-title={entity.title}
+                                                onChange={this.switch} defaultChecked={entity.show}/>
+                                            <span style={{
+                                                backgroundColor: entity.color,
+                                                display: "inline-block",
+                                                width: "15px",
+                                                height: "15px",
+                                                marginRight: "5px",
+                                                verticalAlign: "middle",
+                                                top: "-2px",
+                                                position: "relative"
+                                            }}/>
+                                            {entity.title}
+                                        </label>
+                                        <span className="geoenviron-table-label label label-primary"
+                                              style={this.hand}>Table</span>
+                                    </div>
+                                    <SubLayers entities={entity.subLayers} name={entity.type}/>
+                                </li>
                         )
                     }
 
