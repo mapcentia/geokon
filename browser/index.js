@@ -1004,14 +1004,15 @@ module.exports = module.exports = {
                                 var html = "Found features: " + intersectingFeatures.length + "<br/>" + intersectingFeatures.map(function (o) {
                                     var obj = o[0].feature.properties;
                                     if (editMode) {
-                                        return '<span>' + obj[Object.keys(obj)[0]] + ', ' + obj[Object.keys(obj)[1]] + '</span><button data-toggle="tooltip" data-placement="right" title="Ændre entity" class="btn btn-primary btn-xs ge-start-edit-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-pencil" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Slet entity" class="btn btn-primary btn-xs ge-delete-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-trash" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Vis entity i GE" class="btn btn-primary btn-xs ge-select-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>'
+                                        return '<div style="white-space: nowrap;"><span>' + obj[Object.keys(obj)[0]] + ', ' + obj[Object.keys(obj)[1]] + '</span><button data-toggle="tooltip" data-placement="right" title="Ændre entity" class="btn btn-primary btn-xs ge-start-edit-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-pencil" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Slet entity" class="btn btn-primary btn-xs ge-delete-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-trash" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Vis entity i GE" class="btn btn-primary btn-xs ge-select-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></button></div>'
                                     } else {
-                                        return '<span>' + obj[Object.keys(obj)[0]] + ', ' + obj[Object.keys(obj)[1]] + '</span><button data-toggle="tooltip" data-placement="right" title="Vis entity i GE" class="btn btn-primary btn-xs ge-select-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>'
+                                        return '<div style="white-space: nowrap;"><span>' + obj[Object.keys(obj)[0]] + ', ' + obj[Object.keys(obj)[1]] + '</span><button data-toggle="tooltip" data-placement="right" title="Vis entity i GE" class="btn btn-primary btn-xs ge-select-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></button></div>'
                                     }
-                                }).join('<br/>');
+                                }).join('');
 
                                 mapObj.openPopup(html, e.latlng, {
-                                    offset: L.point(0, -24)
+                                    offset: L.point(0, 0),
+                                    maxWidth: 400
                                 });
                                 intersectingFeatures.map(function (o) {
 
