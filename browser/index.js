@@ -943,7 +943,7 @@ module.exports = module.exports = {
 
                                     jquery.snackbar({
                                         id: "snackbar-conflict",
-                                        content: "Entity '" + json.properties.SeqNoType + "' (" + json.properties.SeqNo + ") stedfæstet",
+                                        content: models[type].alias + " (" + json.properties.SeqNo + ") stedfæstet",
                                         htmlAllowed: true,
                                         timeout: 5000
                                     });
@@ -993,7 +993,12 @@ module.exports = module.exports = {
                             });
                         });
 
-                        var clickBounds = L.latLngBounds(e.latlng, e.latlng), intersectingFeatures = [];
+                        var clickBounds = L.latLngBounds(e.latlng, e.latlng), intersectingFeatures = [],
+                            res = [156543.033928, 78271.516964, 39135.758482, 19567.879241, 9783.9396205,
+                            4891.96981025, 2445.98490513, 1222.99245256, 611.496226281, 305.748113141, 152.87405657,
+                            76.4370282852, 38.2185141426, 19.1092570713, 9.55462853565, 4.77731426782, 2.38865713391,
+                            1.19432856696, 0.597164283478, 0.298582141739, 0.149291, 0.074645535],
+                        distance = 3 * res[cloud.get().getZoom()];
 
                         for (var l in mapObj._layers) {
                             var overlay = mapObj._layers[l];
@@ -1005,7 +1010,11 @@ module.exports = module.exports = {
                                         bounds = feature.getBounds();
                                     }
                                     else if (feature._latlng) {
-                                        bounds = L.latLngBounds(feature._latlng, feature._latlng);
+                                        let circle = new L.circle(feature._latlng, {radius: distance});
+                                        // DIRTY HACK
+                                        circle.addTo(mapObj);
+                                        bounds = circle.getBounds();
+                                        circle.removeFrom(mapObj);
                                     }
                                     if (bounds && clickBounds.intersects(bounds) && overlay.id) {
                                         intersectingFeatures.push([feature, overlay.id]);
@@ -1021,7 +1030,7 @@ module.exports = module.exports = {
                                 history.pushState(null, null, anchor.init() + "¤" + e.target.feature.properties.GELink.split("?")[1]);
                                 console.log("GEMessage:select:" + e.target.feature.properties.GELink.split("?")[1]);
                             } else {
-                                var html = "Found features: " + intersectingFeatures.length + "<br/>" + intersectingFeatures.map(function (o) {
+                                var html = "Fundne entiteter: " + intersectingFeatures.length + "<br/>" + intersectingFeatures.map(function (o) {
                                     var obj = o[0].feature.properties;
                                     if (editMode) {
                                         return '<div style="white-space: nowrap;"><span>' + obj[Object.keys(obj)[0]] + ', ' + obj[Object.keys(obj)[1]] + '</span><button data-toggle="tooltip" data-placement="right" title="Ændre entity" class="btn btn-primary btn-xs ge-start-edit-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-pencil" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Slet entity" class="btn btn-primary btn-xs ge-delete-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-trash" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Vis entity i GE" class="btn btn-primary btn-xs ge-select-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></button></div>'
@@ -1234,7 +1243,7 @@ module.exports = module.exports = {
                                                                 cloud.get().map.removeLayer(toolBar);
                                                                 jquery.snackbar({
                                                                     id: "snackbar-conflict",
-                                                                    content: "Entity '" + json.properties.SeqNoType + "' (" + json.properties.SeqNo + ") ændret",
+                                                                    content: models[type].alias + " (" + json.properties.SeqNo + ") ændret",
                                                                     htmlAllowed: true,
                                                                     timeout: 5000
                                                                 });
