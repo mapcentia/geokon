@@ -39,6 +39,12 @@ var anchor;
  *
  * @type {*|exports|module.exports}
  */
+var streetView;
+
+/**
+ *
+ * @type {*|exports|module.exports}
+ */
 var urlVars = require('./../../../browser/modules/urlparser').urlVars;
 var uriJs = require('./../../../browser/modules/urlparser').uriJs;
 
@@ -112,6 +118,7 @@ module.exports = module.exports = {
         socketId = o.socketId;
         backboneEvents = o.backboneEvents;
         conflictSearch = o.extensions.conflictSearch.index;
+        streetView = o.extensions.streetView.index;
         return this;
     },
 
@@ -119,18 +126,18 @@ module.exports = module.exports = {
      *
      */
     init: function () {
-
-        var parentThis = this;
-
-        var React = require('react');
-
-        var ReactDOM = require('react-dom');
-
         var me = this;
-
+        var parentThis = this;
+        var React = require('react');
+        var ReactDOM = require('react-dom');
         var visibleGeLayers = [];
 
         // Setup GE extension
+
+        // Change call back in StreetView
+        streetView.setCallBack(function (url) {
+            console.log("GEMessage:LaunchURL:" + url);
+        });
 
         // Start listen to the web socket
         backboneEvents.get().on("on:conflict", function () {
@@ -156,7 +163,7 @@ module.exports = module.exports = {
 
         // Hide tabs
         $('a[href="#draw-content"]').hide();
-        $('a[href="#print-content"]').hide();
+        //$('a[href="#print-content"]').hide();
         //$('a[href="#layer-content"]').hide();
         $('a[href="#streetview-content"]').hide();
         $(".custom-search").prop("disabled", true);
@@ -393,12 +400,15 @@ module.exports = module.exports = {
                         "type": i,
                         "title": v.alias,
                         "color": v.color,
+                        "outlineColor": v.outlineColor,
+                        "maxCount": v.maxCount,
                         "seqNoType": v.seqNoType,
                         "subLayers": v.subLayers ? v.subLayers.map(function (y) {
                             return {
                                 "type": i + "_" + window.btoa(y.filter),
                                 "title": y.alias,
                                 "color": y.color,
+                                "outlineColor": y.outlineColor,
                                 "seqNoType": v.seqNoType,
                                 "show": false
                             }
@@ -694,8 +704,7 @@ module.exports = module.exports = {
 
     request: function (type, seqNoType, seqNo) {
 
-
-        var parts = type.split("_"), filter, filterBase64, mainType, color, isSubLayer = false;
+        var parts = type.split("_"), filter, filterBase64, mainType, color, outlineColor, isSubLayer = false;
 
         // Check if sub layer
         if (parts.length > 1) {
@@ -706,11 +715,13 @@ module.exports = module.exports = {
             models[mainType].subLayers.map(function (i) {
                 if (i.filter === filter) {
                     color = i.color;
+                    outlineColor = i.outlineColor;
                 }
             });
         } else {
             mainType = type;
             color = models[mainType].color
+            outlineColor = models[mainType].outlineColor
         }
 
         let me = this;
@@ -764,10 +775,11 @@ module.exports = module.exports = {
             id: id,
             name: id,
             styleMap: {
-                weight: 5,
-                color: seq === -999 ? color : '#ff00ff',
+                weight: 3,
+                fillColor: seq === -999 ? color : '#ff00ff',
+                color: seq === -999 ? outlineColor : '#ff00ff',
                 dashArray: '',
-                fillOpacity: 0.2,
+                fillOpacity: 0.4,
                 opacity: 1.0
             },
             error: function (e) {
@@ -796,7 +808,7 @@ module.exports = module.exports = {
 
             onLoad: function () {
 
-                var zoom = cloud.get().map.getZoom(), zoonBreak = 16;
+                var zoom = cloud.get().map.getZoom(), zoonBreak = 16, count = 0;
 
                 if (zoom < zoonBreak && seq === -999) {
                     cloud.get().map.removeLayer(store[id].layer);
@@ -807,7 +819,7 @@ module.exports = module.exports = {
                 layers.decrementCountLoading(id);
 
                 $.each(store[id].layer._layers, function (x, layer) {
-
+                    count++;
                     if (layer.feature.geometry.type !== "Point") {
 
                         var minSize = 5,
@@ -834,6 +846,15 @@ module.exports = module.exports = {
                     }
 
                 });
+
+                if (count === parseInt(models[mainType].maxCount)) {
+                    jquery.snackbar({
+                        id: "snackbar-conflict",
+                        content: "Grænsen på " + models[mainType].maxCount + " er nået for " +  models[mainType].alias + " ",
+                        htmlAllowed: true,
+                        timeout: 5000
+                    });
+                }
 
                 backboneEvents.get().trigger("doneLoading:layers");
 

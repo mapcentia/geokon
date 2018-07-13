@@ -172,6 +172,7 @@ router.post('/api/extension/geoenviron/:type/:token/:client/:filter', function (
 
     let geFilter = null;
     let url;
+    let top;
     let type = req.params.type;
     let token = req.params.token;
     let client = req.params.client;
@@ -192,7 +193,15 @@ router.post('/api/extension/geoenviron/:type/:token/:client/:filter', function (
     if (parseInt(params[4]) > 0) {
         url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "?$format=json&$filter=SeqNo eq " + params[4];
     } else {
-        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'";
+        console.log("TEST: " + models[client][type].maxCount)
+
+        if(models[client][type].hasOwnProperty("maxCount")){
+            top = models[client][type].maxCount;
+        } else {
+            top = 99999999;
+        }
+
+        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'&$top=" + top;
 
         if (filter !== "" && filter !== "none") {
             geFilter = Buffer.from(filter, 'base64').toString();

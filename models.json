@@ -3,17 +3,21 @@
     "alias": "Virksomheder",
     "seqNoType": "virk",
     "color": "#FFB900",
+    "outlineColor": "#FF0000",
+    "maxCount": "1000",
     "subLayers": [
       {
         "alias": "Test1",
         "filter": "operators='within,overlaps'&geometry=WKT...",
         "color": "#FFB9AA",
+        "outlineColor": "#FF0000",
         "show": true
       },
       {
         "alias": "Test2",
         "filter": "operators='overlaps'&geometry=WKT...",
         "color": "#AAB900",
+        "outlineColor": "#FF0000",
         "show": true
 
       }
