@@ -45,8 +45,17 @@ var streetView;
  *
  * @type {*|exports|module.exports}
  */
+var sqlQuery;
+
+/**
+ *
+ * @type {*|exports|module.exports}
+ */
 var urlVars = require('./../../../browser/modules/urlparser').urlVars;
 var uriJs = require('./../../../browser/modules/urlparser').uriJs;
+var urlparser = require('./../../../browser/modules/urlparser');
+var db = urlparser.db;
+
 
 var mapObj;
 
@@ -117,6 +126,7 @@ module.exports = module.exports = {
         anchor = o.anchor;
         socketId = o.socketId;
         backboneEvents = o.backboneEvents;
+        sqlQuery = o.sqlQuery;
         conflictSearch = o.extensions.conflictSearch.index;
         streetView = o.extensions.streetView.index;
         return this;
@@ -138,6 +148,11 @@ module.exports = module.exports = {
         streetView.setCallBack(function (url) {
             console.log("GEMessage:LaunchURL:" + url);
         });
+
+        sqlQuery.setDownloadFunction(function(sql, format){
+            var uri = 'format=' + format + '&client_encoding=UTF8&srs=4326&q=' + sql;
+            console.log("GEMessage:LaunchURL:" + urlparser.uriObj.protocol() + "://" +  urlparser.uriObj.host() + "/api/sql/" + db + "?" + encodeURI(uri));
+        })
 
         // Start listen to the web socket
         backboneEvents.get().on("on:conflict", function () {
