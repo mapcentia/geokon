@@ -149,9 +149,9 @@ module.exports = module.exports = {
             console.log("GEMessage:LaunchURL:" + url);
         });
 
-        sqlQuery.setDownloadFunction(function(sql, format){
+        sqlQuery.setDownloadFunction(function (sql, format) {
             var uri = 'format=' + format + '&client_encoding=UTF8&srs=4326&q=' + sql;
-            console.log("GEMessage:LaunchURL:" + urlparser.uriObj.protocol() + "://" +  urlparser.uriObj.host() + "/api/sql/" + db + "?" + encodeURI(uri));
+            console.log("GEMessage:LaunchURL:" + urlparser.uriObj.protocol() + "://" + urlparser.uriObj.host() + "/api/sql/" + db + "?" + encodeURI(uri));
         })
 
         // Start listen to the web socket
@@ -482,6 +482,56 @@ module.exports = module.exports = {
                     }
                 }
 
+                class ExpandButton extends React.Component {
+                    constructor(props) {
+                        super(props);
+                        this.state = {
+                            icon: "<i class='fa fa-plus'></i>"
+                        };
+                        this.type = props.type;
+                        this.show = props.show;
+                        this.isExpanded = false;
+
+                        this.onExpand = this.onExpand.bind(this);
+
+
+                    }
+
+                    onExpand () {
+                        if (this.isExpanded) {
+                            this.setState({
+                                icon: "<i class='fa fa-plus'></i>"
+                            });
+                            this.isExpanded = false;
+                        } else {
+                            this.setState({
+                                icon: "<i class='fa fa-minus'></i>"
+                            });
+                            this.isExpanded = true;
+                        }
+
+                    }
+
+
+                    render() {
+                        let button;
+
+                        if (this.show) {
+                            button = "visible"
+                        } else {
+                            button = "hidden";
+                        }
+                        return (
+                            <a style={{"visibility": button}} data-toggle="collapse"
+                               href={"#subs_" + this.type}
+                               onClick={this.onExpand}
+                               dangerouslySetInnerHTML={{__html: this.state.icon}}
+                            >
+                            </a>
+                        );
+                    }
+                }
+
                 class SubLayers extends React.Component {
                     constructor(props) {
                         super(props);
@@ -520,22 +570,10 @@ module.exports = module.exports = {
                     }
 
                     render() {
-                        const showButton = this.entities.length;
-                        let button;
-
-                        if (showButton) {
-                            button = <a style={{"paddingLeft": "25px"}} data-toggle="collapse" href={"#subs_" + this.name}>
-                                Sub-layers <i className="fa fa-plus"></i>
-                            </a>;
-                        } else {
-                            button = "";
-                        }
-
                         return (
                             <div>
-                                {button}
                                 <div className="collapse" id={"subs_" + this.name}>
-                                    <ul className="list-group" style={{"paddingLeft": "15px"}}>
+                                    <ul className="list-group" style={{"paddingLeft": "35px"}}>
                                         {this.listEntities}
                                     </ul>
                                 </div>
@@ -551,6 +589,10 @@ module.exports = module.exports = {
 
                         this.state = {};
 
+                        this.width = {
+                            width: "calc(100% - 70px)"
+                        };
+
                         this.vWidth = {
                             width: "calc(100% - 50px)"
                         };
@@ -559,36 +601,14 @@ module.exports = module.exports = {
                             cursor: "pointer"
                         };
 
+
+
                         this.licenses = props.licenses.value;
                         this.functions = props.functions;
-                        this.listEntities = props.entities.map((entity) =>
-
-                                <li key={entity.type} className="layer-item list-group-item">
-                                    <div className="checkbox">
-                                        <label className="overlay-label" style={this.vWidth}>
-                                            <input
-                                                type="checkbox" data-key={entity.type} data-seqnotype={entity.seqNoType}
-                                                data-title={entity.title}
-                                                onChange={this.switch} defaultChecked={entity.show}/>
-                                            <span style={{
-                                                backgroundColor: entity.color,
-                                                display: "inline-block",
-                                                width: "15px",
-                                                height: "15px",
-                                                marginRight: "5px",
-                                                verticalAlign: "middle",
-                                                top: "-2px",
-                                                position: "relative"
-                                            }}/>
-                                            {entity.title}
-                                        </label>
-                                        <span className="geoenviron-table-label label label-primary"
-                                              style={this.hand}>Table</span>
-                                    </div>
-                                    <SubLayers entities={entity.subLayers} name={entity.type}/>
-                                </li>
-                        )
+                        this.entities = props.entities;
                     }
+
+
 
                     componentDidMount() {
 
@@ -613,18 +633,54 @@ module.exports = module.exports = {
 
                     }
 
-
                     render() {
+                        var me = this;
                         return (
                             <div role='tabpanel'>
                                 <div className='panel panel-default'>
                                     <div className='panel-body'>
                                         <ul className="list-group">
-                                            {this.listEntities}
+                                            {
+                                                this.entities.map(function (entity) {
+
+
+
+                                                    return (
+                                                        <li key={entity.type} className="layer-item list-group-item">
+                                                            <div className="checkbox">
+
+                                                                <ExpandButton type={entity.type} show={entity.subLayers.length} />
+
+                                                                <label className="overlay-label" style={me.width}>
+                                                                    <input
+                                                                        type="checkbox" data-key={entity.type}
+                                                                        data-seqnotype={entity.seqNoType}
+                                                                        data-title={entity.title}
+                                                                        onChange={me.switch}
+                                                                        defaultChecked={entity.show}/>
+                                                                    <span style={{
+                                                                        backgroundColor: entity.color,
+                                                                        display: "inline-block",
+                                                                        width: "15px",
+                                                                        height: "15px",
+                                                                        marginRight: "5px",
+                                                                        verticalAlign: "middle",
+                                                                        top: "-2px",
+                                                                        position: "relative"
+                                                                    }}/>
+                                                                    {entity.title}
+                                                                </label>
+                                                                <span
+                                                                    className="geoenviron-table-label label label-primary"
+                                                                >Table</span>
+                                                            </div>
+                                                            <SubLayers entities={entity.subLayers} name={entity.type} />
+                                                        </li>)
+                                                })
+                                            }
                                         </ul>
                                         {/*<Licenses licenses={this.licenses}/>*/}
                                         {/*<Functions functions={this.functions}/>*/}
-
                                     </div>
                                 </div>
                             </div>
@@ -865,7 +921,7 @@ module.exports = module.exports = {
                 if (count === parseInt(models[mainType].maxCount)) {
                     jquery.snackbar({
                         id: "snackbar-conflict",
-                        content: "Grænsen på " + models[mainType].maxCount + " er nået for " +  models[mainType].alias + " ",
+                        content: "Grænsen på " + models[mainType].maxCount + " er nået for " + models[mainType].alias + " ",
                         htmlAllowed: true,
                         timeout: 5000
                     });
@@ -1031,10 +1087,10 @@ module.exports = module.exports = {
 
                         var clickBounds = L.latLngBounds(e.latlng, e.latlng), intersectingFeatures = [],
                             res = [156543.033928, 78271.516964, 39135.758482, 19567.879241, 9783.9396205,
-                            4891.96981025, 2445.98490513, 1222.99245256, 611.496226281, 305.748113141, 152.87405657,
-                            76.4370282852, 38.2185141426, 19.1092570713, 9.55462853565, 4.77731426782, 2.38865713391,
-                            1.19432856696, 0.597164283478, 0.298582141739, 0.149291, 0.074645535],
-                        distance = 3 * res[cloud.get().getZoom()];
+                                4891.96981025, 2445.98490513, 1222.99245256, 611.496226281, 305.748113141, 152.87405657,
+                                76.4370282852, 38.2185141426, 19.1092570713, 9.55462853565, 4.77731426782, 2.38865713391,
+                                1.19432856696, 0.597164283478, 0.298582141739, 0.149291, 0.074645535],
+                            distance = 3 * res[cloud.get().getZoom()];
 
                         for (var l in mapObj._layers) {
                             var overlay = mapObj._layers[l];
