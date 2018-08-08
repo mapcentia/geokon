@@ -90,6 +90,7 @@ router.get('/api/extension/geoenviron/all/:type/:client', function (req, respons
     //let ip = ipaddr.process(req.ip).toString();
 
     url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "?$format=json&";
+    console.log(url);
 
     let options = {
         method: 'GET',
@@ -97,7 +98,7 @@ router.get('/api/extension/geoenviron/all/:type/:client', function (req, respons
         auth: config.extensionConfig.geokon.auth,
         headers: {
             'auth-token': token,
-            //'ip-address': ip
+            'ip-address': '0.0.0.0'
         },
     };
 
