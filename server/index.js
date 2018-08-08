@@ -79,7 +79,7 @@ router.get('/api/extension/licenses/:token/:client', function (req, response) {
 
 });
 
-router.get('/api/extension/geoenviron/all/:type/:token/:client', function (req, response) {
+router.get('/api/extension/geoenviron/all/:type/:client', function (req, response) {
 
     'use strict';
 
