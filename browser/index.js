@@ -1387,7 +1387,7 @@ module.exports = module.exports = {
 
                                 $.each(models[mainType].fields, function (i, v) {
                                     var str;
-                                    if (name === "EstablishDate" || name === "EnvApprovalDate" || name === "LastInspectionDate") {
+                                    if (name === "EstablishDate" || name === "EnvApprovalDate" || name === "LastInspectionDate" || name === "LastInjunctionDate") {
                                         str = moment(feature.properties[name]).format('LL');
                                         str = str !== "Invalid date" ? str : "-";
                                     } else {

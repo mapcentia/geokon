@@ -85,9 +85,9 @@ router.get('/api/extension/geoenviron/all/:type/:token/:client', function (req, 
 
     let url;
     let type = req.params.type;
-    let token = req.params.token;
+    let token = config.extensionConfig.geokon.permaToken;
     let client = req.params.client;
-    let ip = ipaddr.process(req.ip).toString();
+    //let ip = ipaddr.process(req.ip).toString();
 
     url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "?$format=json&";
 
@@ -97,7 +97,7 @@ router.get('/api/extension/geoenviron/all/:type/:token/:client', function (req, 
         auth: config.extensionConfig.geokon.auth,
         headers: {
             'auth-token': token,
-            'ip-address': ip
+            //'ip-address': ip
         },
     };
 
