@@ -141,18 +141,35 @@ module.exports = module.exports = {
         var React = require('react');
         var ReactDOM = require('react-dom');
         var visibleGeLayers = [];
+        var entities = [];
+        var dict;
 
         // Setup GE extension
+        //===================
 
-        // Change call back in StreetView
+        // Overwrite call back in StreetView
         streetView.setCallBack(function (url) {
             console.log("GEMessage:LaunchURL:" + url);
         });
 
+        // Overwrite call back in SQL query
         sqlQuery.setDownloadFunction(function (sql, format) {
-            var uri = 'format=' + format + '&client_encoding=UTF8&srs=4326&q=' + sql;
-            console.log("GEMessage:LaunchURL:" + urlparser.uriObj.protocol() + "://" + urlparser.uriObj.host() + "/api/sql/" + db + "?" + encodeURI(uri));
-        })
+             let uri = 'store=true&format=' + format + '&client_encoding=UTF8&srs=4326&q=' + sql;
+
+            $.ajax({
+                dataType: 'json',
+                url: '/api/sql/' + db,
+                type: "POST",
+                data: uri,
+                success: function (response) {
+                    console.log("GEMessage:LaunchURL:" + urlparser.uriObj.protocol() + "://" + urlparser.uriObj.host() + "/tmp/stored_results/" + response.file);
+
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            });
+         });
 
         // Start listen to the web socket
         backboneEvents.get().on("on:conflict", function () {
@@ -188,7 +205,7 @@ module.exports = module.exports = {
 
         // Check URL for 'type' and 'seqno' and switch on layers
         if (urlVars.seqno !== undefined && urlVars.type !== undefined) {
-            var type, seqNoType;
+            let type, seqNoType;
             $.each(models, function (i, v) {
                 if (v.seqNoType === urlVars.type.split("#")[0]) {
                     seqNoType = v.seqNoType;
@@ -200,10 +217,10 @@ module.exports = module.exports = {
 
         // Listen to change in hash
         window.onhashchange = function () {
-            var type, seqNoType, urlVars, getypes;
+            let type, seqNoType, urlVars, getypes;
             urlVars = (function getUrlVars() {
-                var mapvars = {};
-                var parts = window.location.hash.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+                let mapvars = {};
+                let parts = window.location.hash.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
                     mapvars[key] = value;
                 });
                 return mapvars;
@@ -244,8 +261,8 @@ module.exports = module.exports = {
             });
         };
 
-        // Set i18n obejct
-        var dict = {
+        // Set i18n object
+        dict = {
             "Info": {
                 "da_DK": "GeoEnviron extension",
                 "en_US": "GeoEnviron extension"
@@ -268,11 +285,8 @@ module.exports = module.exports = {
         utils.createMainTab(exId, utils.__("GeoEnviron", dict), utils.__("Info", dict), require('./../../../browser/modules/height')().max);
 
         // Get GE types from URL param
-        if (urlVars.getypes) {
-            getypes = urlVars.getypes.split(",");
-        } else {
-            getypes = [];
-        }
+        getypes = urlVars.getypes ? urlVars.getypes.split(",") : [];
+
         if (getypes.length > 0) {
             getypes = getypes.map(function (e) {
                 return e.split("#")[0];
@@ -280,11 +294,8 @@ module.exports = module.exports = {
         }
 
         // Get GE layers from URL param
-        if (urlVars.gelayers) {
-            visibleGeLayers = urlVars.gelayers.split(",");
-        } else {
-            visibleGeLayers = [];
-        }
+        visibleGeLayers = urlVars.gelayers ? urlVars.gelayers.split(",") : [];
+
         if (visibleGeLayers.length > 0) {
             visibleGeLayers = visibleGeLayers.map(function (e) {
                 return e.split("#")[0];
@@ -325,11 +336,9 @@ module.exports = module.exports = {
         });
         mapObj.addControl(new ourCustomControl());
 
-        var entities = [];
-
         this.switchLayer = function (layer, visible) {
 
-            let el = $('*[data-key="' + layer + '"]');
+            let el = $('*[data-key="' + layer + '"]'), str, uriObj;
 
             if (visible) {
                 visibleGeLayers.push(layer);
@@ -348,13 +357,13 @@ module.exports = module.exports = {
                 delete table[layer];
             }
 
-            var str = visibleGeLayers.join(",");
+            str = visibleGeLayers.join(",");
 
             if (str.substring(0, 1) === ',') {
                 str = str.substring(1);
             }
 
-            var uriObj = new uriJs(window.location.href);
+            uriObj = new uriJs(window.location.href);
             uriObj.setSearch("gelayers", str);
             window.history.pushState('', '', uriObj.toString());
             console.log("GEMessage:gelayers:" + str);
@@ -365,7 +374,7 @@ module.exports = module.exports = {
             function (e) {
 
                 let id = "_" + 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
                     return v.toString(16);
                 });
 
