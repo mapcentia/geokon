@@ -195,7 +195,8 @@ module.exports = module.exports = {
 
         // Hide tabs
         $('a[href="#draw-content"]').hide();
-        //$('a[href="#print-content"]').hide();
+        $('#get-print-fieldset').hide();
+        $('#conflict-get-print-fieldset').hide();
         //$('a[href="#layer-content"]').hide();
         $('a[href="#streetview-content"]').hide();
         $(".custom-search").prop("disabled", true);
@@ -314,7 +315,7 @@ module.exports = module.exports = {
                 container.style.height = '34px';
                 container.style.lineHeight = '30px';
                 container.style.textAlign = 'center';
-                container.innerHTML = "<i class=\"fa fa-pencil\" aria-hidden=\"true\"></i>";
+                container.innerHTML = "<i class=\"fa fa-pencil-alt\" aria-hidden=\"true\"></i>";
                 container.onclick = function () {
                     console.log('buttonClicked');
                     if (!editMode) {
@@ -981,7 +982,7 @@ module.exports = module.exports = {
 
                         options: {
                             toolbarIcon: {
-                                className: 'fa fa-pencil'
+                                className: 'fa fa-pencil-alt'
 
                             },
                             subToolbar: new LeafletToolbar({
@@ -1134,7 +1135,7 @@ module.exports = module.exports = {
                                 var html = "Fundne entiteter: " + intersectingFeatures.length + "<br/>" + intersectingFeatures.map(function (o) {
                                     var obj = o[0].feature.properties;
                                     if (editMode) {
-                                        return '<div style="white-space: nowrap;"><span>' + obj[Object.keys(obj)[0]] + ', ' + obj[Object.keys(obj)[1]] + '</span><button data-toggle="tooltip" data-placement="right" title="Ændre entity" class="btn btn-primary btn-xs ge-start-edit-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-pencil" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Slet entity" class="btn btn-primary btn-xs ge-delete-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-trash" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Vis entity i GE" class="btn btn-primary btn-xs ge-select-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></button></div>'
+                                        return '<div style="white-space: nowrap;"><span>' + obj[Object.keys(obj)[0]] + ', ' + obj[Object.keys(obj)[1]] + '</span><button data-toggle="tooltip" data-placement="right" title="Ændre entity" class="btn btn-primary btn-xs ge-start-edit-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-pencil-alt" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Slet entity" class="btn btn-primary btn-xs ge-delete-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-trash" aria-hidden="true"></i></button><button data-toggle="tooltip" data-placement="right" title="Vis entity i GE" class="btn btn-primary btn-xs ge-select-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></button></div>'
                                     } else {
                                         return '<div style="white-space: nowrap;"><span>' + obj[Object.keys(obj)[0]] + ', ' + obj[Object.keys(obj)[1]] + '</span><button data-toggle="tooltip" data-placement="right" title="Vis entity i GE" class="btn btn-primary btn-xs ge-select-' + o[0].feature.properties.SeqNo + '"><i class="fa fa-arrow-right" aria-hidden="true"></i></button></div>'
                                     }
