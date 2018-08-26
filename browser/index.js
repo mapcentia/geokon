@@ -154,7 +154,7 @@ module.exports = module.exports = {
 
         // Overwrite call back in SQL query
         sqlQuery.setDownloadFunction(function (sql, format) {
-             let uri = 'store=true&format=' + format + '&client_encoding=UTF8&srs=4326&q=' + sql;
+            let uri = 'store=true&format=' + format + '&client_encoding=UTF8&srs=4326&q=' + sql;
 
             $.ajax({
                 dataType: 'json',
@@ -169,7 +169,7 @@ module.exports = module.exports = {
                     console.log(error)
                 }
             });
-         });
+        });
 
         // Start listen to the web socket
         backboneEvents.get().on("on:conflict", function () {
@@ -507,7 +507,7 @@ module.exports = module.exports = {
 
                     }
 
-                    onExpand () {
+                    onExpand() {
                         if (this.isExpanded) {
                             this.setState({
                                 icon: "<i class='fa fa-plus'></i>"
@@ -612,12 +612,10 @@ module.exports = module.exports = {
                         };
 
 
-
                         this.licenses = props.licenses.value;
                         this.functions = props.functions;
                         this.entities = props.entities;
                     }
-
 
 
                     componentDidMount() {
@@ -654,12 +652,12 @@ module.exports = module.exports = {
                                                 this.entities.map(function (entity) {
 
 
-
                                                     return (
                                                         <li key={entity.type} className="layer-item list-group-item">
                                                             <div className="checkbox">
 
-                                                                <ExpandButton type={entity.type} show={entity.subLayers.length} />
+                                                                <ExpandButton type={entity.type}
+                                                                              show={entity.subLayers.length}/>
 
                                                                 <label className="overlay-label" style={me.width}>
                                                                     <input
@@ -684,7 +682,7 @@ module.exports = module.exports = {
                                                                     className="geoenviron-table-label label label-primary"
                                                                 >Table</span>
                                                             </div>
-                                                            <SubLayers entities={entity.subLayers} name={entity.type} />
+                                                            <SubLayers entities={entity.subLayers} name={entity.type}/>
                                                         </li>)
                                                 })
                                             }
@@ -721,7 +719,7 @@ module.exports = module.exports = {
                         }
 
                         // Test
-                        //licens = "gisbasis";
+                        //licens = "gispro";
 
                         console.log(licens);
 
@@ -738,6 +736,12 @@ module.exports = module.exports = {
 
                         if (licens === "gispro" || licens === "gispremium") {
                             $('a[href="#streetview-content"]').show();
+
+                        }
+
+                        if (licens === "gispremium") {
+                            $('a[href="#draw-content"]').show();
+
                         }
 
                         let fn = [];
