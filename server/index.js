@@ -26,10 +26,6 @@ router.get('/api/extension/licenses/:token/:client', function (req, response) {
 
     //console.log(ip)
 
-    fs.writeFile(__dirname + "/" + ip, ip, function (err) {
-
-    });
-
     let token = req.params.token;
     let client = req.params.client;
 
@@ -174,6 +170,7 @@ router.post('/api/extension/geoenviron/:type/:token/:client/:filter', function (
     let geFilter = null;
     let url;
     let top;
+    let count;
     let type = req.params.type;
     let token = req.params.token;
     let client = req.params.client;
@@ -202,7 +199,7 @@ router.post('/api/extension/geoenviron/:type/:token/:client/:filter', function (
             top = 99999999;
         }
 
-        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'&$top=" + top;
+        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "ByGeometry?$format=json&operators='within,overlaps'&geometry='" + wkt + "'&geometryType='WKT'&$inlinecount=allpages&$top=" + top;
 
         if (filter !== "" && filter !== "none") {
             geFilter = Buffer.from(filter, 'base64').toString();
@@ -253,6 +250,7 @@ router.post('/api/extension/geoenviron/:type/:token/:client/:filter', function (
         }
 
         let gJSON = {
+            "maxCount": json.count,
             "type": "FeatureCollection",
             "features": [],
             "success": true
