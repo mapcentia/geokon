@@ -249,8 +249,17 @@ router.post('/api/extension/geoenviron/:type/:token/:client/:filter', function (
             return;
         }
 
+
+        let count = 9999999;
+
+        try {
+            count = parseInt(json["odata.count"]);
+        } catch(e) {
+
+        }
+
         let gJSON = {
-            "maxCount": json.count,
+            "maxCount": count,
             "type": "FeatureCollection",
             "features": [],
             "success": true

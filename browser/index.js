@@ -932,10 +932,10 @@ module.exports = module.exports = {
 
                 });
 
-                if (count === parseInt(models[mainType].maxCount)) {
+                if (store[id].geoJSON.maxCount > parseInt(models[mainType].maxCount)) {
                     jquery.snackbar({
                         id: "snackbar-conflict",
-                        content: "Grænsen på " + models[mainType].maxCount + " er nået for " + models[mainType].alias + " ",
+                        content: "Viser " + models[mainType].maxCount + " ud af " + store[id].geoJSON.maxCount + " for " + models[mainType].alias + " ",
                         htmlAllowed: true,
                         timeout: 5000
                     });
