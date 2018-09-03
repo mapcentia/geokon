@@ -935,7 +935,7 @@ module.exports = module.exports = {
                 if (store[id].geoJSON.maxCount > parseInt(models[mainType].maxCount)) {
                     jquery.snackbar({
                         id: "snackbar-conflict",
-                        content: "Viser " + models[mainType].maxCount + " ud af " + store[id].geoJSON.maxCount + " for " + models[mainType].alias + " ",
+                        content: "Viser " + models[mainType].maxCount + " ud af " + store[id].geoJSON.maxCount + " " + models[mainType].alias + " ",
                         htmlAllowed: true,
                         timeout: 5000
                     });
