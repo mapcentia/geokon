@@ -311,10 +311,11 @@ module.exports = module.exports = {
             onAdd: function (map) {
                 var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
                 container.style.backgroundColor = 'white';
-                container.style.width = '34px';
-                container.style.height = '34px';
+                container.style.width = '30px';
+                container.style.height = '30px';
                 container.style.lineHeight = '30px';
                 container.style.textAlign = 'center';
+                container.style.borderRadius = '2px';
                 container.innerHTML = "<i class=\"fa fa-pencil-alt\" aria-hidden=\"true\"></i>";
                 container.onclick = function () {
                     console.log('buttonClicked');
@@ -332,8 +333,6 @@ module.exports = module.exports = {
 
                 return container;
             }
-
-
         });
         mapObj.addControl(new ourCustomControl());
 
@@ -986,7 +985,7 @@ module.exports = module.exports = {
 
                         options: {
                             toolbarIcon: {
-                                className: 'fa fa-pencil-alt'
+                                className: 'fa fa-plus'
 
                             },
                             subToolbar: new LeafletToolbar({
