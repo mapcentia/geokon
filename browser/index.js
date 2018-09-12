@@ -78,6 +78,7 @@ var models;
 
 var editMode = false;
 
+
 var functions = require('../functions');
 
 var template =
@@ -788,7 +789,8 @@ module.exports = module.exports = {
 
     request: function (type, seqNoType, seqNo) {
 
-        var parts = type.split("_"), filter, filterBase64, mainType, color, outlineColor, isSubLayer = false;
+        var parts = type.split("_"), filter, filterBase64, mainType, color, outlineColor, isSubLayer = false,
+            firstJumpFromGe = true;
 
         // Check if sub layer
         if (parts.length > 1) {
@@ -813,6 +815,11 @@ module.exports = module.exports = {
         let id = seqNo !== undefined ? "s_" + type : type;
         let cm = [];
         let marker;
+
+        if (seqNo !== undefined) {
+            this.clearAllSelectLayers();
+        }
+
 
         // Set auth
         let token = urlVars.token;
@@ -846,6 +853,7 @@ module.exports = module.exports = {
             $("div").remove("#" + type);
             $("#info-modal-body-wrapper .modal-body").append('<div class="geoenviron-attr-table" id="' + type + '"><table id="geoenviron-table_' + type + '" data-detail-view="true" data-detail-formatter="detailFormatter" data-show-toggle="true" data-show-export="true" data-show-columns="true"></table></div>');
         }
+
 
         var flag = false;
         store[id] = new geocloud.sqlStore({
@@ -943,7 +951,10 @@ module.exports = module.exports = {
                 backboneEvents.get().trigger("doneLoading:layers");
 
                 if (seq !== -999 && store[id].geoJSON.features[0].geometry !== null) {
-                    cloud.get().zoomToExtentOfgeoJsonStore(store[id], 18);
+                    if (firstJumpFromGe) {
+                        cloud.get().zoomToExtentOfgeoJsonStore(store[id], 18);
+                        firstJumpFromGe = false;
+                    }
                 }
 
                 if (seq !== -999 && store[id].geoJSON.features[0].geometry === null) {
@@ -1453,7 +1464,7 @@ module.exports = module.exports = {
             geocloud2: cloud.get(),
             store: store[id],
             cm: cm,
-            autoUpdate: seq === -999,
+            autoUpdate: true,
             autoPan: false,
             openPopUp: false,
             setViewOnSelect: false,
@@ -1537,6 +1548,16 @@ module.exports = module.exports = {
         }
         $("#geoenviron-table").empty();
 
+    },
+
+
+    clearAllSelectLayers: function () {
+        var me = this;
+        Object.keys(store).map(function (k) {
+            if (k.substring(0, 2) === "s_") {
+                me.clear(k);
+            }
+        });
     },
 
     getLicens: function () {
