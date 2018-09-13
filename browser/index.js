@@ -957,7 +957,14 @@ module.exports = module.exports = {
                     }
                 }
 
+                // Coming from GE and entity doesn't have any geometry
                 if (seq !== -999 && store[id].geoJSON.features[0].geometry === null) {
+
+                    if (!firstJumpFromGe) {
+                        return;
+                    }
+
+                    firstJumpFromGe = false;
 
                     var editor;
 
@@ -1017,11 +1024,10 @@ module.exports = module.exports = {
                                 editor = cloud.get().map.editTools.startMarker();
                             } else {
                                 editor = cloud.get().map.editTools.startPolygon();
-
                             }
+                            console.log(editor)
                         }
                     });
-
 
                     var save = action.extend({
 
@@ -1072,7 +1078,6 @@ module.exports = module.exports = {
                         }
 
                     });
-
 
                     toolBar = new LeafletToolbar.Control({
                         position: 'topright',
