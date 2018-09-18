@@ -108,6 +108,9 @@ var conflictSearch;
 
 moment.locale('da');
 
+var editor;
+var cancelFn;
+
 /**
  *
  * @type {{set: module.exports.set, init: module.exports.init}}
@@ -787,10 +790,43 @@ module.exports = module.exports = {
 
     },
 
+    /**
+     * Cancel all ongoing edits
+     */
+    cancelAll: function() {
+        try {
+            cloud.get().map.editTools.stopDrawing();
+            editor.disableEdit();
+            cloud.get().map.removeLayer(editor);
+
+        } catch (e) {
+            console.error(e.message)
+        }
+
+        try {
+            cancelFn()
+        } catch (e) {
+            console.error(e.message)
+        }
+
+        try {
+            cloud.get().map.removeLayer(toolBar);
+        } catch (e) {
+            console.error(e.message)
+        }
+
+        $(".leaflet-control-custom").css("background-color", "white");
+        $(".leaflet-control-custom").css("color", "black");
+
+        editMode = false;
+    },
+
     request: function (type, seqNoType, seqNo) {
 
         var parts = type.split("_"), filter, filterBase64, mainType, color, outlineColor, isSubLayer = false,
             firstJumpFromGe = true;
+
+        this.cancelAll();
 
         // Check if sub layer
         if (parts.length > 1) {
@@ -966,7 +1002,6 @@ module.exports = module.exports = {
 
                     firstJumpFromGe = false;
 
-                    var editor;
 
                     var action = LeafletToolbar.ToolbarAction.extend({
                         initialize: function (map, myAction) {
@@ -1014,12 +1049,6 @@ module.exports = module.exports = {
                         },
 
                         addHooks: function () {
-                            try {
-                                cloud.get().map.removeLayer(editor);
-
-                            } catch (e) {
-
-                            }
                             if (models[type].geometryType === "point") {
                                 editor = cloud.get().map.editTools.startMarker();
                             } else {
@@ -1079,9 +1108,28 @@ module.exports = module.exports = {
 
                     });
 
+                    // Stop
+                    var stop = action.extend({
+                        options: {
+                            toolbarIcon: {
+                                className: 'fa fa-ban'
+
+                            }
+                        },
+
+                        addHooks: function () {
+
+                            if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
+                                me.cancelAll();
+                                cloud.get().map.removeLayer(toolBar);
+                            }
+
+                        }
+                    }),
+
                     toolBar = new LeafletToolbar.Control({
                         position: 'topright',
-                        actions: [start, save]
+                        actions: [start, save, stop]
                     });
 
                     toolBar.addTo(cloud.get().map);
@@ -1100,7 +1148,7 @@ module.exports = module.exports = {
 
             onEachFeature: function (feature, layer) {
 
-                var saveFn, cancelFn, showToolbar = false;
+                var saveFn, showToolbar = false;
 
                 if (licens === "gispro" || licens === "gispremium") {
 
@@ -1186,6 +1234,8 @@ module.exports = module.exports = {
                                     });
                                     $(".ge-delete-" + o[0].feature.properties.SeqNo).unbind("click.ge-delete-" + o[0].feature.properties.SeqNo).bind("click.ge-delete-" + o[0].feature.properties.SeqNo, function () {
 
+                                        me.cancelAll();
+
                                         if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
                                             // Disable editing on all layers
 
@@ -1208,6 +1258,8 @@ module.exports = module.exports = {
                                             store["s_" + id].reset();
                                         } catch (e) {
                                         }
+
+                                        me.cancelAll();
 
                                         //Disable reset selected style on other layers
                                         Object.keys(store).map(function (k) {
@@ -1277,7 +1329,7 @@ module.exports = module.exports = {
                                                 o[0].getLatLng(),
                                                 {
                                                     icon: L.AwesomeMarkers.icon({
-                                                            icon: 'arrows',
+                                                            icon: 'arrows-alt',
                                                             markerColor: 'blue',
                                                             prefix: 'fa'
                                                         }
@@ -1326,8 +1378,7 @@ module.exports = module.exports = {
                                                 LeafletToolbar.ToolbarAction.extend({
                                                     options: {
                                                         toolbarIcon: {
-                                                            className: 'fa fa-stop'
-
+                                                            className: 'fa fa-ban'
                                                         }
                                                     },
 
