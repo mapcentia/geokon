@@ -345,10 +345,11 @@ module.exports = module.exports = {
             let el = $('*[data-key="' + layer + '"]'), str, uriObj;
 
             if (visible) {
-                visibleGeLayers.push(layer);
-                parentThis.request(layer);
-                el.prop('checked', true);
-
+                if (visibleGeLayers.indexOf(layer) === -1) {
+                    visibleGeLayers.push(layer);
+                    parentThis.request(layer);
+                    el.prop('checked', true);
+                }
             } else {
                 let index = visibleGeLayers.indexOf(layer);
                 if (index > -1) {
@@ -793,7 +794,7 @@ module.exports = module.exports = {
     /**
      * Cancel all ongoing edits
      */
-    cancelAll: function() {
+    cancelAll: function () {
         try {
             cloud.get().map.editTools.stopDrawing();
             editor.disableEdit();
@@ -842,7 +843,7 @@ module.exports = module.exports = {
             });
         } else {
             mainType = type;
-            color = models[mainType].color
+            color = models[mainType].color;
             outlineColor = models[mainType].outlineColor
         }
 
@@ -854,8 +855,8 @@ module.exports = module.exports = {
 
         if (seqNo !== undefined) {
             this.clearAllSelectLayers();
+            this.switchLayer(type, true);
         }
-
 
         // Set auth
         let token = urlVars.token;
@@ -899,7 +900,7 @@ module.exports = module.exports = {
             base64: false,
             db: "",
             uri: "/api/extension/geoenviron/" + mainType + "/" + token + "/" + client + "/" + (filterBase64 || "none"),
-            clickable: true,
+            clickable: !seqNo,
             id: id,
             name: id,
             styleMap: {
@@ -1110,27 +1111,27 @@ module.exports = module.exports = {
 
                     // Stop
                     var stop = action.extend({
-                        options: {
-                            toolbarIcon: {
-                                className: 'fa fa-ban'
+                            options: {
+                                toolbarIcon: {
+                                    className: 'fa fa-ban'
+
+                                }
+                            },
+
+                            addHooks: function () {
+
+                                if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
+                                    me.cancelAll();
+                                    cloud.get().map.removeLayer(toolBar);
+                                }
 
                             }
-                        },
+                        }),
 
-                        addHooks: function () {
-
-                            if (window.confirm("Er du sikker? Dine ændringer vil ikke blive gemt!")) {
-                                me.cancelAll();
-                                cloud.get().map.removeLayer(toolBar);
-                            }
-
-                        }
-                    }),
-
-                    toolBar = new LeafletToolbar.Control({
-                        position: 'topright',
-                        actions: [start, save, stop]
-                    });
+                        toolBar = new LeafletToolbar.Control({
+                            position: 'topright',
+                            actions: [start, save, stop]
+                        });
 
                     toolBar.addTo(cloud.get().map);
 
@@ -1153,6 +1154,9 @@ module.exports = module.exports = {
                 if (licens === "gispro" || licens === "gispremium") {
 
                     layer.on("click", function (e) {
+
+                        // When selecting a feature, clear selects
+                        me.clearAllSelectLayers();
 
                         //Disable reset selected style on other layers
                         Object.keys(store).map(function (k) {
