@@ -197,13 +197,16 @@ module.exports = module.exports = {
             });
         });
 
-        // Hide tabs
+        // Hide stuff
         $('a[href="#draw-content"]').hide();
         $('#get-print-fieldset').hide();
         $('#conflict-get-print-fieldset').hide();
+        $('.leaflet-control-locate').hide();
         //$('a[href="#layer-content"]').hide();
         $('a[href="#streetview-content"]').hide();
         $(".custom-search").prop("disabled", true);
+
+
 
         // Set native Leaflet object
         mapObj = cloud.get().map;
@@ -320,17 +323,21 @@ module.exports = module.exports = {
                 container.style.lineHeight = '30px';
                 container.style.textAlign = 'center';
                 container.style.borderRadius = '2px';
+                container.title = 'Aktiver editering';
                 container.innerHTML = "<i class=\"fa fa-pencil-alt\" aria-hidden=\"true\"></i>";
                 container.onclick = function () {
-                    console.log('buttonClicked');
                     if (!editMode) {
                         editMode = true;
                         container.style.backgroundColor = 'Grey';
                         container.style.color = 'white';
+                        container.title = 'Deaktiver editering';
+
                     } else {
                         editMode = false;
                         container.style.backgroundColor = 'white';
                         container.style.color = 'black';
+                        container.title = 'Aktiver editering';
+
                     }
 
                 };
@@ -1063,7 +1070,8 @@ module.exports = module.exports = {
 
                         options: {
                             toolbarIcon: {
-                                className: 'fa fa-floppy-o'
+                                className: 'fa fa-floppy-o',
+                                tooltip: 'Gem ændringer'
                             }
                         },
 
@@ -1113,8 +1121,8 @@ module.exports = module.exports = {
                     var stop = action.extend({
                             options: {
                                 toolbarIcon: {
-                                    className: 'fa fa-ban'
-
+                                    className: 'fa fa-ban',
+                                    tooltip: 'Afbryd'
                                 }
                             },
 
@@ -1382,7 +1390,8 @@ module.exports = module.exports = {
                                                 LeafletToolbar.ToolbarAction.extend({
                                                     options: {
                                                         toolbarIcon: {
-                                                            className: 'fa fa-ban'
+                                                            className: 'fa fa-ban',
+                                                            tooltip: 'Afbryd'
                                                         }
                                                     },
 
@@ -1405,7 +1414,8 @@ module.exports = module.exports = {
 
                                                     options: {
                                                         toolbarIcon: {
-                                                            className: 'fa fa-floppy-o'
+                                                            className: 'fa fa-floppy-o',
+                                                            tooltip: 'Gem ændringer'
                                                         }
                                                     },
 
