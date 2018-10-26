@@ -323,21 +323,18 @@ module.exports = module.exports = {
                 container.style.lineHeight = '30px';
                 container.style.textAlign = 'center';
                 container.style.borderRadius = '2px';
-                container.title = 'Aktiver editering';
+                container.title = 'Start/stop editering';
                 container.innerHTML = "<i class=\"fa fa-pencil-alt\" aria-hidden=\"true\"></i>";
                 container.onclick = function () {
                     if (!editMode) {
                         editMode = true;
                         container.style.backgroundColor = 'Grey';
                         container.style.color = 'white';
-                        container.title = 'Deaktiver editering';
 
                     } else {
                         editMode = false;
                         container.style.backgroundColor = 'white';
                         container.style.color = 'black';
-                        container.title = 'Aktiver editering';
-
                     }
 
                 };
