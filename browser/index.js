@@ -1478,7 +1478,14 @@ module.exports = module.exports = {
 
                                 $.each(models[mainType].fields, function (i, v) {
                                     var str;
-                                    if (name === "EstablishDate" || name === "EnvApprovalDate" || name === "LastInspectionDate" || name === "LastInjunctionDate") {
+                                    if (name === "EstablishDate" ||
+                                        name === "EnvApprovalDate" ||
+                                        name === "LastInspectionDate" ||
+                                        name === "LastInjunctionDate" ||
+                                        name === "CatchPermissionPermDate" ||
+                                        name === "LastSampleDate" ||
+                                        name === "DismantleDate"
+                                    ) {
                                         str = moment(feature.properties[name]).format('LL');
                                         str = str !== "Invalid date" ? str : "-";
                                     } else {
@@ -1494,8 +1501,6 @@ module.exports = module.exports = {
                                         return;
                                     }
                                 });
-
-
                             }
                         });
 
