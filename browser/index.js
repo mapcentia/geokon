@@ -1483,6 +1483,7 @@ module.exports = module.exports = {
                                         name === "LastInspectionDate" ||
                                         name === "LastInjunctionDate" ||
                                         name === "CatchPermissionPermDate" ||
+                                        name === "CatchPermissionExpireDate" ||
                                         name === "LastSampleDate" ||
                                         name === "DismantleDate"
                                     ) {
