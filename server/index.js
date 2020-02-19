@@ -85,12 +85,10 @@ router.get('/api/extension/geoenviron/all/:type/:client', function (req, respons
     let client = req.params.client;
     //let ip = ipaddr.process(req.ip).toString();
 
-    url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "?$format=json&";
-    console.log(url);
-
+    // Pull in model, so we are sure its present
     let options = {
         method: 'GET',
-        uri: url,
+        uri: "http://127.0.0.1:3000/api/extension/geoenviron/model/VIDI-dev/" + client,
         auth: config.extensionConfig.geokon.auth,
         headers: {
             'auth-token': token,
@@ -100,61 +98,77 @@ router.get('/api/extension/geoenviron/all/:type/:client', function (req, respons
 
     request(options, function (err, res, body) {
 
-        response.header('content-type', 'application/json');
-        response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
-        response.header('Expires', '0');
+        url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "?$format=json&";
+        console.log(url);
 
-        let json;
-
-        try {
-            json = JSON.parse(body);
-        } catch (e) {
-            response.status(500).send({
-                success: false,
-                message: "Could not parse JSON from GeoEnviron",
-                data: body
-            });
-            return;
-        }
-
-        if (err || res.statusCode !== 200) {
-            response.status(400).send({
-                success: false,
-                message: json
-            });
-            return;
-        }
-
-        let gJSON = {
-            "type": "FeatureCollection",
-            "features": [],
-            "success": true
+        let options = {
+            method: 'GET',
+            uri: url,
+            auth: config.extensionConfig.geokon.auth,
+            headers: {
+                'auth-token': token,
+                'ip-address': '0.0.0.0'
+            },
         };
 
-        for (let i = 0; i < json.value.length; i++) {
+        request(options, function (err, res, body) {
 
-            var v = null, properties = {};
+            response.header('content-type', 'application/json');
+            response.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+            response.header('Expires', '0');
 
-            if (json.value[i].GeometryWKT !== null) {
+            let json;
 
-                v = JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT)));
-
-                delete v.bbox;
+            try {
+                json = JSON.parse(body);
+            } catch (e) {
+                response.status(500).send({
+                    success: false,
+                    message: "Could not parse JSON from GeoEnviron",
+                    data: body
+                });
+                return;
             }
 
-            models[client][type].fields.map(function (e) {
-                properties[e.key] = json.value[i][e.key];
-            });
+            if (err || res.statusCode !== 200) {
+                response.status(400).send({
+                    success: false,
+                    message: json
+                });
+                return;
+            }
 
-            gJSON.features.push(
-                {
-                    "type": "Feature",
-                    "geometry": v,
-                    "properties": properties
+            let gJSON = {
+                "type": "FeatureCollection",
+                "features": [],
+                "success": true
+            };
+
+            for (let i = 0; i < json.value.length; i++) {
+
+                var v = null, properties = {};
+
+                if (json.value[i].GeometryWKT !== null) {
+
+                    v = JSON.parse(JSON.stringify(WKT.parse(json.value[i].GeometryWKT)));
+
+                    delete v.bbox;
                 }
-            )
-        }
-        response.send(gJSON);
+
+                models[client][type].fields.map(function (e) {
+                    properties[e.key] = json.value[i][e.key];
+                });
+
+                gJSON.features.push(
+                    {
+                        "type": "Feature",
+                        "geometry": v,
+                        "properties": properties
+                    }
+                )
+            }
+            response.send(gJSON);
+        });
     });
 });
 
