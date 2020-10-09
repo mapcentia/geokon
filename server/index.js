@@ -304,7 +304,7 @@ router.post('/api/extension/geoenviron/:type/:token/:client/:filter', function (
                     "geometry": v,
                     "properties": properties
                 }
-            )
+            );
         }
         response.send(gJSON);
     });
@@ -806,7 +806,8 @@ router.get('/api/extension/geoenviron/model/:token/:client', function (req, resp
         } catch (e) {
             response.status(500).send({
                 success: false,
-                message: "Could not parse JSON from GeoEnviron"
+                message: "Could not parse JSON from GeoEnviron",
+                odata: body
             });
             return;
         }
@@ -814,13 +815,16 @@ router.get('/api/extension/geoenviron/model/:token/:client', function (req, resp
             response.header('content-type', 'application/json');
             response.status(400).send({
                 success: false,
-                message: "Could not get the requested config JSON file."
+                message: "Could not get the requested config JSON file.",
+                odata: body
             });
             return;
         }
         models[client] = JSON.parse(json.value);
-        //console.log(models);
-        response.send(json.value);
+        response.send({
+            json: JSON.parse(json.value),
+            odata: JSON.parse(body)
+        });
     })
 });
 

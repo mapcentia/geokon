@@ -427,7 +427,7 @@ module.exports = module.exports = {
             url: '/api/extension/geoenviron/model/' + urlVars.token + "/" + urlVars.client,
             type: "GET",
             success: function (response) {
-                models = response;
+                models = response.json;
                 $.each(models, function (i, v) {
                     entities.push({
                         "type": i,
