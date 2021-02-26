@@ -269,6 +269,39 @@ module.exports = module.exports = {
             });
         };
 
+	//Create new info  item 
+		me.createNavbut();		 		 
+		 
+		$("#btn-geinfo").on("click", function () {
+			
+			$("div").remove("#gedinfo");
+			$(".geoenviron-attr-table").hide();
+			
+			$("#info-modal").animate({right: "0"}, 200);
+            $("#info-modal .modal-title").html("GeoEnviron Variabler");
+			$("#info-modal-body-wrapper .modal-body").append('<div class="container" id="gedinfo">'
+				+ '<table class="table caption-top" id="getable">'
+				+ '<caption>Liste over variabler</caption>'
+				+ '<thead><tr><th scope="col">Type</th><th scope="col">Værdi</th></tr></thead><tbody>'
+				+ '<tr><td>brandname</td><td>' + window.vidiConfig.brandName +   '</td></tr>'
+				+ '<tr><td>app version</td><td>' +  window.vidiConfig.appVersion +   '</td></tr>'
+				+ '<tr><td>host</td><td>' + window.location.host +   '</td></tr>'
+				+ '<tr><td>pathname</td><td>' + window.location.pathname +   '</td></tr>'
+				+ '<tr><td>token</td><td>' + urlVars.token +   '</td></tr>'
+				+ '<tr><td>client</td><td>' + urlVars.client +   '</td></tr>'
+				+ '<tr><td>config</td><td>' + urlVars.config +   '</td></tr>'
+				+ '<tr><td>last hash</td><td>' + window.location.hash +   '</td></tr>'
+				+ '<tr><td>seqno</td><td>' + urlVars.seqno +   '</td></tr>'
+				+ '<tr><td>gelayers</td><td>' + urlVars.gelayers +   '</td></tr>'
+				+ '<tr><td>Id</td><td>' + urlVars.Id +   '</td></tr>'
+				+ '<tr><td>type</td><td>' + urlVars.type +   '</td></tr>'
+				+ '<tr><td>Type</td><td>' + urlVars.Type +   '</td></tr>'
+				+ '</tbody></table>'
+				+ '<button type="button" class="btn btn-default" id="btn-geexport"  onclick="$(\'#getable\').tableExport({formats: [\'csv\'] ,fileName:\'GeoEnviron_Variabler\'});">Export</button></div>');
+			
+						       	  
+        });
+							  
         // Set i18n object
         dict = {
             "Info": {
@@ -770,6 +803,7 @@ module.exports = module.exports = {
                         $(".geoenviron-table-label").on("click", function (e) {
                             let type = ($(this).prev().children("input").data('key'));
                             let title = ($(this).prev().children("input").data('title'));
+							$("div").remove("#gedinfo");   
                             $(".geoenviron-attr-table").hide();
                             $("#" + type).show();
                             $("#info-modal").animate({right: "0"}, 200);
@@ -892,6 +926,7 @@ module.exports = module.exports = {
 
         if (!isSubLayer) {
             $("div").remove("#" + type);
+			$("div").remove("#gedinfo");
             $("#info-modal-body-wrapper .modal-body").append('<div class="geoenviron-attr-table" id="' + type + '"><table id="geoenviron-table_' + type + '" data-detail-view="true" data-detail-formatter="detailFormatter" data-show-toggle="true" data-show-export="true" data-show-columns="true"></table></div>');
         }
 
@@ -1655,5 +1690,12 @@ module.exports = module.exports = {
                 }
             });
         })
-    }
+    },
+	
+	createNavbut: function () {
+		$('<li><a href="#" id="btn-geinfo">?</a></li>').appendTo('#main-navbar');
+		}
 };
+
+
+
