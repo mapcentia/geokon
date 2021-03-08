@@ -1091,9 +1091,12 @@ module.exports = module.exports = {
                         addHooks: function () {
                             if (models[type].geometryType === "point") {
                                 editor = cloud.get().map.editTools.startMarker();
-                            } else {
+                            }else if (models[type].geometryType === "line") {
+                                editor = cloud.get().map.editTools.startPolyline();
+							}else {
                                 editor = cloud.get().map.editTools.startPolygon();
                             }
+							
                             console.log(editor)
                         }
                     });
