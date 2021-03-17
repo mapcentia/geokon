@@ -88,7 +88,7 @@ router.get('/api/extension/geoenviron/all/:type/:client', function (req, respons
     // Pull in model, so we are sure its present
     let options = {
         method: 'GET',
-        uri: "http://127.0.0.1:3000/api/extension/geoenviron/model/VIDI-dev/" + client,
+        uri: "http://127.0.0.1:3000/api/extension/geoenviron/model/d8377565-4fe8-4b58-bb15-99290fff8b28/" + client,
         auth: config.extensionConfig.geokon.auth,
         headers: {
             'auth-token': token,
@@ -155,9 +155,13 @@ router.get('/api/extension/geoenviron/all/:type/:client', function (req, respons
                     delete v.bbox;
                 }
 
-                models[client][type].fields.map(function (e) {
-                    properties[e.key] = json.value[i][e.key];
-                });
+                try {
+                    models[client][type].fields.map(function (e) {
+                        properties[e.key] = json.value[i][e.key];
+                    });
+                } catch (e) {
+                    console.error("Type undefined", type);
+                }
 
                 gJSON.features.push(
                     {
@@ -165,7 +169,7 @@ router.get('/api/extension/geoenviron/all/:type/:client', function (req, respons
                         "geometry": v,
                         "properties": properties
                     }
-                )
+                );
             }
             response.send(gJSON);
         });
@@ -205,9 +209,9 @@ router.post('/api/extension/geoenviron/:type/:token/:client/:filter', function (
     if (parseInt(params[4]) > 0) {
         url = "https://api.geoenviron.dk:8" + client + "/GeoEnvironODataService.svc/" + type + "?$format=json&$filter=SeqNo eq " + params[4];
     } else {
-        console.log("TEST: " + models[client][type].maxCount)
+        console.log("TEST: " + models[client][type].maxCount);
 
-        if(models[client][type].hasOwnProperty("maxCount")){
+        if (models[client][type].hasOwnProperty("maxCount")) {
             top = models[client][type].maxCount;
         } else {
             top = 99999999;
@@ -268,7 +272,7 @@ router.post('/api/extension/geoenviron/:type/:token/:client/:filter', function (
 
         try {
             count = parseInt(json["odata.count"]);
-        } catch(e) {
+        } catch (e) {
 
         }
 
