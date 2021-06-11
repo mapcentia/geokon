@@ -154,6 +154,15 @@ module.exports = module.exports = {
         // Overwrite call back in StreetView
         streetView.setCallBack(function (url) {
             console.log("GEMessage:LaunchURL:" + url);
+			
+		   try {
+			   window.webBrowser.ue_log("LaunchURL:" + url);
+			} catch (error) {
+				console.error(error);
+			}
+			
+			
+			
         });
 
         // Overwrite call back in SQL query
@@ -167,8 +176,12 @@ module.exports = module.exports = {
                 data: uri,
                 success: function (response) {
                     console.log("GEMessage:LaunchURL:" + urlparser.uriObj.protocol() + "://" + urlparser.uriObj.host() + "/tmp/stored_results/" + response.file);
-
-                },
+					
+				try {
+                    window.webBrowser.ue_log("LaunchURL:" + urlparser.uriObj.protocol() + "://" + urlparser.uriObj.host() + "/tmp/stored_results/" + response.file);
+                } catch (error) {
+                    console.error(error);
+                } },
                 error: function (error) {
                     console.log(error)
                 }
@@ -409,6 +422,13 @@ module.exports = module.exports = {
             uriObj.setSearch("gelayers", str);
             window.history.pushState('', '', uriObj.toString());
             console.log("GEMessage:gelayers:" + str);
+			
+		   try {
+				window.webBrowser.ue_log("gelayers:" + str);
+			} catch (error) {
+				console.error(error);
+			}
+			
 
         };
 
@@ -485,13 +505,21 @@ module.exports = module.exports = {
 
                 backboneEvents.get().on("end:conflictSearch", function (e) {
                     console.log("GEMessage:conflictId:" + e.file)
-
-                });
+					
+					try {
+                    window.webBrowser.ue_log("conflictId:" + e.file);
+                } catch (error) {
+                    console.error(error);
+                } });
 
                 backboneEvents.get().on("end:conflictSearchPrint", function (e) {
                     console.log("GEMessage:pdfId:" + "/tmp/print/pdf/" + e.key + ".pdf")
-
-                });
+					
+					try {
+                    window.webBrowser.ue_log("pdfId:" + "/tmp/print/pdf/" + e.key + ".pdf");
+                } catch (error) {
+                    console.error(error);
+                } });
 
                 class Licenses extends React.Component {
                     constructor(props) {
@@ -1245,6 +1273,14 @@ module.exports = module.exports = {
                                 table[id].object.trigger("selected" + "_" + table[id].uid, e.target._leaflet_id);
                                 history.pushState(null, null, anchor.init() + "¤" + e.target.feature.properties.GELink.split("?")[1]);
                                 console.log("GEMessage:select:" + e.target.feature.properties.GELink.split("?")[1]);
+								
+								try {
+											window.webBrowser.ue_log("select:" + e.target.feature.properties.GELink.split("?")[1]);
+										} catch (error) {
+											console.error(error);
+										}
+								
+								
                             } else {
                                 var html = "Fundne entiteter: " + intersectingFeatures.length + "<br/>" + intersectingFeatures.map(function (o) {
                                     var obj = o[0].feature.properties;
@@ -1278,6 +1314,15 @@ module.exports = module.exports = {
 
                                         history.pushState(null, null, anchor.init() + "¤" + o[0].feature.properties.GELink.split("?")[1]);
                                         console.log("GEMessage:select:" + o[0].feature.properties.GELink.split("?")[1]);
+										
+										try {
+												window.webBrowser.ue_log("select:" + o[0].feature.properties.GELink.split("?")[1]);
+											} catch (error) {
+												console.error(error);
+											}
+										
+										
+										
                                     });
                                     $(".ge-delete-" + o[0].feature.properties.SeqNo).unbind("click.ge-delete-" + o[0].feature.properties.SeqNo).bind("click.ge-delete-" + o[0].feature.properties.SeqNo, function () {
 
