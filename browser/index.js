@@ -1277,7 +1277,7 @@ module.exports = module.exports = {
 								try {
 											window.webBrowser.ue_log("select:" + e.target.feature.properties.GELink.split("?")[1]);
 										} catch (error) {
-											console.error(error);
+											console.error(error); 
 										}
 								
 								
