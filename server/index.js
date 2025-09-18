@@ -57,7 +57,8 @@ router.get('/api/extension/licenses/:token/:client', function (req, response) {
         } catch (e) {
             response.status(500).send({
                 success: false,
-                message: "Could not parse JSON from GeoEnviron"
+                message: "Could not parse JSON from GeoEnviron",
+                data: body,
             });
             return;
         }
@@ -125,7 +126,7 @@ router.get('/api/extension/geoenviron/all/:type/:client', function (req, respons
                 response.status(500).send({
                     success: false,
                     message: "Could not parse JSON from GeoEnviron",
-                    data: body
+                    data: body,
                 });
                 return;
             }
@@ -254,7 +255,8 @@ router.post('/api/extension/geoenviron/:type/:token/:client/:filter', function (
         } catch (e) {
             response.status(500).send({
                 success: false,
-                message: "Could not parse JSON from GeoEnviron"
+                message: "Could not parse JSON from GeoEnviron",
+                data: body,
             });
             return;
         }
@@ -582,7 +584,8 @@ router.post('/api/extension/conflict/:token/:client/:id', function (req, respons
                         } catch (e) {
                             response.status(500).send({
                                 success: false,
-                                message: "Could not parse JSON from GeoEnviron"
+                                message: "Could not parse JSON from GeoEnviron",
+                                data: body,
                             });
                             return;
                         }
